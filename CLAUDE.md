@@ -10,13 +10,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 DESIGN.md                  系统设计（113 节，权威依据）
 AGENTS.md                  项目级 Agent 契约（16 节）
 CONTRIBUTING.md            贡献流程
-rules/                     6 份项目规则
+rules/                     7 份项目规则
   forge-loop-development.md   自身开发流程与完成条件
   git-integration.md         Git 接入（不建第二套 Git Policy）
   state-and-recovery.md      状态持久化与恢复
   version-management.md      版本管理接入
   workspace-namespace.md     Owner 与命名空间归属
   artifact-persistence.md    工程产物落盘（强制）
+  domestic-mirror.md         拉取模型/依赖优先使用国内镜像
 doc/                       4 份开发文档
   DEVELOPMENT.md / PROJECT-CONSTRAINTS.md / WORKSPACE-NAMESPACE.md
   INITIAL-DELIVERY.md        初始一次性交付稿，内容已拆分进上述文件
@@ -127,8 +128,9 @@ Checkpoint 通过全局 Git Workflow 形成，本项目不定义 branch / commit
 
 | 作用域 | 位置 | 依据 |
 | :--- | :--- | :--- |
-| ForgeLoop 自身运行状态 | `.ai/` | `AGENTS.md` §12、`rules/state-and-recovery.md`、`rules/artifact-persistence.md` §6 |
-| 被开发项目的长期状态 | `docs/status/`（`version-state.yaml`、`development-state.yaml`、`audit-state.yaml`） | `DESIGN.md` §55–§57、§79 |
+| ForgeLoop 自身运行状态 | `.ai/` | `AGENTS.md` §12、`rules/state-and-recovery.md`、`rules/artifact-persistence.md` §6、`DESIGN.md` §79 |
+| 被开发项目的长期状态 | `.dev-ai/`（`version-state.yaml`、`development-status.yaml`、`audit-state.yaml`、`<feature>/tasks.md`） | `DESIGN.md` §28、§55–§57、§79–§80 |
+| 被开发项目的 ForgeLoop 文档 | `dev-doc/`（`requirements/`、`spec/`、`plan/`、`mvp/`、`evidence/`、`review/`） | `DESIGN.md` §17–§18、§22、§80、`rules/artifact-persistence.md` §5 |
 
 恢复流程：`Load State → Inspect Current Task → Inspect Workspace → Inspect Git → Inspect Checkpoint → Reconile → Resume`（`DESIGN.md` §98–§99、`rules/state-and-recovery.md` §4）。运行时状态与 Git 状态不一致时停止自动推进，先做 Reconciliation（`rules/state-and-recovery.md` §5）。
 
@@ -196,6 +198,7 @@ Namespace 表达 Owner，不表达成熟度。Draft / Review / Approved / Stable
 - 完成状态必须附证据（Test Result / Build Result / Runtime Result / Review Result / Inspection Result / Requirement Verification），报告实际运行的命令与输出。
 - 任何验证失败即 `Task ≠ Complete`（`rules/state-and-recovery.md` §7）。
 - 遇到未提交改动、Detached HEAD、异常分支、冲突改动或缺失 Checkpoint，先按全局 Git Rules 处理，不擅自恢复 Git 状态（`rules/git-integration.md` §6）。
+- 拉取模型、依赖包、Git 仓库等外部资源时优先使用国内镜像；镜像失败一次重试一次，仍失败才回退上游并说明（`rules/domestic-mirror.md`）。
 
 ## Git 工作流
 
@@ -208,7 +211,7 @@ git add → git commit → push 分支 → 开 PR → squash 合并
 
 - 「提交所有内容」= 同一轮提交工作树全部改动（含未跟踪文件）。
 - 用户说「不用审核」时跳过对抗式评审，直接走完流程。
-- 合并后删除本地与远程分支（`rules/git-integration.md` §8）。Squash 合并的分支无共同祖先，`git branch -d` 会拒绝；判断内容是否并入 main 用 tree hash 比对（`git rev-parse main^{tree}` 对比分支 tree）。
+- 合并后本地与远程分支**都必须删除**，没有「只删远程、保留本地」的例外（`rules/git-integration.md` §8）。Squash 合并的分支无共同祖先，`git branch -d` 会拒绝；判断内容是否并入 main 用 tree hash 比对（`git rev-parse main^{tree}` 对比分支 tree），一致后再 `git branch -D`。
 - 不得直接向 main 推送 Agent 变更。
 - 提交格式与合并条件遵循 `ai-git-workflow`。
 
