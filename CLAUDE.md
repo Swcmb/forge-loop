@@ -37,6 +37,8 @@ Task Instructions
 
 冲突时 Global Rule wins（`AGENTS.md` §2）。版本管理、Git、Repository、Release、Security 一律服从全局规则，本项目不建第二套体系。
 
+设计表述以 `DESIGN.md` 为唯一权威（`AGENTS.md` §5「Design Is The Single Authority」）：术语、生命周期顺序、Gate 名称、状态名、ID 格式、Checkpoint 字段一律回查 DESIGN.md 原始定义；其他文件只做索引，引用必须指向节号；与 DESIGN.md 冲突时 DESIGN.md wins，修正引用方而非反向修改 DESIGN.md。修改 DESIGN.md 本身需要用户明确指示。
+
 ## 核心设计表述
 
 以下表述与 `DESIGN.md` 对应章节一致。CLAUDE.md 只做索引，具体判据一律回查 `DESIGN.md` 节号。
@@ -194,8 +196,22 @@ Namespace 表达 Owner，不表达成熟度。Draft / Review / Approved / Stable
 - 完成状态必须附证据（Test Result / Build Result / Runtime Result / Review Result / Inspection Result / Requirement Verification），报告实际运行的命令与输出。
 - 任何验证失败即 `Task ≠ Complete`（`rules/state-and-recovery.md` §7）。
 - 遇到未提交改动、Detached HEAD、异常分支、冲突改动或缺失 Checkpoint，先按全局 Git Rules 处理，不擅自恢复 Git 状态（`rules/git-integration.md` §6）。
-- ForgeLoop 自身开发走分支 + PR + 合并，见 `ai-git-workflow`。
+
+## Git 工作流
+
+「提交」的含义是完整落地，不是只做本地 commit（`rules/git-integration.md` §9）：
+
+```text
+git add → git commit → push 分支 → 开 PR → squash 合并
+→ 删除本地分支与远程分支 → 本地 main 同步 origin/main
+```
+
+- 「提交所有内容」= 同一轮提交工作树全部改动（含未跟踪文件）。
+- 用户说「不用审核」时跳过对抗式评审，直接走完流程。
+- 合并后删除本地与远程分支（`rules/git-integration.md` §8）。Squash 合并的分支无共同祖先，`git branch -d` 会拒绝；判断内容是否并入 main 用 tree hash 比对（`git rev-parse main^{tree}` 对比分支 tree）。
+- 不得直接向 main 推送 Agent 变更。
+- 提交格式与合并条件遵循 `ai-git-workflow`。
 
 ## 命名不一致（注意）
 
-`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、`rules/`、`doc/`、`CLAUDE.md` 正文中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。
+`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、`rules/`、`doc/`、`CLAUDE.md` 正文中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。统一的是引用方，文件名以磁盘现状为准（`rules/git-integration.md` §10）。

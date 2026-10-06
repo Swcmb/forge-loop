@@ -171,6 +171,34 @@ rules/
 
 进行工程决策。
 
+### Design Is The Single Authority
+
+所有设计表述以：
+
+```text
+ForgeLoop.DESIGN.md
+```
+
+为准。
+
+具体要求：
+
+```text
+1. 术语、生命周期顺序、Gate 名称、状态名、ID 格式、Checkpoint 字段
+   等设计表述，一律以 DESIGN.md 的原始定义为准。
+
+2. 其他文件（README.md / AGENTS.md / CONTRIBUTING.md / rules/ / doc/ /
+   CLAUDE.md）不得重新表述、简化或改写 DESIGN.md 的设计内容。
+   这些文件只做索引，引用时必须指向 DESIGN.md 的节号。
+
+3. 任何文件与 DESIGN.md 冲突时，DESIGN.md wins。
+   发现冲突应先修正引用方，而不是反向修改 DESIGN.md。
+
+4. 修改 DESIGN.md 本身需要用户明确指示。
+   DESIGN.md 的删减、重构或重新编号都会使下游 rules/ 与 CLAUDE.md
+   中的引用失效。
+```
+
 ---
 
 ## 6. Version Management
