@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 本仓库目前只有设计与治理层，没有实现代码。
 
 ```text
-DESIGN.md                  系统设计（33 节，权威依据）
+DESIGN.md                  系统设计（113 节，权威依据）
 AGENTS.md                  项目级 Agent 契约（16 节）
 CONTRIBUTING.md            贡献流程
 rules/                     5 份项目规则
@@ -45,11 +45,25 @@ Task Instructions
 
 **Final Audit 可以产生新 Task。** 全部 Required Task 完成后回到最初目标与开发文档做终审，失败则重新进入 Iteration Loop，直到通过。
 
-**状态必须持久化到 `.ai/`**，至少能表达 Goal / Phase / Task / Iteration / Checkpoint / Blocker / Verification。对话上下文不是唯一状态来源。恢复时先 Load State → Inspect Workspace → Inspect Git → Inspect Checkpoint → Reconcile → Resume；运行时状态与 Git 状态不一致时停止自动推进，先做 Reconciliation。
+**状态必须持久化**。`AGENTS.md` §12 与 `rules/state-and-recovery.md` 规定 ForgeLoop 自身状态放 `.ai/`；`DESIGN.md` §55–§57、§79 对被开发项目规定放 `docs/status/`（`version-state.yaml`、`development-status.yaml`、`audit-state.yaml`）。两者作用域不同——前者是 ForgeLoop 自身，后者是被开发项目。恢复时先 Load State → Inspect Workspace → Inspect Git → Inspect Checkpoint → Reconcile → Resume；运行时状态与 Git 状态不一致时停止自动推进，先做 Reconciliation。
 
-**Checkpoint 走全局 Git Workflow。** 本项目不定义 branch / commit / merge / tag / push 策略，只决定何时需要形成版本边界。
+**Checkpoint 走全局 Git Workflow**（`DESIGN.md` §53–§54）。本项目不定义 branch / commit / merge / tag / push 策略，只决定何时需要形成版本边界。Checkpoint 内容包含 `goal.id` / `iteration.id` / `task.id` / `git.commit` / `spec.version` / `progress.requirements`，用途是 Resume / Audit / Rollback / Progress Tracking / Version Comparison。
 
-**Requirement 变更会使既有验证失效。** Requirement 或 SPEC 发生语义变化时，相关实现与验证结果必须重新评估。新增需求走 `Scope Decision → Impact Analysis`，不得靠直接改代码绕过范围管理。
+**状态机是显式的**（`DESIGN.md` §106–§107）：
+
+```text
+PROJECT_INIT → DISCOVERY → MVP_DEFINITION → REQUIREMENT_EXTRACTION
+→ REQUIREMENT_REVIEW → SPECIFICATION → SPEC_REVIEW → PLANNING
+→ ITERATIVE_DEVELOPMENT → FINAL_AUDIT → RELEASE_READY → COMPLETE
+```
+
+失败统一回 `ITERATIVE_DEVELOPMENT`；需要重定范围或 SPEC 时回 `MVP_DEFINITION` 或 `SPECIFICATION`。另有终态 `BLOCKED`。
+
+**Requirement 变更会使既有验证失效**（`DESIGN.md` §59、§62–§63）。Requirement 或 SPEC 发生语义变化时，相关实现与验证结果必须重新评估。新增需求走 `Scope Decision → Impact Analysis`，不得靠直接改代码绕过范围管理。
+
+**可执行判据全部来自完整版 DESIGN.md 的 113 节**（如 §19 Requirement ID、§20 Acceptance Criteria、§25 SPEC Gate、§32 One-Task Rule、§36 Test Gate、§37 Code Review Gate、§38 Requirement Verification Gate、§39 Evidence、§70–§72 Build/Runtime/Release Gate、§108 Core Invariants I-001…I-010）。本文件只做索引，具体判据一律回查 `DESIGN.md` 对应节号。
+
+**部署形态是 Skill 而非代码**（`DESIGN.md` §81–§82、§103）。`skills/forge-loop/SKILL.md` 是编排层，`slavingia/mvp` 与 `aspiers/iterative-development` 保持为上游依赖，升级时走 `upstream → installed → ForgeLoop adapter` 三段式并做 compatibility check。provenance 记录在 `docs/skills-provenance.md`。
 
 ## 命名空间规则
 
@@ -81,4 +95,4 @@ Namespace 表达 Owner，不表达成熟度。Draft / Review / Approved / Stable
 
 ## 命名不一致（注意）
 
-`AGENTS.md`、`CONTRIBUTING.md`、`rules/`、`doc/` 中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题仍写 `# ForgeLoop.DESIGN.md`）。新增引用时使用实际路径 `DESIGN.md`。
+`AGENTS.md`、`CONTRIBUTING.md`、`rules/`、`doc/`、`README.md` 中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。
