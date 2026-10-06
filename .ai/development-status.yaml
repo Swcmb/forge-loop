@@ -1,0 +1,39 @@
+# ForgeLoop 自身运行状态（Owner = FORGELOOP → .ai/）
+# 依据 DESIGN.md §55 / §56 / §79、项目 rules/state-and-recovery.md、
+# 详细设计 doc/design/spac-001-detailed-design.md §3.5
+# 由 T-03 建立；每个 Checkpoint 时更新并随仓库提交。
+
+goal:
+  id: FL-001
+  title: ForgeLoop 第一阶段端到端闭环 MVP
+  scope_ref: doc/decisions/ADR-002-mvp-scope.md      # §109 的 A/B/C/F/G/H/I/J/K
+  design_ref: doc/design/spac-001-detailed-design.md
+
+phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
+mode: MANUAL                                           # Goal Mode 未激活（/goal 未设定）
+
+task:
+  current: T-10b                                        # 闭环演练（下一步）
+  status: ready
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a]
+
+iteration:
+  current: ITER-002                                    # §49
+  task_seq: 11                                          # 本 goal 内第 11 个 Task
+
+checkpoint:
+  last: CP-001
+  id: CP-001
+  git_commit: pending                                   # 首个 Checkpoint 待形成（见 version-state）
+
+blockers:
+  - id: BL-001
+    cause: forge-loop 已部署但当前会话 skill 列表在启动时固定，Loadable 无法在本会话确认
+    impact: V-00 未完全达成；T-10b 演练需新会话按名解析 forge-loop
+    required_action: 在新会话按名解析 forge-loop，并激活 /goal 进入 Goal Mode
+    context: DESIGN.md §109；rules/skills.md §Verification of an install
+
+verification:
+  overall: in-progress
+  passed: []
+  pending: [V-00..V-13]                                # §5 判据矩阵，见 verification-state.yaml

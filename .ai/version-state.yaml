@@ -1,0 +1,27 @@
+# 版本状态（DESIGN.md §55 schema）
+# B-03（Project Version 无来源）未解除 → project.version 写显式待定值，
+# 其余字段正常维护（详细设计 §3.5）。版本判定服从 Global Version Management Rules，
+# 不得由 Design Version 推导（AGENTS.md §7、rules/version-management.md §5）。
+
+project:
+  version: pending: B-03            # B-03 未解除，不自定版本号
+
+goal:
+  id: FL-001
+
+mvp:
+  version: absent: not-started      # MVP Scope 尚未产出（详细设计 §3.7 字段保留不省略）
+
+spec:
+  version: absent: not-started      # SPEC/Plan 不在第一阶段范围（D/E 延后复用既有 skill）
+
+plan:
+  revision: absent: not-started
+
+iteration:
+  current: ITER-001
+
+git:
+  branch: agent/FL-001-forgeloop-phase1
+  head: 2fdc45c
+  clean: false                      # 含本 goal 未提交产物（Checkpoint 时提交）

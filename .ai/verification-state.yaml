@@ -1,0 +1,99 @@
+# 验证状态：DESIGN.md §109 第一阶段判据矩阵（详细设计 §5）
+# 规则：判据只有「有证据」才算通过；机制已实现不等于通过（rules/testing.md）。
+# 每条的证据来源绑定任务号 + 文件路径。
+
+criteria:
+
+  # 前置条件
+  V-00:
+    desc: forge-loop 在目标 harness 可被按名解析并载入 references
+    task: T-09b
+    status: pending
+    evidence: >-
+      Registered ✓（skill_id 9f921bc4-c4c1-4c5b-9000-4712b3d2967e，
+      skills status forge-loop 返回库路径）；Deployed ✓
+      （C:\Users\Swcmb\.claude\skills\forge-loop\ 落盘：SKILL.md + 10 references）；
+      Loadable 待新会话按名解析确认（当前会话 skill 列表在启动时已固定）
+
+  # §109 能力对应
+  V-01:
+    desc: 端到端可运行闭环（用已部署副本执行）
+    task: T-10b
+    status: pending
+    evidence: null
+  V-02:
+    desc: 至少一个真实工程任务跑完整链路
+    task: T-10b
+    status: pending
+    evidence: null
+  V-03:
+    desc: Test 有真实执行证据（正向 + 负向非零退出，缺一不算）
+    task: T-09 + T-11
+    status: passed
+    evidence: >-
+      scripts/check-forge-loop.sh 正向 22/22 PASS（exit 0）；
+      负向两项均正确失败：删除 references/recovery.md → exit 1；
+      注入 nonexistent-ref.md 悬空引用 → exit 1；恢复后复跑 exit 0。
+      （DI-08：本阶段交付物为 markdown，无编译/单测框架，结构化自检承担 Test Gate 主体）
+  V-04:
+    desc: Review 有真实执行证据，逐条对应 §37 六维（含 Scope）
+    task: T-02 + T-11
+    status: pending
+    evidence: null
+    note: 前置——code-reviewer 须可被解析
+  V-05:
+    desc: Requirement Verification 有真实执行证据（Evidence 八字段 → verified）
+    task: T-11
+    status: pending
+    evidence: null
+  V-06:
+    desc: Checkpoint 由全局 Git Workflow 形成的真实记录
+    task: T-12
+    status: pending
+    evidence: null
+  V-07:
+    desc: State Persistence 真实落盘证据
+    task: T-12
+    status: pending
+    evidence: null
+  V-08:
+    desc: Recovery 三场景（Restart/Compaction/Interrupted Work）状态一致证据
+    task: T-13
+    status: pending
+    evidence: null
+  V-09:
+    desc: 无超前实现（L/M/N、audit-model.md、商业能力均未出现）
+    task: T-15
+    status: pending
+    evidence: null
+  V-10:
+    desc: Document Discovery（A）—— source-index.md，SRC 编号可被 Evidence.source 引用
+    task: T-10a
+    status: passed
+    evidence: .ai/forgeloop-phase1/source-index.md（SRC-001..SRC-008）
+  V-11:
+    desc: Requirement Extraction（B）—— requirement-matrix.yaml（REQ + AC + status）
+    task: T-10a
+    status: passed
+    evidence: .ai/forgeloop-phase1/requirement-matrix.yaml（REQ-001..REQ-009；REQ ID 与 I-xxx 命名空间分离）
+  V-12:
+    desc: MVP Scope（C）—— required/optional/deferred 通过 §16 四问
+    task: T-10a
+    status: passed
+    evidence: >-
+      .ai/forgeloop-phase1/mvp-scope.yaml（required=REQ-001..009；deferred=REQ-L/M/N；
+      §16 四问逐条作答）；上游 mvp 已安装且 blob 校验通过，Gate 判据归 §16（ADR-005 M-02）
+  V-13:
+    desc: 上游来源指纹校验（blob 与 ADR 记录一致）
+    task: T-01
+    status: passed
+    evidence: >-
+      iterative-development blob cf1011224c27c503d9e1fae3386c8e5494fd4755
+      与 ADR-001 §2 一致；mvp blob a42a7996f5befe5cc8389ba41aed86b72da0f9f1
+      与 ADR-005 §2 一致（2026-10-06 实测）
+
+gates:
+  # 进行中的 Gate（DESIGN.md §36/§37/§38）
+  test_gate: not-started
+  review_gate: not-started
+  requirement_gate: not-started
