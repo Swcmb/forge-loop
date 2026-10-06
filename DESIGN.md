@@ -702,7 +702,7 @@ MVP Minimality Review
 
 # 17. Document Discovery
 
-读取：
+读取当前项目已有的资料（这些是被开发项目自身的内容，路径由该项目决定，与 ForgeLoop 管理的目录无关）：
 
 ```text
 README
@@ -718,7 +718,7 @@ Issue
 产生：
 
 ```text
-docs/requirements/source-index.md
+dev-doc/requirements/source-index.md
 ```
 
 记录：
@@ -739,7 +739,7 @@ sources:
 生成：
 
 ```text
-docs/requirements/requirement-matrix.yaml
+dev-doc/requirements/requirement-matrix.yaml
 ```
 
 每个 Requirement：
@@ -876,7 +876,7 @@ create-specification
 创建：
 
 ```text
-docs/spec/SPEC.md
+dev-doc/spec/SPEC.md
 ```
 
 ---
@@ -1010,10 +1010,10 @@ REQ-002
 
 # 28. Task Structure
 
-为了兼容 `aspiers/iterative-development` 的任务驱动方式，采用：
+为了兼容 `aspiers/iterative-development` 的任务驱动方式，采用（当前项目的 ForgeLoop Runtime 目录，Owner = FORGELOOP 时为 `.ai/`，见 §79）：
 
 ```text
-.ai/
+.dev-ai/
 └── <feature>/
     ├── tasks.md
     └── ...
@@ -1711,9 +1711,9 @@ Context compact 后可以根据：
 ```text
 Git
 +
-.ai/tasks.md
+.dev-ai/<feature>/tasks.md
 +
-docs/status/
+.dev-ai/version-state.yaml
 ```
 
 恢复。
@@ -1722,10 +1722,10 @@ docs/status/
 
 # 55. Version State
 
-项目建立：
+项目建立（当前项目的 ForgeLoop Runtime 目录，Owner = FORGELOOP 时为 `.ai/`，见 §79）：
 
 ```text
-docs/status/version-state.yaml
+.dev-ai/version-state.yaml
 ```
 
 示例：
@@ -1759,8 +1759,10 @@ git:
 
 # 56. Development State
 
+（当前项目的 ForgeLoop Runtime 目录，Owner = FORGELOOP 时为 `.ai/`，见 §79）
+
 ```text
-docs/status/development-status.yaml
+.dev-ai/development-status.yaml
 ```
 
 ```yaml
@@ -1787,8 +1789,10 @@ current:
 
 # 57. Audit State
 
+（当前项目的 ForgeLoop Runtime 目录，Owner = FORGELOOP 时为 `.ai/`，见 §79）
+
 ```text
-docs/status/audit-state.yaml
+.dev-ai/audit-state.yaml
 ```
 
 ```yaml
@@ -2442,11 +2446,14 @@ feat(parser): support encrypted PDF metadata
 
 # 79. Long-Running State
 
-所有长期状态持久化：
+所有长期状态持久化到当前项目的 ForgeLoop Runtime 目录。目录归属由 Owner 决定：
 
 ```text
-docs/status/
+Owner = FORGELOOP（ForgeLoop 自身开发）→ .ai/
+Owner = CURRENT_PROJECT（被开发项目） → .dev-ai/
 ```
+
+即 ForgeLoop 自身开发时状态放 `.ai/`，用 ForgeLoop 开发其他项目时状态放 `.dev-ai/`。详见 §80。
 
 对话只承担：
 
@@ -2467,20 +2474,38 @@ Persistent Project State
 
 # 80. Recommended Project Structure
 
+ForgeLoop 有两个 Owner，决定管理资产的命名空间：
+
+```text
+FORGELOOP        = ForgeLoop 自身开发
+CURRENT_PROJECT  = 被开发项目
+```
+
+映射：
+
+```text
+Owner = FORGELOOP        → 正常命名（doc/、.ai/、config/、scripts/…）
+Owner = CURRENT_PROJECT  → dev-* / .dev-*
+```
+
+因此被开发项目采用的结构：
+
 ```text
 project/
 │
 ├── src/
 ├── tests/
 │
-├── .ai/
-│   └── <feature>/
-│       ├── tasks.md
-│       └── ...
-│
-├── docs/
+├── .dev-ai/                ForgeLoop Runtime（运行状态）
 │   │
-│   ├── source/
+│   ├── <feature>/
+│   │   └── tasks.md
+│   │
+│   ├── development-status.yaml
+│   ├── version-state.yaml
+│   └── audit-state.yaml
+│
+├── dev-doc/                ForgeLoop 工程文档
 │   │
 │   ├── mvp/
 │   │   ├── mvp-scope.md
@@ -2496,12 +2521,6 @@ project/
 │   │
 │   ├── plan/
 │   │   └── implementation-plan.md
-│   │
-│   ├── status/
-│   │   ├── development-status.yaml
-│   │   ├── version-state.yaml
-│   │   ├── current-iteration.yaml
-│   │   └── audit-state.yaml
 │   │
 │   ├── evidence/
 │   │   └── requirement-evidence.yaml
@@ -3113,11 +3132,11 @@ Goal 被中断以后：
 ```text
 Resume
  ↓
-Read development-status.yaml
+Read .dev-ai/development-status.yaml
  ↓
-Read version-state.yaml
+Read .dev-ai/version-state.yaml
  ↓
-Read tasks.md
+Read .dev-ai/<feature>/tasks.md
  ↓
 Read Git state
  ↓
@@ -3306,7 +3325,7 @@ adapter verification
 
 现有 Harness 已经要求安装 Skill 时记录 provenance，并把用户自己的配置仓库作为统一 Source of Truth。
 
-因此建议：
+因此建议（在 Harness 配置仓库中，而非被开发项目或 ForgeLoop 自身的目录内）：
 
 ```text
 docs/skills-provenance.md
