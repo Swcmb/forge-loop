@@ -10,11 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 DESIGN.md                  系统设计（113 节，权威依据）
 AGENTS.md                  项目级 Agent 契约（16 节）
 CONTRIBUTING.md            贡献流程
-rules/                     5 份项目规则
+rules/                     6 份项目规则
+  forge-loop-development.md   自身开发流程与完成条件
+  git-integration.md         Git 接入（不建第二套 Git Policy）
+  state-and-recovery.md      状态持久化与恢复
+  version-management.md      版本管理接入
+  workspace-namespace.md     Owner 与命名空间归属
+  artifact-persistence.md    工程产物落盘（强制）
 doc/                       4 份开发文档
   DEVELOPMENT.md / PROJECT-CONSTRAINTS.md / WORKSPACE-NAMESPACE.md
-  INITIAL-DELIVERY.md      初始一次性交付稿，内容已拆分进上述文件
-src/  tests/  .ai/         空目录
+  INITIAL-DELIVERY.md        初始一次性交付稿，内容已拆分进上述文件
+src/  tests/  .ai/         空目录（git 不跟踪空目录，clone 后不存在）
 ```
 
 没有构建、测试、lint 工具链，`src/` 与 `tests/` 为空。首次引入工具链时，由实际 Task 决定栈，并把命令写回本文件。
@@ -31,25 +37,13 @@ Task Instructions
 
 冲突时 Global Rule wins（`AGENTS.md` §2）。版本管理、Git、Repository、Release、Security 一律服从全局规则，本项目不建第二套体系。
 
-## 核心设计要点
+## 核心设计表述
 
-完整定义在 `DESIGN.md`，以下是读多个文件才能拼出的要点：
+以下表述与 `DESIGN.md` 对应章节一致。CLAUDE.md 只做索引，具体判据一律回查 `DESIGN.md` 节号。
 
-**ForgeLoop 是 orchestrator，不重实现能力。** 它负责生命周期编排、状态持久化、验证门、检查点、恢复、终审；专业执行交给已有的 Agents / Commands / Skills / Rules / Git Workflow。上游依赖明确指定：`slavingia/mvp`（范围控制）、`aspiers/iterative-development`（单 Task 执行模型）。
+### 生命周期
 
-**三层验证互不替代。** Test 回答「代码运行是否正确」，Code Review 回答「实现质量是否合格」，Requirement Verification 回答「用户要求是否真正实现」。完成判断必须能回溯 `Requirement → Acceptance Criteria → Implementation → Evidence`，代码存在或测试通过都不构成完成。
-
-**ONE TASK。** 默认循环 `Select → Explore → Implement → Test → Review → Verify → Checkpoint`，一个 Task 完成才进下一个。Goal Mode 下持续推进到 Goal Complete，Manual Mode 下 Checkpoint 后暂停。
-
-**失败收敛为可恢复状态。** Test / Review / Requirement / Audit 失败统一进入 `Repair → Re-test → Re-review → Re-verify`；架构或需求大改走 Replan；无法安全继续则标 Blocked（记录 Cause / Impact / Required Action / Context）。
-
-**Final Audit 可以产生新 Task。** 全部 Required Task 完成后回到最初目标与开发文档做终审，失败则重新进入 Iteration Loop，直到通过。
-
-**状态必须持久化**。`AGENTS.md` §12 与 `rules/state-and-recovery.md` 规定 ForgeLoop 自身状态放 `.ai/`；`DESIGN.md` §55–§57、§79 对被开发项目规定放 `docs/status/`（`version-state.yaml`、`development-status.yaml`、`audit-state.yaml`）。两者作用域不同——前者是 ForgeLoop 自身，后者是被开发项目。恢复时先 Load State → Inspect Workspace → Inspect Git → Inspect Checkpoint → Reconcile → Resume；运行时状态与 Git 状态不一致时停止自动推进，先做 Reconciliation。
-
-**Checkpoint 走全局 Git Workflow**（`DESIGN.md` §53–§54）。本项目不定义 branch / commit / merge / tag / push 策略，只决定何时需要形成版本边界。Checkpoint 内容包含 `goal.id` / `iteration.id` / `task.id` / `git.commit` / `spec.version` / `progress.requirements`，用途是 Resume / Audit / Rollback / Progress Tracking / Version Comparison。
-
-**状态机是显式的**（`DESIGN.md` §106–§107）：
+`DESIGN.md` §106–§107 状态机：
 
 ```text
 PROJECT_INIT → DISCOVERY → MVP_DEFINITION → REQUIREMENT_EXTRACTION
@@ -57,13 +51,115 @@ PROJECT_INIT → DISCOVERY → MVP_DEFINITION → REQUIREMENT_EXTRACTION
 → ITERATIVE_DEVELOPMENT → FINAL_AUDIT → RELEASE_READY → COMPLETE
 ```
 
-失败统一回 `ITERATIVE_DEVELOPMENT`；需要重定范围或 SPEC 时回 `MVP_DEFINITION` 或 `SPECIFICATION`。另有终态 `BLOCKED`。
+失败统一回 `ITERATIVE_DEVELOPMENT`；需要重定范围或 SPEC 时回 `MVP_DEFINITION` 或 `SPECIFICATION`。另有终态 `BLOCKED`（§97）。
 
-**Requirement 变更会使既有验证失效**（`DESIGN.md` §59、§62–§63）。Requirement 或 SPEC 发生语义变化时，相关实现与验证结果必须重新评估。新增需求走 `Scope Decision → Impact Analysis`，不得靠直接改代码绕过范围管理。
+### Iteration Loop
 
-**可执行判据全部来自完整版 DESIGN.md 的 113 节**（如 §19 Requirement ID、§20 Acceptance Criteria、§25 SPEC Gate、§32 One-Task Rule、§36 Test Gate、§37 Code Review Gate、§38 Requirement Verification Gate、§39 Evidence、§70–§72 Build/Runtime/Release Gate、§108 Core Invariants I-001…I-010）。本文件只做索引，具体判据一律回查 `DESIGN.md` 对应节号。
+`DESIGN.md` §64 完整一轮：
 
-**部署形态是 Skill 而非代码**（`DESIGN.md` §81–§82、§103）。`skills/forge-loop/SKILL.md` 是编排层，`slavingia/mvp` 与 `aspiers/iterative-development` 保持为上游依赖，升级时走 `upstream → installed → ForgeLoop adapter` 三段式并做 compatibility check。provenance 记录在 `docs/skills-provenance.md`。
+```text
+Read State → Select Task → Read Applicable Rules → Explore Code
+→ Implement → Test → Review → Requirement Verify
+→ Commit → Update State → Checkpoint → Expose Evidence
+```
+
+Requirement Verify 失败走 `Fix → Re-test → Re-review`（§64 FAIL 分支、§96 Failure Loop），无法安全继续时进 `BLOCKED`（§97）。
+
+### One-Task Rule
+
+`DESIGN.md` §30、§32：每个 Goal Turn 的主目标是 **ONE PRIMARY TASK**，允许同一轮内包含 Implementation、Tests、必要文档更新、必要状态更新。§32 禁止把无关功能塞进同一轮。
+
+`DESIGN.md` §31 Task Selection Policy 取件顺序：
+
+```text
+1. Blocker
+2. Required Requirement
+3. Dependency prerequisite
+4. High-risk Task
+5. Small verifiable Task
+```
+
+Task 原则（§31）：`Small / Atomic / Verifiable / Traceable`。
+
+### Goal Mode 与 Manual Mode
+
+`DESIGN.md` §83–§84：
+
+```text
+Goal Mode（存在 Active /goal）
+One Task → Complete → Checkpoint → Report Evidence → Continue
+
+Manual Mode（无 Active Goal）
+One Task → Complete → Pause → User decides
+```
+
+Manual Mode 保留人工审核价值。
+
+### 三层 Gate
+
+`DESIGN.md` §36–§38 分别由 Test / Code Review / Requirement Verification 承担，职责不重叠：
+
+| Gate | 回答的问题 | 章节 |
+| :--- | :--- | :--- |
+| Test Gate | 代码运行是否正确 | §36 |
+| Code Review Gate | 实现质量是否合格（`code-reviewer` 审 Correctness / Architecture / Security / Regression / Maintainability / Scope） | §37 |
+| Requirement Verification Gate | 用户要求是否真正实现 | §38 |
+
+发布前另需通过 Build Gate（§70）、Runtime Gate（§71）、Release Gate（§72）。
+
+### Evidence
+
+`DESIGN.md` §39：每个 Requirement 保存 `source` / `spec` / `task` / `implementation` / `tests` / `review` / `runtime` / `acceptance` 关联，最终 `status: verified`。Code Review 存在 Finding 时走 `Fix → Test → Review Again`（§37）。
+
+Requirement 或 SPEC 语义变化时，既有 evidence 失效，必须重新验证（§59 Evidence Invalidation、§62 SPEC Change、§63 Plan Change）。
+
+### Checkpoint
+
+`DESIGN.md` §53：每轮 `ITERATION COMPLETE` 生成 Checkpoint，内容含 `goal.id` / `iteration.id` / `task.id` / `git.commit` / `spec.version` / `progress.requirements`。用途是 Resume / Audit / Rollback / Progress Tracking / Version Comparison（§54）。
+
+Checkpoint 通过全局 Git Workflow 形成，本项目不定义 branch / commit / merge / tag / push 策略。
+
+### 状态持久化与恢复
+
+作用域分两层，不要混用：
+
+| 作用域 | 位置 | 依据 |
+| :--- | :--- | :--- |
+| ForgeLoop 自身运行状态 | `.ai/` | `AGENTS.md` §12、`rules/state-and-recovery.md`、`rules/artifact-persistence.md` §6 |
+| 被开发项目的长期状态 | `docs/status/`（`version-state.yaml`、`development-state.yaml`、`audit-state.yaml`） | `DESIGN.md` §55–§57、§79 |
+
+恢复流程：`Load State → Inspect Current Task → Inspect Workspace → Inspect Git → Inspect Checkpoint → Reconile → Resume`（`DESIGN.md` §98–§99、`rules/state-and-recovery.md` §4）。运行时状态与 Git 状态不一致时停止自动推进，先做 Reconciliation（`rules/state-and-recovery.md` §5）。
+
+### 最终验收
+
+`DESIGN.md` §66–§69 Final Audit 重新读取 Source Documents，对照 Requirement Matrix / SPEC / Plan / Implementation / Tests / Git History，以 §67 Final Audit Matrix 逐条核对。Audit 失败回到 Iteration Loop 修复（§69），通过后进入 §73 Release。
+
+### 核心不变量
+
+`DESIGN.md` §108：
+
+```text
+I-001  Every Required Requirement has an ID.
+I-002  Every Required Requirement has acceptance criteria.
+I-003  Every Task maps to a Requirement or explicit engineering objective.
+I-004  Every completed Task has verification evidence.
+I-005  Every meaningful implementation has a Git record.
+I-006  Verified Requirement changes become stale and require re-verification.
+I-007  Final Audit compares implementation against source requirements.
+I-008  Goal cannot be complete while Required Requirements remain unverified.
+I-009  Git Policy comes from existing Git Workflow.
+I-010  Safety comes from existing Rules.
+```
+
+## 文档必须落盘
+
+`rules/artifact-persistence.md` 是强制的。核心是 `Conversation = Temporary Working Context`，`Filesystem = Durable Project Knowledge`，`.ai/ = Durable Workflow State`，`Git = Durable Version History`。
+
+- Goal / MVP Scope / Requirement / Acceptance Criteria / SPEC / Plan / Task 定义 / Test Result / Review / Verification / Audit / Decision / Release 信息等，一旦形成正式结果就写入文件。对话里生成了 SPEC 不等于 SPEC 已完成，流程是 `Generate → Write to File → Verify File Exists → Continue Workflow`。
+- 阶段推进前，当前阶段的产物必须已落盘（Phase Gate，§9）。
+- 写入后确认 `File Exists + Content Is Complete + Correct Path + Correct Owner`，不能只调了写文件动作就假定成功。
+- 已有文档发生实质变化时 `Read → Modify → Write Back → Verify`，不能只在对话里说「我们把设计改成了……」。
+- 阶段完成的判据是 `Artifact Generated + Artifact Persisted + Artifact Verified`。
 
 ## 命名空间规则
 
@@ -82,17 +178,24 @@ Namespace 表达 Owner，不表达成熟度。Draft / Review / Approved / Stable
 
 `DESIGN.md` 顶部的 `Version: 1.0.0` 是 **Design Document Version**。Project / Package / Skill / Release Version 各自独立，由全局 Version Management 的单一权威源判定，各层之间不自动继承。项目版本号不得从 Design Version 推导，也不得自行决定 major / minor / patch / pre-release / tag。
 
+设计文档涉及的版本层（`DESIGN.md` §44–§52）：Goal ID、MVP Version、SPEC Version、Plan Revision、Iteration ID、Task ID、Product Version。
+
+## 部署形态
+
+`DESIGN.md` §81–§82、§103：ForgeLoop 是 Skill 而非代码。`skills/forge-loop/SKILL.md` 是编排层；`slavingia/mvp` 与 `aspiers/iterative-development` 保持为上游依赖，不揉成一份巨型 SKILL.md。升级走 `upstream → installed skill → ForgeLoop adapter` 三段式并做 compatibility check。provenance 记录在 `docs/skills-provenance.md`（§104）。
+
 ## 既有能力优先
 
 开发前先检查 `agents/`、`commands/`、`skills/`、`rules/` 是否已有可用能力，按 `Reuse → Extend → Create` 顺序处理，不重复实现。
 
 ## 工作方式约束
 
-- 无实际工程依据时不预先假定 Architecture / Module / API / Database / Task Breakdown / Implementation Structure。
+- 无实际工程依据时不预先假定 Architecture / Module / API / Database / Task Breakdown / Implementation Structure（`rules/forge-loop-development.md` §4）。
 - 完成状态必须附证据（Test Result / Build Result / Runtime Result / Review Result / Inspection Result / Requirement Verification），报告实际运行的命令与输出。
-- 任何验证失败即 `Task ≠ Complete`。
-- 遇到未提交改动、Detached HEAD、异常分支、冲突改动或缺失 Checkpoint，先按全局 Git Rules 处理，不擅自恢复 Git 状态。
+- 任何验证失败即 `Task ≠ Complete`（`rules/state-and-recovery.md` §7）。
+- 遇到未提交改动、Detached HEAD、异常分支、冲突改动或缺失 Checkpoint，先按全局 Git Rules 处理，不擅自恢复 Git 状态（`rules/git-integration.md` §6）。
+- ForgeLoop 自身开发走分支 + PR + 合并，见 `ai-git-workflow`。
 
 ## 命名不一致（注意）
 
-`AGENTS.md`、`CONTRIBUTING.md`、`rules/`、`doc/`、`README.md` 中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。
+`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、`rules/`、`doc/`、`CLAUDE.md` 正文中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。
