@@ -23,5 +23,5 @@ iteration:
 
 git:
   branch: agent/FL-001-forgeloop-phase1
-  head: 2fdc45c
-  clean: false                      # 含本 goal 未提交产物（Checkpoint 时提交）
+  head: 823615b
+  clean: true                    # CP-001 已提交；D:\ai-configs 的 agent 提交在独立分支

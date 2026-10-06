@@ -24,7 +24,8 @@ iteration:
 checkpoint:
   last: CP-001
   id: CP-001
-  git_commit: pending                                   # 首个 Checkpoint 待形成（见 version-state）
+  git_commit: 823615b
+  note: 本地 commit（DESIGN.md §53 Checkpoint）。push + PR + squash 合并待用户「提交」时执行
 
 blockers:
   - id: BL-001
