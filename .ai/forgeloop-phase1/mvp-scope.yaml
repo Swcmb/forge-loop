@@ -1,0 +1,41 @@
+# MVP Scope —— ForgeLoop 第一阶段
+# 依据 DESIGN.md §15（MVP Scope Model 格式）、§16（Minimality Gate）
+# 上游 slavingia/mvp 作启发式输入，Gate 判据以 §16 四问为准（ADR-005 M-01/M-02）
+
+mvp:
+  version: pending: B-03              # 版本服从全局 Version Management，不自定
+
+  required:                            # 当前 Goal 必须兑现（§109 A/B/C/F/G/H/I/J/K）
+    - REQ-001   # A Document Discovery
+    - REQ-002   # B Requirement Extraction
+    - REQ-003   # C MVP Scope
+    - REQ-004   # F Single Task Iteration
+    - REQ-005   # G Test
+    - REQ-006   # H Code Review
+    - REQ-007   # I Requirement Verification
+    - REQ-008   # J Git Checkpoint
+    - REQ-009   # K Recovery
+
+  optional:                            # 可选，本阶段不做
+    - N/A
+
+  deferred:                            # 延后至第二迭代
+    - REQ-L       # §109 L  Final Audit
+    - REQ-M       # §109 M  Audit Repair Loop
+    - REQ-N       # §109 N  Release Gate
+    - code-architect 实际参与（服务 Plan 阶段 E，E 复用既有 planning skill）
+
+  # §16 MVP Minimality Gate 四问（进入 SPEC 前逐条可答）
+  minimality_gate:
+    core_value: >-
+      第一阶段交付一个端到端可运行的单 Task 迭代闭环（选任务→实现→测试→Review→
+      Requirement Verify→Commit→Checkpoint→状态落盘→可恢复），验证 §109 的 A/B/C/F/G/H/I/J/K。
+    deferrable: >-
+      L/M/N（Final Audit、修复循环、Release Gate）可延后——闭环未稳定时 Audit 判据无真实
+      evidence 可依；已在 ADR-002 明确延后。
+    simpler_impl: >-
+      SPEC/Plan 复用本机既有 spec / writing-plans skill，不自行实现（D/E 复用而非新建）；
+      Test Gate 由结构化自检承担（DI-08，markdown 交付物无编译/单测框架）。
+    manual_first: >-
+      MVP Scope 本身由 §16 四问直接判定；上游 slavingia/mvp 提供「能否先人工/更简单实现」的
+      启发式输入，但 Gate 判据不以它为准（ADR-005 M-02）。

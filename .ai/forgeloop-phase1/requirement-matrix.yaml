@@ -1,0 +1,101 @@
+# Requirement Matrix — ForgeLoop 第一阶段
+# 依据 DESIGN.md §18（格式）、§19（REQ ID）、§20（AC）、§58（State Machine）
+# 来源编号见 source-index.md。本阶段范围 = §109 的 A/B/C/F/G/H/I/J/K（ADR-002）。
+
+REQ-001:
+  title: Document Discovery —— 能读取文档
+  source: [SRC-001]
+  design_ref: DESIGN.md §17
+  priority: required
+  acceptance:
+    AC-001:
+      description: 产出 source-index.md，每条来源有稳定编号 SRC-xxx，可被 Evidence.source 引用
+  status: IMPLEMENTED
+
+REQ-002:
+  title: Requirement Extraction —— 能建立 Requirement
+  source: [SRC-001]
+  design_ref: DESIGN.md §18-21
+  priority: required
+  acceptance:
+    AC-002:
+      description: 产出 requirement-matrix.yaml，REQ ID 永久稳定（REQ-xxx，非 I-xxx）
+    AC-003:
+      description: 每个 REQ 至少一个 Acceptance Criterion
+    AC-004:
+      description: Document Review 由 document-reviewer 执行
+  status: IMPLEMENTED
+
+REQ-003:
+  title: MVP Scope —— 能执行 MVP Scope
+  source: [SRC-001]
+  design_ref: DESIGN.md §14-16, §86
+  priority: required
+  acceptance:
+    AC-005:
+      description: 产出 required/optional/deferred 三集合（§15）
+    AC-006:
+      description: 通过 §16 四问 Minimality Gate
+  status: IMPLEMENTED
+
+REQ-004:
+  title: Single Task Iteration —— 能执行单 Task Iteration
+  source: [SRC-001, SRC-004]
+  design_ref: DESIGN.md §30-32, §89
+  priority: required
+  acceptance:
+    AC-007:
+      description: 一次一个 Task（One-Task Rule，§32）
+    AC-008:
+      description: Goal Mode 下上游暂停点全部失效，续行标记出现
+  status: IMPLEMENTED
+
+REQ-005:
+  title: Test —— 能测试
+  source: [SRC-001]
+  design_ref: DESIGN.md §36
+  priority: required
+  acceptance:
+    AC-009:
+      description: 结构化自检正向通过且负向非零退出（DI-08：markdown 交付物）
+  status: IMPLEMENTED
+
+REQ-006:
+  title: Code Review —— 能 Review
+  source: [SRC-001]
+  design_ref: DESIGN.md §37
+  priority: required
+  acceptance:
+    AC-010:
+      description: code-reviewer 可被解析，六维 Finding 含 Scope
+  status: IMPLEMENTED
+
+REQ-007:
+  title: Requirement Verification —— 能验证 Requirement
+  source: [SRC-001]
+  design_ref: DESIGN.md §38-39
+  priority: required
+  acceptance:
+    AC-011:
+      description: Evidence 八字段完整 → status: verified
+  status: IMPLEMENTED
+
+REQ-008:
+  title: Git Checkpoint —— 能形成 Git Checkpoint
+  source: [SRC-001]
+  design_ref: DESIGN.md §53-54
+  priority: required
+  acceptance:
+    AC-012:
+      description: Checkpoint 由全局 Git Workflow 形成，双重落点（.ai/ + Git）
+  status: PENDING
+
+REQ-009:
+  title: Recovery —— 能恢复中断状态
+  source: [SRC-001]
+  design_ref: DESIGN.md §79, §98-99
+  priority: required
+  acceptance:
+    AC-013:
+      description: 三类中断场景（Restart/Compaction/Interrupted Work）状态一致
+  status: PENDING
