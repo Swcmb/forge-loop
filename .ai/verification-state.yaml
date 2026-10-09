@@ -70,13 +70,37 @@ criteria:
   V-06:
     desc: Checkpoint 由全局 Git Workflow 形成的真实记录
     task: T-12
-    status: pending
-    evidence: null
+    status: passed
+    evidence: >-
+      Git 侧成立：CP-001..CP-005 均有 main 侧 commit 可追溯，逐条经
+      git merge-base --is-ancestor 实测（命令与真实输出见 state-persistence-record.md
+      §1.1，可原样复跑）。CP-006 的 checkpoint.git.commit 为 §11.2 占位值，尚未产生
+      hash，可达性待 T-13 回填后校验——自检 CK-12 按规则对占位值豁免，该项从未实测。
+      .ai/ 结构化落盘覆盖 CP-001/002/004/005/006；CP-003 的 checkpoint.last 未落盘
+      ——被 CP-004 的状态写入直接覆盖，归属由 a8b60e9 与仓库内 version-state.yaml 的
+      「PR Swcmb/forge-loop#9」声明确认。该覆盖缺口是本判据的已知遗留，不计为双重落点
+      失败，但已在 checkpoint.history 显式披露，避免 T-13 Recovery 按不存在的落点恢复。
+      本 Task 逐条复核后修正三类缺口：① 悬空指向——CP-001 记 823615b、CP-004 记 0f7fd4f，
+      均为分支内 commit，squash + 删分支后从集成分支历史消失；② 指向滞后一格——CP-002
+      记 bab31db、CP-005 记 9217165，实为上一 Checkpoint 的 main 侧 commit；③ CP-003
+      结构化落盘缺口。
+      处置 = 按 §53 原字段名（git.commit / task.id / spec.version）记录当前 CP 的 main
+      侧 hash + checkpoint.history 固化逐 CP 配对与锚点可达性 + 口径立为
+      rules/git-integration.md §11。记录：
+      doc/verification/forgeloop-phase1/state-persistence-record.md §1
   V-07:
     desc: State Persistence 真实落盘证据
     task: T-12
-    status: pending
-    evidence: null
+    status: passed
+    evidence: >-
+      .ai/ 状态在 Task 周期内真实演进，前后对比从 Git 历史提取（可 git show 复查，
+      非对话记忆）：CP-004→CP-005 期间 task.current T-11→T-12、
+      iteration.task_seq 12→13、checkpoint.last CP-004→CP-005；version-state
+      git.head 已同步为 CP-005 的 main 侧 commit。本轮 Reconcile 另修正 git.head
+      曾被误设为 PR #11 分支头 44d9e4f 的问题（不在 main 历史，exit 1）→ 24d6e2c。
+      §53 六字段承载已由自检 8c 组逐字段断言（初稿高估了 CK-09 覆盖，第 1 轮 Review
+      判 Important 并已补断言）。记录：
+      doc/verification/forgeloop-phase1/state-persistence-record.md §2
   V-08:
     desc: Recovery 三场景（Restart/Compaction/Interrupted Work）状态一致证据
     task: T-13
@@ -100,14 +124,25 @@ criteria:
     desc: Requirement Extraction（B）—— requirement-matrix.yaml（REQ + AC + status）
     task: T-10a
     status: passed
-    evidence: .ai/forgeloop-phase1/requirement-matrix.yaml（REQ-001..REQ-009；REQ ID 与 I-xxx 命名空间分离）
+    evidence: >-
+      .ai/forgeloop-phase1/requirement-matrix.yaml（REQ-001..REQ-009；REQ ID 与 I-xxx
+      命名空间分离）。各 REQ 的当前 status 以 requirement-matrix.yaml 为唯一来源，本条不复述
+      具体取值——手工复述会形成第二份副本且无判据核对，正是 CK-13 要防的漂移成因；
+      计数一致性由 CK-13 跨文件核对（checkpoint.progress ↔ requirement-matrix）。
+      T-12 复核发现并修正一处此前未被任何判据覆盖的缺陷：AC-011 的 description 含裸冒号
+      （Evidence 八字段完整 → status: verified），该文件无法被任何 YAML 解析器读取。
+      自检 8b 已扩展为全量枚举 .ai/ 下 YAML，并由 CK-13 跨文件核对 status 计数。
+      记录：doc/verification/forgeloop-phase1/test-record.md §6.3–§6.4
   V-12:
     desc: MVP Scope（C）—— required/optional/deferred 通过 §16 四问
     task: T-10a
     status: passed
     evidence: >-
       .ai/forgeloop-phase1/mvp-scope.yaml（required=REQ-001..009；deferred=REQ-L/M/N；
-      §16 四问逐条作答）；上游 mvp 已安装且 blob 校验通过，Gate 判据归 §16（ADR-005 M-02）
+      §16 四问逐条作答）；上游 mvp 已安装且 blob 校验通过，Gate 判据归 §16（ADR-005 M-02）。
+      T-12 复核发现并修正同一类缺陷：version 写作未加引号的 pending: B-03，该文件无法被
+      YAML 解析。与 V-11 的缺陷同源——T-10b-EXEC-2 当年修了 version-state.yaml 的同模式
+      问题，但未推广到其余文件。记录：doc/verification/forgeloop-phase1/test-record.md §6.3
   V-13:
     desc: 上游来源指纹校验（blob 与 ADR 记录一致）
     task: T-01
@@ -118,7 +153,28 @@ criteria:
       与 ADR-005 §2 一致（2026-10-06 实测）
 
 gates:
-  # 各 Gate 在 T-10b 闭环演练中的实际执行记录（DESIGN.md §36/§37/§38）
-  test_gate: passed          # 52/52 正向 + 多场景负向 exit 1（evidence.yaml REQ-005）
-  review_gate: passed        # code-reviewer 六维，EXEC-1 三轮 + EXEC-2 两轮，无阻断项
-  requirement_gate: passed   # Evidence 八字段 → verified（evidence.yaml REQ-001..005）
+  # 各 Gate 的实际执行记录（DESIGN.md §36/§37/§38）。按 Task 分条累积——
+  # requirement-matrix.yaml 头部的 §58 跃迁说明指向本段，读者需要能查到每条状态
+  # 转换所依据的那一次 Gate 执行，而不只是一句总括。
+  test_gate: passed          # 汇总态：最近一次 = T-12 的 76/76（见 test_gate_by_task）
+  review_gate: passed        # 汇总态：最近一次 = T-12 的第 4 轮（见 review_gate_by_task）
+  requirement_gate: passed   # 汇总态：最近一次 = T-12 的 REQ-008（见 requirement_gate_by_task）
+
+  test_gate_by_task:
+    - {task: T-10b, result: "52/52 PASS exit 0 + 多场景负向 exit 1", reqs: [REQ-005]}
+    - {task: T-12, result: "76/76 PASS exit 0 + 负向 N1–N11 各 exit 1", reqs: [REQ-008],
+       detail: "doc/verification/forgeloop-phase1/test-record.md §6"}
+
+  review_gate_by_task:
+    - {task: T-10b, result: "code-reviewer 六维，EXEC-1 三轮 + EXEC-2 两轮，无阻断项",
+       reqs: [REQ-004, REQ-005, REQ-006]}
+    - {task: T-11, result: "code-reviewer 六维 5 轮，无阻断项", reqs: [REQ-006, REQ-007]}
+    - {task: T-12, result: "code-reviewer 六维 4 轮，第 4 轮 0 CRITICAL", reqs: [REQ-008],
+       detail: "doc/verification/forgeloop-phase1/state-persistence-record.md §7"}
+
+  requirement_gate_by_task:
+    - {task: T-10b, result: "Evidence 八字段 → verified", reqs: [REQ-001..REQ-005]}
+    - {task: T-11, result: "Evidence 八字段 → verified", reqs: [REQ-006, REQ-007]}
+    - {task: T-12, result: "Evidence 八字段齐备；Review Gate 未落定前状态保持 reviewing",
+       reqs: [REQ-008],
+       detail: ".ai/forgeloop-phase1/evidence.yaml REQ-008"}

@@ -3,7 +3,9 @@
 # 上游 slavingia/mvp 作启发式输入，Gate 判据以 §16 四问为准（ADR-005 M-01/M-02）
 
 mvp:
-  version: pending: B-03              # 版本服从全局 Version Management，不自定
+  # 含冒号的值必须加引号，否则 YAML 解析报错（mapping values are not allowed here）。
+  # 本文件此前从未被结构化自检解析过，该缺陷由 CK-13 首次暴露。
+  version: "pending: B-03"            # 版本服从全局 Version Management，不自定
 
   required:                            # 当前 Goal 必须兑现（§109 A/B/C/F/G/H/I/J/K）
     - REQ-001   # A Document Discovery
