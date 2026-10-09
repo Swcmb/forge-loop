@@ -4,25 +4,25 @@
 # 不得由 Design Version 推导（AGENTS.md §7、rules/version-management.md §5）。
 
 project:
-  version: pending: B-03            # B-03 未解除，不自定版本号
+  version: "pending: B-03"            # B-03 未解除，不自定版本号
 
 goal:
   id: FL-001
 
 mvp:
-  version: pending: B-03            # 版本服从全局 Version Management，不自定
+  version: "pending: B-03"            # 版本服从全局 Version Management，不自定
                                    # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
 
 spec:
-  version: absent: not-started      # SPEC/Plan 不在第一阶段范围（D/E 延后复用既有 skill）
+  version: "absent: not-started"      # SPEC/Plan 不在第一阶段范围（D/E 延后复用既有 skill）
 
 plan:
-  revision: absent: not-started
+  revision: "absent: not-started"
 
 iteration:
   current: ITER-002
 
 git:
   branch: main
-  head: 2ccef05
-  clean: true                    # CP-002 已合并至 main（PR Swcmb/forge-loop#7）
+  head: 0f7fd4f
+  clean: true                    # CP-003 已合并至 main（PR Swcmb/forge-loop#9）

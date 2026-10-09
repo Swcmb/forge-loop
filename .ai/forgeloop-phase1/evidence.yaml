@@ -4,10 +4,10 @@
 # references/evidence-model.md。字段保留不省略，不适用项写显式 N/A + 理由。
 # Goal Mode 续行标记（goal-mode.md §4）：每次 Checkpoint 后写 mode / next。
 
-# --- Checkpoint CP-003（T-10b-EXEC-1）---
+# --- Checkpoint CP-004（T-10b-EXEC-2）：T-10b 闭环演练完成 ---
 
 mode: goal
-next: TASK-EXEC-2
+next: T-11
 
 REQ-005:
   title: Test —— 能测试
@@ -55,7 +55,63 @@ REQ-005:
     AC-009:
       status: passed
       description: 结构化自检正向通过且负向非零退出
-      evidence: 正向 29/29 exit 0；四项负向各 exit 1；复原 29/29
+      evidence: 正向 29/29 exit 0；四项负向各 exit 1；复原 29/29（EXEC-1）；29→52 项扩充（EXEC-2）
+  status: verified
+
+# --- Checkpoint CP-004（T-10b-EXEC-2）：Test Gate 补强 + 状态落盘契约 ---
+
+REQ-005-EXT:
+  title: Test —— CK-09 .ai/ 状态落盘契约与 8b YAML 可解析性（EXEC-2 扩充）
+  source: [SRC-005]
+  spec:
+    section: 详细设计 §3.5（.ai/ 结构）+ §98 Goal Resume（恢复链读取状态文件）
+    version: "absent: not-started"
+  task:
+    - T-10b-EXEC-2
+  implementation:
+    commit: 0f7fd4f
+    changed: scripts/check-forge-loop.sh
+    added_checks:
+      - CK-09 .ai/development-status.yaml + version-state.yaml 必填段（§3.5）
+      - CK-09 叶子字段 assertion：iteration.current / git.branch·head·clean（§55）
+      - 8b 四个状态文件 YAML 可解析且为非空映射（恢复链前置）
+    rationale: >-
+      源于本轮真实踩坑——version-state.yaml 的 `pending: B-03` 等未加引号含冒号值
+      使整个文件 YAML 解析失败，但骨架键检查全部通过；恢复链（§98）将直接读不到。
+      故 CK-09 只验骨架不足以承担「落盘契约」，补 8b 解析校验。
+  tests:
+    - 正向：bash scripts/check-forge-loop.sh → 52/52 PASS, exit 0, skip:0
+    - I1 空文件：verification-state 清零 → 解析失败/非空映射, exit 1
+    - I1b 仅注释 / 裸标量 / YAML 列表 → 均 exit 1（isinstance(d,dict) and d 覆盖）
+    - I2 文件缺失：移走 verification-state → 报「缺失（恢复链将无法读取）」, exit 1
+    - I3 叶子字段缺失：删 git.head / git.clean → 两条 FAIL, exit 1
+    - Minor SKIP 计数：PATH 剥离 python → [SKIP] 且 skip:1 可见
+    - Minor feature 通配：临时建 .ai/forgeloop-phase2/evidence.yaml → 被枚举, exit 0（测后清理）
+    - 复原：全部负向复原 → 52/52 PASS, exit 0
+  review:
+    status: passed
+    reviewer: code-reviewer
+    rounds: 2
+    dimensions: [Correctness, Architecture, Security, Regression, Maintainability, Scope]
+    findings_closed:
+      - I1 空文件 safe_load→None 判 PASS（Important）→ 非空映射断言 isinstance(d,dict) and d
+      - I2 缺失与语法错误共用文案（Important）→ 循环体前置 [ -f ] 检查，两条独立消息
+      - I3 check_keys 只验顶层段（Important）→ 新增 check_leaf 二级断言
+      - set-e 落雷（Minor）→ check_keys 显式 return 0
+      - SKIP 不计数（Minor）→ skip 计数器入汇总
+      - feature 段写死（Minor）→ nullglob 通配枚举 .ai/*/evidence.yaml
+    not_fixed:
+      - check_leaf 按缩进而非父段作用域定位（Minor）→ 留档后续收紧；放错父段时恢复链同样暴露
+      - feature 目录缺 evidence.yaml 时不判 FAIL（Minor）→ 留档后续收紧
+    verdict: PASS，无阻断项
+  runtime:
+    status: N/A
+    reason: phase-1 artifact is markdown, no runtime surface（DI-08）
+  acceptance:
+    AC-009:
+      status: passed
+      description: 结构化自检正向通过且负向非零退出
+      evidence: 正向 52/52 exit 0；I1/I1b/I2/I3 各 exit 1；复原 52/52
   status: verified
 
 REQ-004:
@@ -147,12 +203,15 @@ REQ-003:
 assertions:
   goal_mode_continuous:
     desc: Goal Mode 连续完成 ≥2 个 Task 且全程无用户逐任务确认
-    status: in-progress
-    evidence: EXEC-1 完成且未向用户索取许可；EXEC-2 待完成后本项方为 passed
+    status: passed
+    evidence: >-
+      EXEC-1（commit 61b04b8 → a8b60e9）与 EXEC-2 两个 Task 连续完成，
+      每个 Checkpoint 后写 mode/next 标记并直接续行下一个 Task，全程未出现
+      面向用户的「Ready for the next sub-task?」类提问。Goal Mode 覆盖点生效。
   continuation_marker:
     desc: "每个 Checkpoint 后 Evidence 出现 mode: goal / next: TASK-xxx"
     status: passed
-    evidence: 本文件顶部 mode / next 标记
+    evidence: 本文件顶部 mode / next 标记（CP-003 next=TASK-EXEC-2，CP-004 next=T-11）
   deployed_copy_execution:
     desc: 用已部署副本执行（ADR-003 §1）
     status: passed
