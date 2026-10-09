@@ -22,10 +22,10 @@ iteration:
   task_seq: 11                                          # 本 goal 内第 11 个 Task
 
 checkpoint:
-  last: CP-001
-  id: CP-001
-  git_commit: 823615b
-  note: 本地 commit（DESIGN.md §53 Checkpoint）。push + PR + squash 合并待用户「提交」时执行
+  last: CP-002
+  id: CP-002
+  git_commit: bab31db
+  note: 第一阶段 T-01..T-10a 已合并至 main（PR Swcmb/forge-loop#7，squash）。CP-001 为分支内 commit 823615b
 
 blockers:
   - id: BL-001

@@ -56,7 +56,7 @@ Claude Code 2.1.267                              /goal 内建命令可用
 git hash-object SKILL.md  = cf1011224c27c…       与 ADR-001 §2 指纹一致
 git hash-object --no-filters = 22a7119a25b7…     不一致，--no-filters 不可用
 工作区字节数 2203 B vs ADR 记录 2131 B            CRLF 转换，字节数不可作指纹
-D:\ai-configs\skills\skills\mvp                  不存在（T-01 待完成，含 §4.1 降级）
+D:\ai-configs\skills\skills\mvp                  T-01 已安装（2026-10-07），blob 校验通过
 ```
 
 ---

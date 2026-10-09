@@ -128,4 +128,4 @@ One Task → Complete → Checkpoint → Report Evidence → Continue
 - B-01 解除，架构级依赖已确定且可获取。
 - `DESIGN.md` 保持不变，本次决策不触发 DESIGN.md 变更请求。
 - 后续详细设计需产出：上游安装位置、Adapter 的实现形态与覆盖机制、compatibility check 的判定标准。**已产出**：`doc/design/spac-001-detailed-design.md` §3.3（逐条覆盖表 + CK-01～CK-06）、§4（T-01 安装与 blob 校验、T-07 编写覆盖表、T-10b 断言）、§5（V-13）、§6（兼容性破坏与覆盖失效路径）。
-- 实测 `D:\ai-configs\skills\skills\iterative-development` 已安装且 blob 与 §2 指纹一致；`slavingia/mvp` 在库内不存在，属 T-01 待完成项。
+- 实测（2026-10-07）两个上游均已安装并部署：`iterative-development` blob 与 §2 指纹一致；`slavingia/mvp` 已装且 blob `a42a7996…` 与 ADR-005 §2 一致（详见 `doc/reviews/spac-001-review-record.md` 与 provenance 登记）。

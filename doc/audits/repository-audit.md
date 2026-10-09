@@ -108,7 +108,7 @@ Remote        origin → git@github.com:Swcmb/forge-loop.git
 
 | 依赖 | DESIGN.md 依据 | 上游是否存在 | 本机是否安装 | 结论 |
 | :--- | :--- | :--- | :--- | :--- |
-| `slavingia/mvp` | §3.1、§86、§104 | 存在：`github.com/slavingia/skills`，`skills/mvp/`，10844 stars | 未安装 | 可获取，需安装决策 |
+| `slavingia/mvp` | §3.1、§86、§104 | 存在：`github.com/slavingia/skills`，`skills/mvp/`，10844 stars | 已安装（T-01，blob 校验通过） | 已接入 |
 | `aspiers/iterative-development` | §3.2、§89、§103、§112、§113 | **不存在**：`github.com/aspiers/iterative-development` 返回 404；用户 `aspiers`（Adam Spiers）存在，637 个公开仓库中无此项目 | 未安装 | **阻塞** |
 
 `aspiers/iterative-development` 在 `DESIGN.md` 中出现 21 处，含 §3.2（语义定义）、§89（位置定义）、§103（升级策略）、§110（架构图）、§112（职责边界）、§113（正式职责定义），属架构级承重依赖。本地技能库 `/d/ai-configs/skills/skills/`（1353 个目录）全文检索 `aspiers` 无命中。
