@@ -41,21 +41,32 @@ criteria:
     task: T-09 + T-11
     status: passed
     evidence: >-
-      scripts/check-forge-loop.sh 正向 22/22 PASS（exit 0）；
-      负向两项均正确失败：删除 references/recovery.md → exit 1；
-      注入 nonexistent-ref.md 悬空引用 → exit 1；恢复后复跑 exit 0。
-      （DI-08：本阶段交付物为 markdown，无编译/单测框架，结构化自检承担 Test Gate 主体）
+      T-09 负向 + T-11 正向双向证据。T-11 正向运行：bash scripts/check-forge-loop.sh
+      → 52/52 PASS, exit 0, skip:0。负向共 9 场景各 exit 1 且复原：T-09 两项
+      （删 recovery.md / 悬空引用）；EXEC-1 四项（部署目标内容漂移 / 缺文件 / 多文件 /
+      删 §105 章节）；EXEC-2 四类（空文件 / 仅注释·裸标量·列表 / 文件缺失 /
+      叶子字段缺失）。正向容忍验证：部署目标全 CRLF → exit 0。
+      记录：doc/verification/forgeloop-phase1/test-record.md
   V-04:
     desc: Review 有真实执行证据，逐条对应 §37 六维（含 Scope）
     task: T-02 + T-11
-    status: pending
-    evidence: null
-    note: 前置——code-reviewer 须可被解析
+    status: passed
+    evidence: >-
+      前置满足：code-reviewer 可按名解析（自检第 4 组 PASS）。执行 5 轮六维审
+      （EXEC-1 ×3 + EXEC-2 ×2），全部无阻断项。EXEC-1 关闭 7 条（3 Important +
+      3 Minor + 1 Important→Minor）；EXEC-2 关闭 6 条（3 Important + 3 Minor），
+      2 条 Minor 明确留档并附不修理由。六维（Correctness/Architecture/Security/
+      Regression/Maintainability/Scope）逐条结论均记录。F1 判据选择经双方独立
+      实测交叉确认。记录：doc/verification/forgeloop-phase1/review-record.md
   V-05:
     desc: Requirement Verification 有真实执行证据（Evidence 八字段 → verified）
     task: T-11
-    status: pending
-    evidence: null
+    status: passed
+    evidence: >-
+      .ai/forgeloop-phase1/evidence.yaml 通过自检 8b 的 YAML 非空映射校验。
+      REQ-001..REQ-007（含 REQ-005-EXT）全部八字段齐备 status: verified；
+      REQ-008/009 待 T-12/T-13 判定。§59 Evidence 失效检查：本轮无 Requirement
+      语义变化，既有 Evidence 未失效。记录：doc/verification/forgeloop-phase1/verify-record.md
   V-06:
     desc: Checkpoint 由全局 Git Workflow 形成的真实记录
     task: T-12
