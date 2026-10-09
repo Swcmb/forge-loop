@@ -24,5 +24,7 @@ iteration:
 
 git:
   branch: main
-  head: 0f7fd4f
-  clean: true                    # CP-003 已合并至 main（PR Swcmb/forge-loop#9）
+  head: 24d6e2c
+  # 语义时点 = 最近一次 Checkpoint 提交时刻，不是「本会话此刻」。迭代中途工作树变脏
+  # 属预期（状态文件仅在 Checkpoint 提交）；§3.5 冲突判据另按 task.status 合取判断。
+  clean: true                    # CP-005 T-11 已合并至 main（PR Swcmb/forge-loop#11，squash 24d6e2c）

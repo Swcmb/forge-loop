@@ -36,9 +36,22 @@
 
   Evidence: `skills adopt` → skill_id 9f921bc4；`skills deploy --agent claude_code` → 部署副本 `C:\Users\Swcmb\.claude\skills\forge-loop\`（SKILL.md + 10 references）落盘；Registered ✓ / Deployed ✓，Loadable 待新会话确认
 - [x] 11. T-10a 演练准备：产出 A/B/C 三项输入工件
-- [ ] 12. T-10b 闭环演练：真实 Task 跑通 A→Continue
-- [ ] 13. T-11 Gate 证据固化
-- [ ] 14. T-12 Checkpoint + State Persistence 验证
+- [x] 12. T-10b 闭环演练：真实 Task 跑通 A→Continue
+
+  Evidence: `.ai/forgeloop-phase1/evidence.yaml`（三条断言 passed）；EXEC-1 commit
+  a8b60e9 / EXEC-2 commit 9217165
+
+- [x] 13. T-11 Gate 证据固化
+
+  Evidence: `doc/verification/forgeloop-phase1/` 下 test/review/verify 三份记录 +
+  `doc/reviews/forgeloop-phase1/iteration-review.md`；main 侧 commit 24d6e2c（PR #11）
+
+- [x] 14. T-12 Checkpoint + State Persistence 验证
+
+  Evidence: `doc/verification/forgeloop-phase1/state-persistence-record.md`；V-06/V-07 passed
+  附注：本 Task 内对 REQ-001..007 的 requirement-matrix 状态做了 `IMPLEMENTED` → `VERIFIED`
+        对齐（由第 2 轮 Review 附注驱动，内容为元数据对齐，且被新增的 CK-13 依赖）。
+        这几条 REQ 的实现归属 T-01..T-10b，状态对齐归属本 Task，后续归因勿记到 T-10b。
 - [ ] 15. T-13 Recovery 演练
 - [ ] 16. T-14 状态一致性负向验证复核
 - [ ] 17. T-15 结构自检 + 全闭环证据汇总（V-00～V-13）

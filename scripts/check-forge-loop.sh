@@ -15,6 +15,9 @@ SKILL_DIR="$ROOT/skills/forge-loop"
 REF_DIR="$SKILL_DIR/references"
 AGENTS_DIR="/d/ai-configs/agents"
 LIBRARY="/d/ai-configs/skills/skills"
+# 集成分支：Checkpoint 锚点可达性（§54）与 §11.1 的「main 侧」都以它为准。
+# 分支名属全局 Git Rules 的 Branch Policy 参数，不在本脚本内固定；可用环境变量覆盖。
+INTEGRATION_BRANCH="${FORGELOOP_INTEGRATION_BRANCH:-main}"
 
 fail=0
 pass=0
@@ -218,6 +221,196 @@ check_leaf "$AI_DIR/version-state.yaml" git branch
 check_leaf "$AI_DIR/version-state.yaml" git head
 check_leaf "$AI_DIR/version-state.yaml" git clean
 
+# --- 8c. Checkpoint 字段承载（§53 六字段 + §54 逐 CP 配对与锚点可达）---
+# §53 的 checkpoint 字段名为 goal.id / iteration.id / task.id / git.commit /
+# spec.version / progress.requirements。AGENTS.md §5 规定 Design 是唯一权威，故此处
+# 按 §53 原字段名断言，不使用自定义名（DI-09：T-12 初稿曾落地 task.current 与标量
+# git_commit，均偏离 §53，已在本轮更正）。
+# §54 的 Version Comparison / Progress Tracking 依赖逐 Checkpoint 的 id↔git.commit
+# 配对（checkpoint.history）；§53/§54 声明的 Rollback 用途进一步要求每个锚点在集成分支
+# 上真实可达——只校验形状不校验可达性，会让「悬空 hash」这类缺陷回归而不被发现
+# （CP-001 记 823615b、CP-004 记 0f7fd4f 正是此类，二者均不在 main 历史）。
+# CK-09 的骨架键检查只断言顶层段，断言不到这些叶子——T-12 初稿正因此高估了 CK-09
+# 的覆盖范围。故此处按 YAML 结构（路径解析）而非文本匹配逐字段断言。
+echo
+echo "-- 8c. Checkpoint 字段承载（§53 六字段 + §54 逐 CP 配对与锚点可达）--"
+if python -c "import yaml" 2>/dev/null; then
+  ck8c="$(python - "$AI_DIR/development-status.yaml" "$AI_DIR/version-state.yaml" "$AI_DIR" <<'PYEOF'
+import re, sys, yaml
+
+def load(path):
+    with open(path, encoding='utf-8') as fh:
+        return yaml.safe_load(fh) or {}
+
+def dig(node, *path):
+    for key in path:
+        if not isinstance(node, dict):
+            return None
+        node = node.get(key)
+    return node
+
+ds = load(sys.argv[1])
+vs = load(sys.argv[2])
+ai_dir = sys.argv[3]
+
+checks = [
+    ("checkpoint.id", dig(ds, 'checkpoint', 'id')),
+    ("checkpoint.goal.id", dig(ds, 'checkpoint', 'goal', 'id')),
+    ("checkpoint.iteration.id", dig(ds, 'checkpoint', 'iteration', 'id')),
+    ("checkpoint.task.id", dig(ds, 'checkpoint', 'task', 'id')),
+    ("checkpoint.git.commit", dig(ds, 'checkpoint', 'git', 'commit')),
+    ("checkpoint.spec.version", dig(ds, 'checkpoint', 'spec', 'version')),
+    ("checkpoint.progress.requirements.total", dig(ds, 'checkpoint', 'progress', 'requirements', 'total')),
+    ("checkpoint.progress.requirements.verified", dig(ds, 'checkpoint', 'progress', 'requirements', 'verified')),
+    ("checkpoint.history", dig(ds, 'checkpoint', 'history')),
+]
+
+def empty(value):
+    return value is None or value == '' or value == {} or value == []
+
+for label, value in checks:
+    verdict = "FAIL" if empty(value) else "PASS"
+    print("%s\t%s 存在且非空（§53）" % (verdict, label))
+
+# §54：逐 CP 配对的每一项须同时含 id 与 git_commit；锚点须在集成分支上真实可达。
+# 占位值（pending: <taskID> merge）按 rules/git-integration.md §11.2 豁免可达性校验，
+# 因为它的 hash 尚未产生；该豁免本身受约束——占位值必须匹配 §11.2 的词表。
+history = dig(ds, 'checkpoint', 'history')
+if not isinstance(history, list) or not history:
+    print("FAIL\tcheckpoint.history 是非空列表（§54 逐 CP 配对锚点）")
+else:
+    print("PASS\tcheckpoint.history 是非空列表（§54 逐 CP 配对锚点）")
+    broken = [i for i, item in enumerate(history)
+              if not isinstance(item, dict)
+              or empty(item.get('id')) or empty(item.get('git_commit'))]
+    if broken:
+        print("FAIL\tcheckpoint.history 每项须同时含 id 与 git_commit（缺失项：%s）"
+              % ",".join(str(i) for i in broken))
+    else:
+        print("PASS\tcheckpoint.history 每项须同时含 id 与 git_commit")
+        # 输出形如 "ANCHOR<TAB><index><TAB><id><TAB><hash>"，由 bash 侧跑 git 校验可达性。
+        # python 侧不直接调 git，保持判据与 git 命令分离，便于测试时替换。
+        placeholder = re.compile(r'^pending: [A-Za-z0-9._-]+ merge$')
+        for idx, item in enumerate(history):
+            value = str(item.get('git_commit'))
+            if placeholder.match(value):
+                print("PASS\tcheckpoint.history[%d] %s 的 git_commit 为 §11.2 占位值，"
+                      "hash 尚未产生，豁免可达性校验" % (idx, item.get('id')))
+            elif re.match(r'^[0-9a-f]{7,40}$', value):
+                print("ANCHOR\t%d\t%s\t%s" % (idx, item.get('id'), value))
+            else:
+                print("FAIL\tcheckpoint.history[%d] %s 的 git_commit 既非 §11.2 占位值"
+                      "也非 hex hash：%s" % (idx, item.get('id'), value))
+
+# CK-14：version-state.git.head 须是集成分支上真实可达的 commit。
+# CK-09 的 check_leaf 只断言该键存在，不校验其值——V-07 记录的正是这类缺陷：
+# git.head 曾被误设为 PR #11 的分支头 44d9e4f，该 commit 不在集成分支历史，
+# 恢复链读者据此得出的「当前在哪」是错的，而全部既有判据仍全绿。
+# 与 checkpoint.git.commit 不同，git.head 不接受 §11.2 占位值：后者因 squash 语义
+# 无法自含自身 hash（这是结构性约束），而 git.head 指向的是**已合并**的 commit，
+# 永远可被已知。任何非 hex 值都判 FAIL。
+head_value = dig(vs, 'git', 'head')
+if empty(head_value):
+    print("FAIL\tversion-state.git.head 缺失，§98 恢复链无法定位当前位置")
+elif re.match(r'^[0-9a-f]{7,40}$', str(head_value)):
+    print("HEAD\t%s" % head_value)
+else:
+    print("FAIL\tversion-state.git.head 必须是集成分支上真实可达的 hex commit hash，实际为：%s"
+          % head_value)
+
+# CK-13：checkpoint.progress.requirements 的计数须与 requirement-matrix.yaml 的
+# status 实际分布一致。两处各自手写时极易漂移（本 Task 落地时 verified 写成 8 而
+# 实际为 7），恢复链读者据 checkpoint.progress 判断进度时会得到错误结论。
+import glob, os
+matrix_paths = sorted(glob.glob(os.path.join(ai_dir, '*', 'requirement-matrix.yaml')))
+declared = dig(ds, 'checkpoint', 'progress', 'requirements')
+if not matrix_paths:
+    print("FAIL\t未找到 .ai/*/requirement-matrix.yaml（CK-13 无法核对 progress 计数）")
+else:
+    for path in matrix_paths:
+        matrix = load(path)
+        rel = os.path.relpath(path, os.path.dirname(os.path.dirname(path)))
+        statuses = [v.get('status') for k, v in sorted(matrix.items())
+                    if isinstance(v, dict) and str(k).startswith('REQ-')]
+        if not statuses:
+            print("FAIL\t%s 未解析出任何 REQ- 条目的 status" % rel)
+            continue
+        # 四个键全部核对：total / verified / reviewing / pending 与被校验字段同属一处
+        # 手写映射，只校验其中两个等于给另外两个留了漂移口子（M-3）。
+        actuals = [('total', len(statuses))]
+        for name in ('VERIFIED', 'REVIEWING', 'PENDING'):
+            actuals.append((name.lower(), sum(1 for s in statuses if s == name)))
+        for field, actual in actuals:
+            claimed = (declared or {}).get(field)
+            if claimed != actual:
+                print("FAIL\t%s: checkpoint.progress.requirements.%s 声明 %r，"
+                      "实际 %d 条（status 分布：%s）"
+                      % (rel, field, claimed, actual,
+                         ", ".join("%s=%d" % (s, statuses.count(s))
+                                   for s in sorted(set(statuses)))))
+            else:
+                print("PASS\tcheckpoint.progress.requirements.%s 与 %s 一致（%d）"
+                      % (field, rel, actual))
+PYEOF
+)"
+  ck8c_py_rc=$?
+  # 区分两种「产出不足」：
+  #   (a) python 崩溃/抛异常 → rc 非 0，stdout 为空，全部判据静默消失。必须拦截，
+  #       否则汇总会无标记地少掉 8c 组的全部断言（Test Gate 证据条数无解释地漂移）。
+  #   (b) python 正常退出但状态文件有缺陷 → rc 为 0，行数天然减少。**不得**拦截：
+  #       那些行本身就是精确的 FAIL 诊断（N2/N3 的报错信息由此保留）。早前的实现用
+  #       行数下界统一拦截，把 (b) 误报为「判据静默失效」并清空输出，吞掉真实诊断。
+  if [ "$ck8c_py_rc" -ne 0 ]; then
+    bad "8c 组内嵌 python 异常退出（rc=$ck8c_py_rc）——判据未产出，全部 8c 断言缺失"
+    ck8c=""
+  fi
+  # Windows 上 python 的文本模式 stdout 会把 \n 翻译为 \r\n，末列字段因此带尾随 \r，
+  # 使 git 收到 "bab31db\r" 而判定为不可达。此处统一剥离 CR 再消费。
+  ck8c="$(printf '%s\n' "$ck8c" | tr -d '\r')"
+  # 集成分支必须先存在：分支名写错时 git 退出码是 128，若不单独判别，6 条锚点会被
+  # 一并误报为「不可达」，把环境配置错误伪装成状态文件缺陷。
+  anchor_branch_ok=1
+  if [ -n "$ck8c" ] && ! git -C "$ROOT" rev-parse --verify --quiet "$INTEGRATION_BRANCH" >/dev/null 2>&1; then
+    bad "集成分支 $INTEGRATION_BRANCH 在 $ROOT 不存在——跳过 §54 锚点可达性校验（环境配置错误，非状态文件缺陷）"
+    anchor_branch_ok=0
+  fi
+  while IFS="$(printf '\t')" read -r verdict f1 f2 f3; do
+    [ -z "$verdict" ] && continue
+    if [ "$verdict" = "HEAD" ]; then
+      # version-state.git.head 的可达性（§98 Resume 的定位前提）
+      if [ "$anchor_branch_ok" -eq 0 ]; then
+        continue
+      fi
+      if git -C "$ROOT" merge-base --is-ancestor "$f1" "$INTEGRATION_BRANCH" 2>/dev/null; then
+        ok "version-state.git.head $f1 在 $INTEGRATION_BRANCH 上可达（§98 Resume 定位前提）"
+      else
+        bad "version-state.git.head $f1 不在 $INTEGRATION_BRANCH 历史——§98 恢复链据此定位到的位置是错的"
+      fi
+      continue
+    fi
+    if [ "$verdict" = "ANCHOR" ]; then
+      # 逐条验证锚点在集成分支上可达（§54 的 Rollback/Resume/Progress Tracking 依赖它）
+      if [ "$anchor_branch_ok" -eq 0 ]; then
+        continue    # 分支不存在时不再逐条判定，避免把环境配置错误伪装成锚点不可达
+      fi
+      if git -C "$ROOT" merge-base --is-ancestor "$f3" "$INTEGRATION_BRANCH" 2>/dev/null; then
+        ok "checkpoint.history[$f1] $f2 的锚点 $f3 在 $INTEGRATION_BRANCH 上可达（§54）"
+      else
+        bad "checkpoint.history[$f1] $f2 的锚点 $f3 不在 $INTEGRATION_BRANCH 历史——§54 的 Rollback/Resume/Progress Tracking 对该项失效"
+      fi
+      continue
+    fi
+    if [ "$verdict" = "PASS" ]; then
+      ok "$f1"
+    else
+      bad "$f1"
+    fi
+  done <<< "$ck8c"
+else
+  skip=$((skip+1))
+  echo "  [SKIP] python/PyYAML 不可用，跳过 §53 Checkpoint 字段承载校验"
+fi
+
 # 状态文件必须是可解析、且解析出非空映射的合法 YAML——恢复链（§98 Goal Resume）
 # 直接读取这些文件。语法错误、空文件（safe_load 返回 None）、仅注释、裸标量
 # 都会让恢复链静默失效，故一律判 FAIL。仅校验骨架键无法捕获这些缺陷。
@@ -229,11 +422,23 @@ if python -c "import yaml" 2>/dev/null; then
   # 枚举 .ai/*/evidence.yaml（§3.5 的 <feature> 为参数，不写死具体阶段目录）
   shopt -s nullglob
   evidence_files=("$AI_DIR"/*/evidence.yaml)
+  # 枚举 .ai/ 下全部 YAML（含 requirement-matrix.yaml / mvp-scope.yaml）。
+  # 这两个文件承载 §109 的 B（Requirement Extraction）与 C（MVP Scope）两项能力，
+  # 此前不在校验范围内：requirement-matrix.yaml 的 AC 描述与 mvp-scope.yaml 的
+  # "pending: B-03" 都因含裸冒号而无法被 YAML 解析，缺陷因此长期未被发现——
+  # 直到 CK-13 首次加载 requirement-matrix.yaml 才暴露。恢复链（§98）与 Audit
+  # （§66）都要读取这些文件，故纳入 8b 全量校验。
+  all_yaml=("$AI_DIR"/*.yaml "$AI_DIR"/*/*.yaml)
   shopt -u nullglob
   state_files=("$AI_DIR/development-status.yaml" "$AI_DIR/version-state.yaml" \
                "$AI_DIR/verification-state.yaml")
-  for sf in "${state_files[@]}" "${evidence_files[@]}"; do
+  seen_rel=" "          # 前后哨兵空格，使 *" $rel "* 模式可靠匹配
+  for sf in "${state_files[@]}" "${evidence_files[@]}" "${all_yaml[@]}"; do
     rel="${sf#$ROOT/}"
+    case "$seen_rel" in
+      *" $rel "*) continue ;;   # 已被前面的 state_files / evidence_files 覆盖
+    esac
+    seen_rel="$seen_rel$rel "
     if [ ! -f "$sf" ]; then
       bad "$rel 缺失（恢复链将无法读取）"
       continue

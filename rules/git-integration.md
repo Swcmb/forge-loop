@@ -209,3 +209,46 @@ DESIGN.md
 ```
 
 引用时使用实际路径 `DESIGN.md`。按 `AGENTS.md` §5「Design Is The Single Authority」，统一的是引用方，文件名本身以磁盘现状为准。
+
+---
+
+## 11. Checkpoint Commit Hash 口径
+
+本节规定 `DESIGN.md` §53 Checkpoint 的 `git_commit` 字段该记什么值。它是跨 Goal 规则，
+不随 `.ai/` 的单 Goal 运行态文件重写而失效。
+
+### 11.1 记 main 侧 commit
+
+字段名按 `DESIGN.md` §53 的原字段名 `checkpoint.git.commit`，不改名、不扁平化为标量。
+
+该字段记**合并至集成分支之后**的 commit。squash 合并 + 分支删除会使分支内 commit 从集成分支
+历史消失，记分支内 commit 会让 §54 声明的 Rollback / Resume / Progress Tracking /
+Version Comparison 四项用途失效。
+
+集成分支名（当前为 `main`）属全局 Git Rules 的 Branch Policy 参数，本 Rule 不自行固定。
+
+### 11.2 占位值与回填
+
+squash 合并产生的新 commit 无法包含自身 hash，且合并发生在状态文件写入之后，因此
+`git_commit` 在形成它的那个 commit 内无法自洽。约定见下方两行：
+
+```text
+形成 Checkpoint 的 commit → checkpoint.git.commit 写占位值 "pending: <taskID> merge"
+下一 Task 的 commit       → 回填该 Checkpoint 在集成分支上的 hash
+```
+
+占位值词表统一为 `pending: <taskID> merge`。其它写法（如 `pending: xxx commit`、留空、
+写 `unknown`）都不合法——恢复链读者需要能机械识别待回填状态。
+
+回填的那一次提交必须同时更新 `.ai/version-state.yaml` 的 `git.head`，否则「当前在哪」
+会出现两个不一致的 Git 事实（`checkpoint.git.commit` 与 `version-state.git.head`）。
+
+### 11.3 逐 Checkpoint 配对
+
+标量 `git_commit` 只承载最近一个已知 main 侧 hash。§54 的 Version Comparison 与
+Progress Tracking 需要跨 Checkpoint 比对，因此 `.ai/development-status.yaml` 的
+`checkpoint.history` 以列表形式逐 Checkpoint 固化 `id + git_commit` 配对，只追加不改写。
+
+每个非占位值的锚点须在集成分支上真实可达（`git merge-base --is-ancestor`）。仅校验形状
+不校验可达性，会让「悬空 hash」这类缺陷回归而不被发现——CP-001 记 `823615b`、
+CP-004 记 `0f7fd4f` 正是此类，二者均已失联。结构化自检 8c 组（CK-12）承担该判据。

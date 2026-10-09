@@ -4,10 +4,10 @@
 # references/evidence-model.md。字段保留不省略，不适用项写显式 N/A + 理由。
 # Goal Mode 续行标记（goal-mode.md §4）：每次 Checkpoint 后写 mode / next。
 
-# --- Checkpoint CP-004（T-10b-EXEC-2）：T-10b 闭环演练完成 ---
+# --- 续行标记（文件级 top-level 字段，不隶属于任一 Checkpoint 段）---
 
 mode: goal
-next: T-11
+next: T-13
 
 REQ-005:
   title: Test —— 能测试
@@ -202,6 +202,78 @@ REQ-007:
       evidence: 本文件各 REQ 条目均含 source/spec/task/implementation/tests/review/
                 runtime/acceptance 八字段；runtime 按 DI-08 写显式 N/A + 理由，不留空
   status: verified
+
+# --- Checkpoint CP-006（T-12）：Checkpoint + State Persistence 验证 ---
+
+REQ-008:
+  title: Git Checkpoint —— 能形成 Git Checkpoint
+  source: [SRC-001]
+  spec: {section: DESIGN.md §53-54, version: "absent: not-started"}
+  task: [T-12]
+  implementation:
+    commit: "pending: T-12 merge"                    # 回填规则见 rules/git-integration.md §11.2
+    artifact: doc/verification/forgeloop-phase1/state-persistence-record.md
+  tests:
+    - Checkpoint 双重落点：结构化字段进 .ai/ 状态文件 + Git 记录进版本历史
+    - 各 CP 的 git_commit 在 main 历史的可追溯性逐条验证（git merge-base --is-ancestor，
+      命令与实际输出粘贴在 state-persistence-record.md §1.1，可原样复跑）
+    - State Persistence 前后对比：从 git show 提取 CP-004→CP-005 的 task.current /
+      iteration.task_seq / checkpoint.last 演进，可复查
+    - 冲突判据负向测试（§3.5）：制造 Runtime=complete + Git 未提交改动 → 判据触发
+      STOP AUTO-PROGRESSION；反向清除改动 → 判据不误报。两向均实测
+  review:
+    status: passed                                    # 第 5 轮 Gate 判定 PASS（§7.5）
+    reviewer: code-reviewer
+    rounds: 5                                         # 已执行至第 5 轮；逐轮 Finding 见下方条目与 §7
+    dimensions: [Correctness, Architecture, Security, Regression, Maintainability, Scope]
+    findings_closed:
+      - R1-Blocker CP-005 补救动作记为虚构（§1.2 称"由 b5d8601 修正为 24d6e2c"，实为 9217165）→ §1.2 按真实历史重写，区分「悬空指向」与「指向滞后一格」两类
+      - R1-Important REQ-008 预置 review.status: passed（Gate 输入自称已通过）→ 前置断言与轮次结论分离
+      - Important development-status.verification.pending 未随 V-06/V-07 转正 → passed 补入 V-06/V-07，pending 收窄为 [V-08]
+      - R1-Important §53 字段承载与 CK-09 覆盖被高估（progress.requirements 键根本不存在）→ 补齐字段 + 自检新增 8c 组逐字段断言
+      - R1-Important 单标量 git_commit 无法承载 §54 的逐 CP 比对 → 新增 checkpoint.history 列表 + 8c 组配对断言
+      - R1-Important 跨 Goal 约定写入 per-Goal 运行态文件 → 规范条文迁至 rules/git-integration.md §11，.ai/ 只留指针
+      - R1-Important 占位值两套拼写 + 回填未规定同步 git.head → 词表统一为 pending: <taskID> merge，规则第 11.2 节明确同步要求
+      - R1-Minor evidence.yaml 出现两个 CP-006 段头且顶部段头指向 REQ-005 → 顶部改为文件级续行标记段头
+      - R1-Minor §1.1 命令不可复现、缺 CP↔hash↔角色映射 → 改为可原样复跑的脚本 + 真实输出 + 角色表
+      - R1-Minor git.clean 语义时点未界定 → 注释写明「截至最近一次 Checkpoint 提交」
+      - R2-Blocker §1.2 把 a8b60e9 定性为"非 CP 主记录"，但它就是 CP-003 的 main 侧 commit（父提交 2ccef05=main，提交信息自述三次 squash，仓库内 version-state.yaml 两处声明 PR #9）→ 角色表更正 + checkpoint.history 补 CP-003
+      - R2-Important V-06 结论"CP-001..CP-005 均有结构化记录"对 CP-003 不成立（checkpoint.last 取值集合仅 CP-001/002/004/005）→ 措辞改为区分「Git 侧确认」与「结构化 last 落盘」
+      - R2-Important §53 六字段中 3 项字段名/层级偏离（task.current vs task.id、标量 git_commit vs git.commit、spec.version 落在 version-state 顶层）→ 状态文件改用 §53 原字段名，8c 注释同步更正（DI-09）
+      - R2-Important Round-1 Important 1 未真正闭环（rounds/verdict 预置本轮结论）→ 本字段 status 置 pending，轮次结论待 Reviewer 判定后回填
+      - R2-Minor 8c 内嵌 python 异常时静默通过且不计 skip → 显式断言输出行数，不足即判 FAIL
+      - R2-Minor 8c 只校验形状不校验锚点可达性（悬空 hash 会回归而不被发现）→ 对非占位值的 history 项补 git merge-base --is-ancestor 实测
+      - R2-Minor rules/git-integration.md §11.1 把集成分支硬编码为 main → 改为「集成分支（当前 main）」，分支名属全局 Git Rules 的 Branch Policy 参数
+      - R2-Minor §1.2 的"实际输出"是重排版，与命令字面输出不符 → 标注为整理后对照表并附字面输出
+    verdict: >-
+      PASS（第 5 轮：0 Blocker / 0 Important / 2 Minor，后者为文档交叉引用可读性，已收敛）。
+      五轮累计：第 1 轮 1 Blocker + 6 Important + 3 Minor；第 2 轮 1 Blocker + 3 Important
+      + 4 Minor；第 3 轮 0 Blocker + 4 Important + 7 Minor；第 4 轮 0 CRITICAL + 2 Major
+      + 4 Minor；第 5 轮 0 Blocker / 0 Important + 2 Minor。全部修复并复审确认。
+      权威处：state-persistence-record.md §7
+    record: doc/verification/forgeloop-phase1/state-persistence-record.md §7
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-012:
+      status: passed
+      description: Checkpoint 由全局 Git Workflow 形成，双重落点（.ai/ + Git）
+      evidence: >-
+        Git 侧成立：CP-001..CP-005 均有 main 侧 commit 可追溯（逐条经
+        git merge-base --is-ancestor 实测，命令与输出见 state-persistence-record.md §1.1）；
+        CP-006 的 checkpoint.git.commit 为 §11.2 占位值，尚未产生 hash，可达性待 T-13
+        回填后校验——自检 CK-12 对占位值按规则豁免，该项从未跑过可达性实测。
+        .ai/ 结构化落盘覆盖 CP-001/002/004/005/006；CP-003 的 checkpoint.last 未落盘
+        ——被 CP-004 的状态写入直接覆盖，其归属由 a8b60e9（父提交 2ccef05=main，提交
+        信息自述三次 squash）与仓库内 version-state.yaml 的「PR Swcmb/forge-loop#9」
+        声明共同确认，已作为已知遗留记入 checkpoint.history。
+        本 Task 逐条复核后修正三类缺口——① 悬空指向：CP-001 记 823615b、CP-004 记
+        0f7fd4f，均为分支内 commit，squash + 删分支后从集成分支历史消失；② 指向滞后
+        一格：CP-002 记 bab31db、CP-005 记 9217165，实为上一 Checkpoint 的 main 侧
+        commit；③ CP-003 结构化落盘缺口。处置 = 按 §53 原字段名记录当前 CP 的 main 侧
+        hash（形成它的 commit 无法自含，先写占位值由下一 Task 回填）+ checkpoint.history
+        固化逐 CP 配对与可达性 + 口径立为 rules/git-integration.md §11。
+        CP-001 为历史记录，main 侧对应 bab31db，在本记录与 tasks.md 标注保持可追溯。
+  status: verified          # §38：Review Gate 第 5 轮 PASS + Evidence 八字段齐备
 
 # --- 前置 Requirement（T-09b / T-10a，本轮复核确认）---
 
