@@ -18,6 +18,7 @@ LIBRARY="/d/ai-configs/skills/skills"
 
 fail=0
 pass=0
+skip=0
 ok()   { printf '  [PASS] %s\n' "$1"; pass=$((pass+1)); }
 bad()  { printf '  [FAIL] %s\n' "$1"; fail=$((fail+1)); }
 
@@ -175,10 +176,86 @@ for anchor in "Routing" "Core Rules" "Workflow" "Reference Loading" "Output Cont
   fi
 done
 
+# --- 8. .ai/ 运行状态落盘契约（详细设计 §3.5）---
+# 校验 §3.5 定义的必填段存在；只校验骨架键，值域由 §55/§56 及各 reference 定义。
+echo
+echo "== 8. .ai/ 运行状态落盘契约（详细设计 §3.5）=="
+AI_DIR="$ROOT/.ai"
+check_keys() {
+  local file="$1"; shift
+  local missing=0 k
+  if [ ! -f "$file" ]; then
+    bad "状态文件缺失：${file#$ROOT/}"
+    return
+  fi
+  for k in "$@"; do
+    if grep -qE "^${k}:" "$file"; then
+      ok "${file#$ROOT/} 含必填段：$k"
+    else
+      bad "${file#$ROOT/} 缺必填段：$k"
+      missing=$((missing+1))
+    fi
+  done
+  if [ "$missing" -gt 0 ]; then bad "${file#$ROOT/} 有 $missing 个必填段缺失"; fi
+  return 0
+}
+# 叶子字段断言：段名 → 其下必填叶子键（一级缩进）。§98 Goal Resume 从这些叶子取
+# Checkpoint 双写所需的 git.head 等值，缺失要到恢复时刻才暴露。
+check_leaf() {
+  local file="$1" parent="$2" leaf="$3"
+  if grep -qE "^${parent}:" "$file" && grep -qE "^  ${leaf}:" "$file"; then
+    ok "${file#$ROOT/} ${parent}.${leaf} 存在"
+  else
+    bad "${file#$ROOT/} 缺叶子字段：${parent}.${leaf}"
+  fi
+}
+check_keys "$AI_DIR/development-status.yaml" goal phase mode task iteration checkpoint blockers verification
+# version-state.yaml 的 §55 schema：goal.id / mvp.version / spec.version / plan.revision
+# / iteration.current / git.branch·head·clean / project.version
+check_keys "$AI_DIR/version-state.yaml" project goal mvp spec plan iteration git
+check_leaf "$AI_DIR/version-state.yaml" iteration current
+check_leaf "$AI_DIR/version-state.yaml" git branch
+check_leaf "$AI_DIR/version-state.yaml" git head
+check_leaf "$AI_DIR/version-state.yaml" git clean
+
+# 状态文件必须是可解析、且解析出非空映射的合法 YAML——恢复链（§98 Goal Resume）
+# 直接读取这些文件。语法错误、空文件（safe_load 返回 None）、仅注释、裸标量
+# 都会让恢复链静默失效，故一律判 FAIL。仅校验骨架键无法捕获这些缺陷。
+# python+PyYAML 可用时执行解析校验；不可用时降级跳过（骨架键检查已在上面完成），
+# 跳过计入 skip 并在汇总行显示，使降级在 Test Gate 证据中留痕。
+echo
+echo "-- 8b. 状态文件 YAML 可解析性（恢复链前置）--"
+if python -c "import yaml" 2>/dev/null; then
+  # 枚举 .ai/*/evidence.yaml（§3.5 的 <feature> 为参数，不写死具体阶段目录）
+  shopt -s nullglob
+  evidence_files=("$AI_DIR"/*/evidence.yaml)
+  shopt -u nullglob
+  state_files=("$AI_DIR/development-status.yaml" "$AI_DIR/version-state.yaml" \
+               "$AI_DIR/verification-state.yaml")
+  for sf in "${state_files[@]}" "${evidence_files[@]}"; do
+    rel="${sf#$ROOT/}"
+    if [ ! -f "$sf" ]; then
+      bad "$rel 缺失（恢复链将无法读取）"
+      continue
+    fi
+    if python -c "import yaml,sys; d=yaml.safe_load(open(sys.argv[1],encoding='utf-8')); sys.exit(0 if isinstance(d,dict) and d else 1)" "$sf" 2>/dev/null; then
+      ok "$rel YAML 解析通过且为非空映射"
+    else
+      bad "$rel YAML 解析失败或非空映射（空/仅注释/裸标量/语法错误均属此类）"
+    fi
+  done
+  if [ "${#evidence_files[@]}" -eq 0 ]; then
+    bad ".ai/*/evidence.yaml 未找到（§3.5 要求每个 feature 目录含 evidence.yaml）"
+  fi
+else
+  skip=$((skip+1))
+  echo "  [SKIP] python/PyYAML 不可用，跳过 YAML 解析校验（骨架键检查已覆盖结构存在性）"
+fi
+
 # --- 汇总 ---
 echo
 echo "=============================="
-echo "pass: $pass   fail: $fail"
+echo "pass: $pass   fail: $fail   skip: $skip"
 if [ "$fail" -gt 0 ]; then
   echo "RESULT: FAIL"
   exit 1
