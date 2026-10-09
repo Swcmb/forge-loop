@@ -23,7 +23,7 @@
 | Blob SHA (SKILL.md) | `a42a7996f5befe5cc8389ba41aed86b72da0f9f1` |
 | File Size | 3748 B（上游字节大小；Windows 工作区副本经 CRLF 转换后会偏大，**字节数不作指纹依据**，比对一律用默认 `git hash-object`） |
 | Repo Stars | 10844 |
-| 本机状态（2026-10-06 实测） | 库内不存在，尚未安装 —— 详细设计 T-01 待完成项，含 §4.1 降级路径 |
+| 本机状态（2026-10-07 实测） | 已安装并部署：`D:\ai-configs\skills\skills\mvp\`（blob `a42a7996…` 与 §2 指纹一致）+ `C:\Users\Swcmb\.claude\skills\mvp\`；详细设计 T-01 完成。§7 降级路径保留为安装失败时的条件分支 |
 
 版本管理仍遵循 Global Version Management Rules；上述 commit 与 blob 为来源指纹，非 ForgeLoop Project Version。
 
