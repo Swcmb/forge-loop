@@ -8,12 +8,13 @@ criteria:
   V-00:
     desc: forge-loop 在目标 harness 可被按名解析并载入 references
     task: T-09b
-    status: pending
+    status: passed
     evidence: >-
       Registered ✓（skill_id 9f921bc4-c4c1-4c5b-9000-4712b3d2967e，
       skills status forge-loop 返回库路径）；Deployed ✓
       （C:\Users\Swcmb\.claude\skills\forge-loop\ 落盘：SKILL.md + 10 references）；
-      Loadable 待新会话按名解析确认（当前会话 skill 列表在启动时已固定）
+      Loadable ✓（2026-10-09 新会话按名解析 forge-loop 成功，出现在会话 skill 列表中，
+      10 references 可载入）→ BL-001 解除
 
   # §109 能力对应
   V-01:

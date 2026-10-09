@@ -10,7 +10,7 @@ goal:
   design_ref: doc/design/spac-001-detailed-design.md
 
 phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
-mode: MANUAL                                           # Goal Mode 未激活（/goal 未设定）
+mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
   current: T-10b                                        # 闭环演练（下一步）
@@ -33,8 +33,9 @@ blockers:
     impact: V-00 未完全达成；T-10b 演练需新会话按名解析 forge-loop
     required_action: 在新会话按名解析 forge-loop，并激活 /goal 进入 Goal Mode
     context: DESIGN.md §109；rules/skills.md §Verification of an install
+    status: RESOLVED                                    # 新会话按名解析 forge-loop 成功 + /goal 已激活 → Goal Mode
 
 verification:
   overall: in-progress
-  passed: []
-  pending: [V-00..V-13]                                # §5 判据矩阵，见 verification-state.yaml
+  passed: [V-00, V-03, V-10, V-11, V-12, V-13]
+  pending: [V-01, V-02, V-04, V-05, V-06, V-07, V-08, V-09]

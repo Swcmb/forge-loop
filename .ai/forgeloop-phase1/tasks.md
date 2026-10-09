@@ -35,7 +35,7 @@
 - [x] 10. T-09b 部署 forge-loop 到 harness 并验证可解析
 
   Evidence: `skills adopt` → skill_id 9f921bc4；`skills deploy --agent claude_code` → 部署副本 `C:\Users\Swcmb\.claude\skills\forge-loop\`（SKILL.md + 10 references）落盘；Registered ✓ / Deployed ✓，Loadable 待新会话确认
-- [ ] 11. T-10a 演练准备：产出 A/B/C 三项输入工件
+- [x] 11. T-10a 演练准备：产出 A/B/C 三项输入工件
 - [ ] 12. T-10b 闭环演练：真实 Task 跑通 A→Continue
 - [ ] 13. T-11 Gate 证据固化
 - [ ] 14. T-12 Checkpoint + State Persistence 验证
