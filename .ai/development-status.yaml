@@ -13,21 +13,21 @@ phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
-  current: T-11                                          # Gate 证据固化（下一步）
+  current: T-12                                          # Checkpoint + State Persistence 验证（下一步）
   status: ready
-  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2]
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11]
 
 iteration:
   current: ITER-002                                    # §49
-  task_seq: 12                                          # 本 goal 内第 12 个 Task
+  task_seq: 13                                          # 本 goal 内第 13 个 Task
 
 checkpoint:
-  last: CP-004
-  id: CP-004
-  git_commit: 0f7fd4f
-  note: T-10b 闭环演练完成（EXEC-1 commit 61b04b8→a8b60e9 + EXEC-2 commit 0f7fd4f）。
-        脚本 CK-07/08/09 + 8b；T-10b 三条断言全部 passed（Goal Mode 连续 2 Task、
-        续行标记、已部署副本执行）。V-01/V-02 待 T-15 汇总时随 V-00..V-13 一并结转
+  last: CP-005
+  id: CP-005
+  git_commit: 9217165
+  note: T-11 Gate 证据固化完成。doc/verification/forgeloop-phase1/ 下 test/review/
+        verify 三份记录 + doc/reviews/forgeloop-phase1/iteration-review.md（补建）。
+        V-03/V-04/V-05 → passed。下一 Task = T-12
 
 blockers:
   - id: BL-001
@@ -39,5 +39,5 @@ blockers:
 
 verification:
   overall: in-progress
-  passed: [V-00, V-03, V-10, V-11, V-12, V-13]
-  pending: [V-01, V-02, V-04, V-05, V-06, V-07, V-08, V-09]
+  passed: [V-00, V-01, V-02, V-03, V-04, V-05, V-09, V-10, V-11, V-12, V-13]
+  pending: [V-06, V-07, V-08]

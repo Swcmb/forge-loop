@@ -149,6 +149,60 @@ REQ-004:
                 于本文件顶部
   status: verified
 
+# --- Checkpoint CP-005（T-11）：Code Review 与 Requirement Verification 两 Gate ---
+
+REQ-006:
+  title: Code Review —— 能 Review
+  source: [SRC-001]
+  spec: {section: DESIGN.md §37, version: "absent: not-started"}
+  task: [T-10b-EXEC-1, T-10b-EXEC-2, T-11]
+  implementation:
+    commit: b5d8601
+    artifact: doc/verification/forgeloop-phase1/review-record.md
+  tests:
+    - 前置：code-reviewer 可按名解析——自检第 4 组 [PASS] code-reviewer 已安装
+    - 实际执行 5 轮六维审：EXEC-1 三轮 + EXEC-2 两轮，全部无阻断项
+    - 每轮 Finding 均在隔离副本重新构造对抗场景，不依赖修复摘要
+  review:
+    status: passed
+    reviewer: code-reviewer
+    dimensions: [Correctness, Architecture, Security, Regression, Maintainability, Scope]
+    findings_closed: 13          # EXEC-1 七条 + EXEC-2 六条
+    findings_archived: 2         # EXEC-2 两条 Minor 明确留档并附不修理由
+    verdict: 无阻断项
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-010:
+      status: passed
+      description: code-reviewer 可被解析，六维 Finding 含 Scope
+      evidence: 自检第 4 组 code-reviewer 已安装；六维逐条结论见 review-record.md §1
+  status: verified
+
+REQ-007:
+  title: Requirement Verification —— 能验证 Requirement
+  source: [SRC-001]
+  spec: {section: DESIGN.md §38-39, version: "absent: not-started"}
+  task: [T-11]
+  implementation:
+    commit: b5d8601
+    artifact: doc/verification/forgeloop-phase1/verify-record.md
+  tests:
+    - 本文件通过自检 8b 的 YAML 非空映射校验（解析失败即 FAIL）
+    - REQ-001..REQ-006 八字段齐备并 status: verified；REQ-008/009 归 T-12/T-13
+    - §59 Evidence 失效检查：本轮无 Requirement 语义变化，既有 Evidence 未失效
+  review:
+    status: passed
+    reviewer: code-reviewer
+    note: Gate 证据文档的一致性由 T-11 审核对
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-011:
+      status: passed
+      description: "Evidence 八字段完整 → status: verified"
+      evidence: 本文件各 REQ 条目均含 source/spec/task/implementation/tests/review/
+                runtime/acceptance 八字段；runtime 按 DI-08 写显式 N/A + 理由，不留空
+  status: verified
+
 # --- 前置 Requirement（T-09b / T-10a，本轮复核确认）---
 
 REQ-001:
@@ -211,7 +265,11 @@ assertions:
   continuation_marker:
     desc: "每个 Checkpoint 后 Evidence 出现 mode: goal / next: TASK-xxx"
     status: passed
-    evidence: 本文件顶部 mode / next 标记（CP-003 next=TASK-EXEC-2，CP-004 next=T-11）
+    evidence: >-
+      mode/next 为文件顶部单处 top-level 字段，每 Checkpoint 覆盖写入当时的续行目标
+      （非累积）。CP-003 时刻写入 next=TASK-EXEC-2，CP-004 时刻写入 next=T-11；
+      当前文件保留最新快照（mode: goal / next: T-11）。判据「Checkpoint 后出现标记」
+      按时刻成立，文件不保留历史值。
   deployed_copy_execution:
     desc: 用已部署副本执行（ADR-003 §1）
     status: passed
