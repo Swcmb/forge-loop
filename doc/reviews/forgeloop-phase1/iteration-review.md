@@ -24,7 +24,7 @@
 | 断言 | 结论 | 证据 |
 | :--- | :--- | :--- |
 | ① Goal Mode 连续完成 ≥2 个 Task 且全程无用户逐任务确认 | **passed** | EXEC-1 → EXEC-2 直接续行；两 Task 的 Test/Review/Verify 全程未出现面向用户的「Ready for the next sub-task?」类提问 |
-| ② 每个 Checkpoint 后 Evidence 出现 `mode: goal / next: TASK-xxx` | **passed** | CP-003 `next=TASK-EXEC-2`；CP-004 `next=T-11` |
+| ② 每个 Checkpoint 后 Evidence 出现 `mode: goal / next: TASK-xxx` | **passed** | `mode/next` 为 evidence.yaml 顶部单处 top-level 字段，每 Checkpoint 覆盖写入当时续行目标（非累积）。CP-003 时刻写入 `next=TASK-EXEC-2`，CP-004 时刻写入 `next=T-11`；当前文件保留最新快照 `next: T-11`。判据按时刻成立 |
 | ③ 用已部署副本执行 | **passed** | 编排读取的 reference 来自库部署目标 `D:\ai-configs\skills\skills\forge-loop\`（`~/.claude` 路径是其符号链接）；`diff --strip-trailing-cr` 与仓库源码一致 |
 
 断言 ①②③ 全部通过，无 Design Inconsistency 升级。
@@ -40,7 +40,7 @@
 | Wait for "yes"/"y" | 失效 | 未出现 |
 | 其余 2 处暂停点 | 失效 | 未出现 |
 
-续行标记作为反证写入 `evidence.yaml`（CP-003 / CP-004 两处）。
+续行标记作为反证写入 `evidence.yaml` 顶部 `mode/next`（单处字段，每 Checkpoint 覆盖为当时续行目标）。
 
 ## 4. 判据状态变更
 
@@ -51,7 +51,7 @@
 | V-09 无超前实现 | pending | **passed** |
 | gates.test_gate / review_gate / requirement_gate | not-started | **passed** |
 
-剩余 V-04～V-08 归 T-11～T-13。
+剩余 V-06～V-08 归 T-12～T-13。V-04/V-05 由 T-11 转正（见 `review-record.md` / `verify-record.md`）。
 
 ## 5. Review 结论摘要
 

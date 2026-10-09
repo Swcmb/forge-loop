@@ -42,10 +42,10 @@ criteria:
     status: passed
     evidence: >-
       T-09 负向 + T-11 正向双向证据。T-11 正向运行：bash scripts/check-forge-loop.sh
-      → 52/52 PASS, exit 0, skip:0。负向共 9 场景各 exit 1 且复原：T-09 两项
+      → 52/52 PASS, exit 0, skip:0。负向共 10 个 exit-1 场景各失败且复原：T-09 两项
       （删 recovery.md / 悬空引用）；EXEC-1 四项（部署目标内容漂移 / 缺文件 / 多文件 /
       删 §105 章节）；EXEC-2 四类（空文件 / 仅注释·裸标量·列表 / 文件缺失 /
-      叶子字段缺失）。正向容忍验证：部署目标全 CRLF → exit 0。
+      叶子字段缺失，列表中 3 变体按 1 类计）。另有 CRLF 容忍场景期望 exit 0 → 实测 exit 0。
       记录：doc/verification/forgeloop-phase1/test-record.md
   V-04:
     desc: Review 有真实执行证据，逐条对应 §37 六维（含 Scope）

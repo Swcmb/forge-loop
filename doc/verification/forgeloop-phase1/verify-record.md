@@ -30,8 +30,8 @@ Requirement Verification Gate 回答的问题是「用户要求是否真正实�
 | REQ-002 | Requirement Extraction | AC-002/003/004 | verified | `requirement-matrix.yaml` REQ-001..009；ID 与 I-xxx 命名空间分离；每 REQ 至少一 AC |
 | REQ-003 | MVP Scope | AC-005/006 | verified | `mvp-scope.yaml` 三集合齐备 + §16 四问逐条作答 |
 | REQ-004 | Single Task Iteration | AC-007/008 | verified | One-Task Rule（`git show --stat` 单文件）+ Goal Mode 暂停点失效（续行标记） |
-| REQ-005 | Test | AC-009 | verified | 正向 52/52 + 负向 9 场景各 exit 1；Review 三轮 PASS |
-| REQ-005-EXT | Test（CK-09 + 8b 扩充） | AC-009 | verified | 正向 52/52；I1/I1b/I2/I3 各 exit 1；Review 两轮 PASS |
+| REQ-005 | Test | AC-009 | verified | 正向 29/29（EXEC-1，commit 61b04b8）+ 负向 6 场景各 exit 1；Review 三轮 PASS |
+| REQ-005-EXT | Test（CK-09 + 8b 扩充） | AC-009 | verified | 正向 52/52（EXEC-2，commit 0f7fd4f）+ 负向 4 类各 exit 1；Review 两轮 PASS |
 | REQ-006 | Code Review | AC-010 | verified | `code-reviewer` 可解析；六维 Finding 含 Scope，逐条闭环 |
 | REQ-007 | Requirement Verification | AC-011 | verified | 本文件即 Gate 证据本身（八字段齐备 → verified） |
 
