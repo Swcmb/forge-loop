@@ -1,0 +1,161 @@
+# Evidence —— ForgeLoop 第一阶段闭环演练（T-10b）
+#
+# 依据 DESIGN.md §39（八字段）、§53（Checkpoint）、详细设计 §3.7（落盘位置）、
+# references/evidence-model.md。字段保留不省略，不适用项写显式 N/A + 理由。
+# Goal Mode 续行标记（goal-mode.md §4）：每次 Checkpoint 后写 mode / next。
+
+# --- Checkpoint CP-003（T-10b-EXEC-1）---
+
+mode: goal
+next: TASK-EXEC-2
+
+REQ-005:
+  title: Test —— 能测试
+  source: [SRC-005]
+  spec:
+    section: 详细设计 §3.6.1 Test Gate 取值
+    version: "absent: not-started"      # 第一阶段 SPEC 不在范围（version-state.yaml）
+  task:
+    - T-09
+    - T-10b-EXEC-1
+  implementation:
+    commit: 61b04b8
+    changed: scripts/check-forge-loop.sh
+    added_checks:
+      - CK-07 仓库源码 vs 库部署目标一致性（ADR-003 §1/§4）
+      - CK-08 SKILL.md §105 五项职责锚点（ADR-004）
+  tests:
+    - 正向：bash scripts/check-forge-loop.sh → 29/29 PASS, exit 0
+    - 负向1 内容漂移：库部署目标 references/recovery.md 追加一行 → exit 1
+    - 负向2 源码侧缺文件：库部署目标移走 references/goal-mode.md → exit 1
+    - 负向3 库侧多文件：库部署目标新增 references/extra.md → exit 1
+    - 负向4 删 §105 章节：移除 SKILL.md `## 5. Output Contract` → exit 1
+    - EOL 容忍：库部署目标 references/recovery.md 全 CRLF（63 CR 字节）→ exit 0
+    - 复原：全部负向复原后复跑 → 29/29 PASS, exit 0
+  review:
+    status: passed
+    reviewer: code-reviewer
+    rounds: 3
+    dimensions: [Correctness, Architecture, Security, Regression, Maintainability, Scope]
+    findings_closed:
+      - F1 CRLF 误报（Important）→ 改去 CR 归一内容摘要；hash-object 在库仓库对
+        已跟踪/未跟踪行为不一致，实测不可靠
+      - F2 用户名硬编码路径（Important）→ 改用 $LIBRARY/forge-loop
+      - F3 比较对象误述（Important）→ 标题与注释改为「仓库源码 vs 库部署目标」
+      - F4 空数组/count 不等假 PASS（Important→Minor）→ 最终 ok 行三重守卫 +
+        set_mismatch 在数量不等分支递增
+      - F5 词拼接相等（Minor）→ 改先比元素个数再逐元素比
+      - F6 PASS 文案超范围（Minor）→ 文案限定 .md 并写明边界
+      - F7 group7 注释深度（Minor）→ 补「仅校验章节骨架，不校验正文非空」
+    verdict: 无阻断项
+  runtime:
+    status: N/A
+    reason: phase-1 artifact is markdown, no runtime surface（DI-08）
+  acceptance:
+    AC-009:
+      status: passed
+      description: 结构化自检正向通过且负向非零退出
+      evidence: 正向 29/29 exit 0；四项负向各 exit 1；复原 29/29
+  status: verified
+
+REQ-004:
+  title: Single Task Iteration —— 能执行单 Task Iteration
+  source: [SRC-001, SRC-004]
+  spec:
+    section: DESIGN.md §30-32
+    version: "absent: not-started"
+  task:
+    - T-10b-EXEC-1
+  implementation:
+    commit: 61b04b8
+    note: 本 Task 即 One-Task Rule 的执行实例——单一目标（补两项检查），
+          含实现/测试/状态更新，未塞入无关功能（§32）
+  tests:
+    - 本 Task 全程仅改 scripts/check-forge-loop.sh（One-Task 范围可查 git show --stat）
+    - 两次提交分离：脚本改动与 .ai 状态文件各自独立 commit
+  review:
+    status: passed
+    reviewer: code-reviewer
+    note: Scope 维度确认改动限于单文件
+  runtime:
+    status: N/A
+    reason: phase-1 artifact is markdown, no runtime surface
+  acceptance:
+    AC-007:
+      status: passed
+      description: 一次一个 Task（One-Task Rule，§32）
+      evidence: git show --stat 61b04b8 仅 scripts/check-forge-loop.sh
+    AC-008:
+      status: passed
+      description: Goal Mode 下上游暂停点全部失效
+      evidence: 本 Task 从 Test Gate 到 Review Gate 全程未出现面向用户的
+                「Ready for the next sub-task?」类提问；续行标记 mode/next 已写
+                于本文件顶部
+  status: verified
+
+# --- 前置 Requirement（T-09b / T-10a，本轮复核确认）---
+
+REQ-001:
+  title: Document Discovery
+  source: [SRC-001]
+  spec: {section: DESIGN.md §17, version: "absent: not-started"}
+  task: [T-10a]
+  implementation: {commit: 2ccef05, artifact: .ai/forgeloop-phase1/source-index.md}
+  tests:
+    - SRC-001..SRC-008 编号稳定，可被本文件 source 字段引用（SRC-005 即本文件引用）
+  review: {status: passed, reviewer: code-reviewer, note: T-10a 已复核}
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-001: passed
+  status: verified
+
+REQ-002:
+  title: Requirement Extraction
+  source: [SRC-001]
+  spec: {section: DESIGN.md §18-21, version: "absent: not-started"}
+  task: [T-10a]
+  implementation: {commit: 2ccef05, artifact: .ai/forgeloop-phase1/requirement-matrix.yaml}
+  tests:
+    - REQ-001..REQ-009 ID 与 I-xxx 不变量命名空间分离
+    - 每个 REQ 至少一条 AC
+  review: {status: passed, reviewer: code-reviewer, note: T-10a 已复核}
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-002: passed
+    AC-003: passed
+    AC-004: passed
+  status: verified
+
+REQ-003:
+  title: MVP Scope
+  source: [SRC-001]
+  spec: {section: DESIGN.md §14-16, §86, version: "absent: not-started"}
+  task: [T-10a]
+  implementation: {commit: 2ccef05, artifact: .ai/forgeloop-phase1/mvp-scope.yaml}
+  tests:
+    - required/optional/deferred 三集合齐备（§15）
+    - §16 Minimality Gate 四问逐条作答
+  review: {status: passed, reviewer: code-reviewer, note: T-10a 已复核}
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-005: passed
+    AC-006: passed
+  status: verified
+
+# --- T-10b 断言（详细设计 §4 T-10b）---
+
+assertions:
+  goal_mode_continuous:
+    desc: Goal Mode 连续完成 ≥2 个 Task 且全程无用户逐任务确认
+    status: in-progress
+    evidence: EXEC-1 完成且未向用户索取许可；EXEC-2 待完成后本项方为 passed
+  continuation_marker:
+    desc: "每个 Checkpoint 后 Evidence 出现 mode: goal / next: TASK-xxx"
+    status: passed
+    evidence: 本文件顶部 mode / next 标记
+  deployed_copy_execution:
+    desc: 用已部署副本执行（ADR-003 §1）
+    status: passed
+    evidence: 本轮编排读取的 reference 来自库部署目标
+              /d/ai-configs/skills/skills/forge-loop/（~/.claude 路径为其符号链接）；
+              diff --strip-trailing-cr 确认与仓库源码一致

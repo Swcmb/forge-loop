@@ -10,7 +10,8 @@ goal:
   id: FL-001
 
 mvp:
-  version: absent: not-started      # MVP Scope 尚未产出（详细设计 §3.7 字段保留不省略）
+  version: pending: B-03            # 版本服从全局 Version Management，不自定
+                                   # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
 
 spec:
   version: absent: not-started      # SPEC/Plan 不在第一阶段范围（D/E 延后复用既有 skill）
@@ -19,9 +20,9 @@ plan:
   revision: absent: not-started
 
 iteration:
-  current: ITER-001
+  current: ITER-002
 
 git:
   branch: main
-  head: bab31db
+  head: 2ccef05
   clean: true                    # CP-002 已合并至 main（PR Swcmb/forge-loop#7）
