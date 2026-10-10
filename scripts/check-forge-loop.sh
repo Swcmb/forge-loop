@@ -351,6 +351,7 @@ else:
             else:
                 print("PASS\tcheckpoint.progress.requirements.%s 与 %s 一致（%d）"
                       % (field, rel, actual))
+
 PYEOF
 )"
   ck8c_py_rc=$?
@@ -455,6 +456,129 @@ if python -c "import yaml" 2>/dev/null; then
 else
   skip=$((skip+1))
   echo "  [SKIP] python/PyYAML 不可用，跳过 YAML 解析校验（骨架键检查已覆盖结构存在性）"
+fi
+
+# --- 8d. CK-15 未加引号的冒号空格标量 ---
+# 该缺陷已在 .ai/ 下发生四次，每次都要等 8b 报「解析失败」才被发现，而 8b 不指出成因。
+# 本组按文本扫描，不解析 YAML：文件一旦语法错误，8c 的内嵌 python 会先行崩溃，
+# 放在那里就永远拦不到它要拦的那一类输入。
+echo
+echo "-- 8d. CK-15 未加引号的冒号空格标量 --"
+if python -c "import re" 2>/dev/null; then
+  ck15="$(python - "$AI_DIR" <<'PYEOF'
+import glob, os, re, sys
+
+ai_dir = sys.argv[1]
+colon_space = ': '
+
+# 键名允许非 ASCII：.ai/ 的值全是中文，键名将来也可能是中文，
+# 用 [A-Za-z_] 限定会把中文键整行漏掉。
+key_re = re.compile(r'^([^\s:#]+)[ \t]*:[ \t]+(.*)$')
+block_start = re.compile(r'^[|>][-+0-9]*\s*$')
+list_mark = re.compile(r'^-\s+')
+# 流映射内部的条目分隔：逗号后紧跟「键: 」才算一个新条目，
+# 避免把值内部的逗号误切。
+flow_split = re.compile(r',\s+(?=[^\s:#]+[ \t]*:)')
+
+def plain_scalar_bad(value):
+    # 未加引号的纯标量值内含「冒号加空格」时，YAML 解析会失败。
+    # 时刻字面量（12:30）与 URL（https://）的冒号后面跟的是数字或斜杠，
+    # 本就不构成「冒号加空格」，因此不为它们设任何豁免——早前的豁免用整串子串
+    # 搜索，反而让「值里前面有个时刻、后面又有裸冒号」的写法整行漏网。
+    v = value.strip()
+    if not v:
+        return False
+    # 带锚点或标签前缀的流集合（&anchor {…} / !!map {…}）首字符是 & 或 !，
+    # 剥掉前缀后再判定定界符，否则会被当成纯标量而在其内部误报。
+    m_anchor = re.match(r'^[&!][^\s]*\s+', v)
+    if m_anchor:
+        v = v[m_anchor.end():].strip()
+        if not v:
+            return False
+    if v[0] == '{':
+        inner = v.strip()
+        inner = inner[1:-1] if inner.endswith('}') else inner[1:]
+        for seg in flow_split.split(inner):
+            seg = seg.strip()
+            if seg.startswith('{'):
+                seg = seg[1:]
+            m = key_re.match(seg)
+            if m and plain_scalar_bad(m.group(2)):
+                return True
+        return False
+    if v[0] in '\'"[':
+        return False
+    return colon_space in v.split(' #', 1)[0]
+
+for path in sorted(glob.glob(os.path.join(ai_dir, '*.yaml')) +
+                  glob.glob(os.path.join(ai_dir, '*', '*.yaml'))):
+    rel = os.path.relpath(path, os.path.dirname(os.path.dirname(path)))
+    bad = []
+    block_indent = None
+    with open(path, encoding='utf-8') as fh:
+        for lineno, raw in enumerate(fh, 1):
+            line = raw.rstrip('\n').rstrip('\r')
+            stripped = line.strip()
+            if block_indent is not None:
+                # 块标量内的空行不重置块态——YAML 里空行仍属块内容，
+                # 若在此重置，紧随空行之后的合法内容行会被误判。
+                if not stripped or (len(line) - len(line.lstrip())) > block_indent:
+                    continue
+                block_indent = None
+            if not stripped or stripped.startswith('#'):
+                continue
+            work = line.strip()
+            indent = len(line) - len(line.lstrip())
+            m = key_re.match(work)
+            if not m:
+                # 列表项：剥掉 "- " 后再判。- {id: ..., note: ...} 是本仓库
+                # checkpoint.history 与 verification-state gates 的实际写法，
+                # 漏判它等于漏掉最高频的形态。
+                lm = list_mark.match(work)
+                if lm:
+                    rest = work[lm.end():]
+                    if rest.startswith('{'):
+                        if plain_scalar_bad('{' + rest):
+                            bad.append((lineno, rest.split(' #', 1)[0][:60].rstrip()))
+                        continue
+                    m = key_re.match(rest)
+            if not m:
+                continue
+            value = m.group(2).strip()
+            if block_start.match(value):
+                block_indent = indent
+                continue
+            if not value:
+                continue
+            if plain_scalar_bad(value):
+                bad.append((lineno, value.split(' #', 1)[0][:60].rstrip()))
+    for lineno, body in bad:
+        print("FAIL\t%s\t%d\t%s" % (rel, lineno, body))
+    print("%s\t%s" % ("SUMOK" if not bad else "SUMBAD", rel))
+PYEOF
+)"
+  ck15_rc=$?
+  # 崩溃守卫：命令替换只收 stdout，traceback 走 stderr。若 python 崩溃，ck15 只剩
+  # 崩溃前已 flush 的部分，其余文件零断言而汇总仍显示 PASS——与 8c 曾修过的
+  # 「判据静默消失」同类。rc 非 0 即判 FAIL 并清空输出。
+  if [ "$ck15_rc" -ne 0 ]; then
+    bad "8d 组内嵌 python 异常退出（rc=$ck15_rc）——判据未产出，全部 CK-15 断言缺失"
+    ck15=""
+  fi
+  ck15="$(printf '%s\n' "$ck15" | tr -d '\r')"
+  while IFS="$(printf '\t')" read -r kind rel lineno body; do
+    [ -z "$kind" ] && continue
+    if [ "$kind" = "FAIL" ]; then
+      bad "$rel 第 $lineno 行：未加引号的标量值内含冒号加空格，YAML 解析会失败（CK-15）——$body"
+    elif [ "$kind" = "SUMOK" ]; then
+      ok "$rel 无未加引号的冒号空格标量（CK-15）"
+    elif [ "$kind" = "SUMBAD" ]; then
+      bad "$rel 存在未加引号的冒号空格标量（CK-15），行号见上"
+    fi
+  done <<< "$ck15"
+else
+  skip=$((skip+1))
+  echo "  [SKIP] python 不可用，跳过 CK-15"
 fi
 
 # --- 汇总 ---

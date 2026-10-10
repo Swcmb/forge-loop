@@ -179,7 +179,7 @@ gates:
   # 各 Gate 的实际执行记录（DESIGN.md §36/§37/§38）。按 Task 分条累积——
   # requirement-matrix.yaml 头部的 §58 跃迁说明指向本段，读者需要能查到每条状态
   # 转换所依据的那一次 Gate 执行，而不只是一句总括。
-  test_gate: passed          # 汇总态：最近一次 = T-12 的 76/76（见 test_gate_by_task）
+  test_gate: passed          # 汇总态：最近一次 = T-14 的 83/83（见 test_gate_by_task）
   review_gate: passed        # 汇总态：最近一次 = T-12 的第 4 轮（见 review_gate_by_task）
   requirement_gate: passed   # 汇总态：最近一次 = T-12 的 REQ-008（见 requirement_gate_by_task）
 
@@ -187,6 +187,9 @@ gates:
     - {task: T-10b, result: "52/52 PASS exit 0 + 多场景负向 exit 1", reqs: [REQ-005]}
     - {task: T-12, result: "76/76 PASS exit 0 + 负向 N1–N11 各 exit 1", reqs: [REQ-008],
        detail: "doc/verification/forgeloop-phase1/test-record.md §6"}
+    - {task: T-14, result: "83/83 PASS exit 0；新增 8d 组 CK-15 的 6 条断言，15 行综合边界用例",
+       reqs: [REQ-009],
+       detail: "doc/verification/forgeloop-phase1/consistency-recheck-record.md §3"}
 
   review_gate_by_task:
     - {task: T-10b, result: "code-reviewer 六维，EXEC-1 三轮 + EXEC-2 两轮，无阻断项",
@@ -194,6 +197,9 @@ gates:
     - {task: T-11, result: "code-reviewer 六维 5 轮，无阻断项", reqs: [REQ-006, REQ-007]}
     - {task: T-12, result: "code-reviewer 六维 4 轮，第 4 轮 0 CRITICAL", reqs: [REQ-008],
        detail: "doc/verification/forgeloop-phase1/state-persistence-record.md §7"}
+    - {task: T-14, result: "code-reviewer 六维 4 轮；第 3、4 轮均 0 MAJOR，第 4 轮两条 MAJOR 经逐字节比对确认修复",
+       reqs: [REQ-009],
+       detail: "doc/verification/forgeloop-phase1/consistency-recheck-record.md §3.5"}
 
   requirement_gate_by_task:
     - {task: T-10b, result: "Evidence 八字段 → verified", reqs: [REQ-001..REQ-005]}
@@ -201,3 +207,38 @@ gates:
     - {task: T-12, result: "Evidence 八字段齐备；Review Gate 未落定前状态保持 reviewing",
        reqs: [REQ-008],
        detail: ".ai/forgeloop-phase1/evidence.yaml REQ-008"}
+
+# 结构化自检的判据登记册。判据存在于脚本却不在册，可追溯性即断裂——下次更新判据
+# 矩阵时会遗漏它。编号与 scripts/check-forge-loop.sh 内的 CK 标注一一对应。
+checks:
+  CK-01..CK-06:
+    desc: 上游 iterative-development / mvp 副本的兼容性判据（ADR-001 §2 / ADR-005 §2）
+    implemented: CK-06 由自检第 5 组自动校验（git hash-object 比对登记指纹）；CK-01 至 CK-05 为人工判据
+  CK-07:
+    desc: 仓库源码 vs 库部署目标一致性（ADR-003）
+    task: T-10b-EXEC-1
+  CK-08:
+    desc: SKILL.md §105 五项职责锚点（ADR-004）
+    task: T-10b-EXEC-1
+  CK-09:
+    desc: .ai/ 运行状态落盘契约（骨架键 + 叶子字段）
+    task: T-10b-EXEC-2
+  CK-10:
+    desc: Checkpoint 按 §53 原字段名逐字段断言（自检 8c 组）
+    task: T-12
+  CK-11:
+    desc: checkpoint.history 为非空列表且每项含 id 与 git_commit（§54 逐 CP 配对）
+    task: T-12
+  CK-12:
+    desc: 每个非占位值锚点实测 git merge-base --is-ancestor（§54 锚点可达）
+    task: T-12
+  CK-13:
+    desc: checkpoint.progress.requirements 四键与 requirement-matrix 实际状态分布一致
+    task: T-12
+  CK-14:
+    desc: version-state.git.head 在集成分支上可达（§98 Resume 定位前提）
+    task: T-12
+  CK-15:
+    desc: .ai/ 全部 YAML 不得出现未加引号的冒号空格标量（自检 8d 组，独立于 YAML 解析）
+    task: T-14
+    detail: doc/verification/forgeloop-phase1/consistency-recheck-record.md §3

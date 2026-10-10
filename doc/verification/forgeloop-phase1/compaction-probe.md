@@ -163,6 +163,46 @@ exit 0
 
 ---
 
+## 第 4 次 probe（T-14 状态一致性复核时的复跑）
+
+**目的**：确认「上一 Task 结束时记录的基线」在下一 Task 推进后发生了什么。
+详细对比见 `consistency-recheck-record.md` §2。
+
+### 基线
+
+```text
+c9d2fd5a3ae2bab170afc132fe143798b2878942fbbf091361765001abf02b2f  .ai/development-status.yaml
+97ca6ec87177ff8ac7835cc81a0e76a57f0f81b2c38baed1700d8cd2aca9d9ca  .ai/version-state.yaml
+559b6bd6eb74aa7ba19b90956171f03e0f2ce8d8f484d97b9e52a7e256cf2ffa  .ai/verification-state.yaml
+8d05b437c9ccb4ff644a4dc3af4a20d8a67ae988b7e7db8ef1aa95cf46353d2c  .ai/forgeloop-phase1/tasks.md
+33082f2e68d55ae7ba425018aa16afbcbc64c875b104f6a571adf48f59c269b3  .ai/forgeloop-phase1/evidence.yaml
+```
+
+Iteration ID：`ITER-002`　｜　Task：`T-14`　｜　Checkpoint：`CP-007` / `5450675`
+
+### 与第 3 次的差异
+
+五个文件中三个变化、两个不变，**每一处变化都能对应到 T-14 的具体动作**（建立 CP-007、
+回填 `git.head` 与 REQ-009 的 `implementation.commit`），两个不变的文件本 Task 未触碰。
+无「无法归因的漂移」。
+
+### 判定
+
+**通过。** 该次 probe 验证的不是「状态文件不再变化」，而是「在某一时刻，文件内容与该时刻
+的工程状态一致」——后者才是恢复链真正依赖的性质。
+
+### 该基线的时效
+
+第 4 次 probe 之后，T-14 继续做了两件事：`verification-state.yaml` 追加了 CK-01..CK-15
+判据登记册，`scripts/check-forge-loop.sh` 因 CK-15 重写而变更。**五个状态文件中只有
+`verification-state.yaml` 的 hash 因此失效**，其余四个仍与本节基线一致。
+
+按本文件「时效边界」节的规则，此处不重取第 5 次基线——T-14 尚未提交，状态文件还会变。
+重取只会立刻过期。判断一份 probe 是否可用，看的是它声称锚定的时刻与使用它的时刻是否
+相同；本节锚定的是 T-14 复核时点，其用途（解释 CP-007 建立的漂移）已完成。
+
+---
+
 ## 协议五步与本文件字段的对应
 
 | 协议步骤 | 要求 | 本文件落点 |

@@ -289,7 +289,7 @@ REQ-009:
   spec: {section: DESIGN.md §79, §98-99, version: "absent: not-started"}
   task: [T-13]
   implementation:
-    commit: "pending: T-13 merge"
+    commit: "5450675"                               # T-14 按 rules/git-integration.md §11.2 回填
     artifacts:
       - doc/verification/forgeloop-phase1/recovery-record.md
       - doc/verification/forgeloop-phase1/compaction-probe.md

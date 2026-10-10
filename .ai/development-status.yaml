@@ -22,20 +22,21 @@ iteration:
   task_seq: 15                                          # 本 goal 内第 15 个 Task
 
 checkpoint:
-  last: CP-006
-  id: CP-006
+  last: CP-007
+  id: CP-007
   goal: {id: FL-001}
   iteration: {id: ITER-002}
-  task: {id: T-12}
-  git: {commit: "578eeaa"}                              # §53 原字段名；T-13 按 §11.2 回填
+  task: {id: T-13}
+  git: {commit: "5450675"}                              # §53 原字段名；PR Swcmb/forge-loop#13 squash
   spec: {version: "absent: not-started"}               # §53 原字段名；第一阶段 SPEC 不在范围
   progress:
     # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status 实际分布一致，
     # 由自检 8c 组的 CK-13 跨文件核对，避免两处各自漂移。
     requirements: {total: 9, verified: 9, reviewing: 0, pending: 0}
-  note: T-12 Checkpoint + State Persistence 验证完成。CP-001..CP-005 双重落点经
-        git merge-base --is-ancestor 逐条验证；CP-004→CP-005 状态演进从 Git 历史提取；
-        冲突判据两向实测（触发 / 不误报）。V-06/V-07 → passed。下一 Task = T-13
+  note: T-13 Recovery 演练完成。§11.2 回填完成（CP-006 的 git.commit → 578eeaa，
+        git.head 同步）。三场景由 fork_context 为 false 的零上下文子代理执行：Session
+        Restart 十项状态零偏差；Context Compaction 五个 SHA256 逐一字节一致；
+        Interrupted Work 正确判定 Continue 而非重做。V-08 → passed。下一 Task = T-14
   convention: >-
     git_commit 的取值口径、占位值词表（pending: <taskID> merge）、回填时同步
     git.head 的要求，见 rules/git-integration.md §11。本字段仅留指针，规则条文
@@ -53,6 +54,7 @@ checkpoint:
     - {id: CP-004, git_commit: "9217165", task: T-10b-EXEC-2, note: 原记 0f7fd4f（分支内 commit，squash 后失联）}
     - {id: CP-005, git_commit: "24d6e2c", task: T-11, note: 原记 9217165（实为 CP-004 的 main 侧 commit，指向滞后一格）}
     - {id: CP-006, git_commit: "578eeaa", task: T-12, note: "PR Swcmb/forge-loop#12 squash merge"}
+    - {id: CP-007, git_commit: "5450675", task: T-13, note: "PR Swcmb/forge-loop#13 squash merge；§11.2 回填后建立"}
 
 blockers:
   - id: BL-001
