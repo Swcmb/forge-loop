@@ -108,4 +108,4 @@ REQ-009:
   acceptance:
     AC-013:
       description: 三类中断场景（Restart/Compaction/Interrupted Work）状态一致
-  status: PENDING
+  status: VERIFIED         # §38：Review Gate 第 3 轮 0 Blocker / 0 Important + Evidence 八字段齐备

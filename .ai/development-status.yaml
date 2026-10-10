@@ -13,13 +13,13 @@ phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
-  current: T-13                                          # Recovery 演练（下一步）
+  current: T-14                                          # 状态一致性负向验证复核（下一步）
   status: ready
-  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12]
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13]
 
 iteration:
   current: ITER-002                                    # §49
-  task_seq: 14                                          # 本 goal 内第 14 个 Task
+  task_seq: 15                                          # 本 goal 内第 15 个 Task
 
 checkpoint:
   last: CP-006
@@ -27,12 +27,12 @@ checkpoint:
   goal: {id: FL-001}
   iteration: {id: ITER-002}
   task: {id: T-12}
-  git: {commit: "pending: T-12 merge"}                 # §53 原字段名；squash 后由 T-13 回填
+  git: {commit: "578eeaa"}                              # §53 原字段名；T-13 按 §11.2 回填
   spec: {version: "absent: not-started"}               # §53 原字段名；第一阶段 SPEC 不在范围
   progress:
     # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status 实际分布一致，
     # 由自检 8c 组的 CK-13 跨文件核对，避免两处各自漂移。
-    requirements: {total: 9, verified: 8, reviewing: 0, pending: 1}
+    requirements: {total: 9, verified: 9, reviewing: 0, pending: 0}
   note: T-12 Checkpoint + State Persistence 验证完成。CP-001..CP-005 双重落点经
         git merge-base --is-ancestor 逐条验证；CP-004→CP-005 状态演进从 Git 历史提取；
         冲突判据两向实测（触发 / 不误报）。V-06/V-07 → passed。下一 Task = T-13
@@ -41,12 +41,18 @@ checkpoint:
     git.head 的要求，见 rules/git-integration.md §11。本字段仅留指针，规则条文
     不落在 per-Goal 运行态文件里（FL-002 建立时本文件会被重写）。
   history:                                        # §54 Version Comparison / Progress Tracking 的锚点
-    - {id: CP-001, git_commit: bab31db, task: T-01..T-10a, note: 原记 823615b（分支内 commit，squash 后失联）}
-    - {id: CP-002, git_commit: 2ccef05, task: 更正 mvp 安装状态与 CP-002 记录}
-    - {id: CP-003, git_commit: a8b60e9, task: T-10b-EXEC-1, note: "结构化 last 未落盘——被 CP-004 的状态写入直接覆盖；Git 侧由 a8b60e9 与 PR #9 确认"}
-    - {id: CP-004, git_commit: 9217165, task: T-10b-EXEC-2, note: 原记 0f7fd4f（分支内 commit，squash 后失联）}
-    - {id: CP-005, git_commit: 24d6e2c, task: T-11, note: 原记 9217165（实为 CP-004 的 main 侧 commit，指向滞后一格）}
-    - {id: CP-006, git_commit: "pending: T-12 merge", task: T-12}
+    # git_commit 一律加引号保持字符串类型：纯数字短 hash（9217165）不加引号会被 YAML
+    # 解析成整数，与其余字符串值类型分裂，跨文件比较与打印行为不一致。
+    # Scope 观察（T-13 Review 记录）：§11.2 的字面授权是「回填该 Checkpoint 的 hash」，
+    # 而此处统一了全部六条的类型。CP-004 的 9217165 由 int 变 str 是真实的类型修正，
+    # 其余五行为无行为变化的一致性处理。**类型统一的授权边界由 Review Gate 判定，
+    # 此处仅记录事实与影响范围**，不预先裁定其是否越权。历史值未改写。
+    - {id: CP-001, git_commit: "bab31db", task: T-01..T-10a, note: 原记 823615b（分支内 commit，squash 后失联）}
+    - {id: CP-002, git_commit: "2ccef05", task: 更正 mvp 安装状态与 CP-002 记录}
+    - {id: CP-003, git_commit: "a8b60e9", task: T-10b-EXEC-1, note: "结构化 last 未落盘——被 CP-004 的状态写入直接覆盖；Git 侧由 a8b60e9 与 PR #9 确认"}
+    - {id: CP-004, git_commit: "9217165", task: T-10b-EXEC-2, note: 原记 0f7fd4f（分支内 commit，squash 后失联）}
+    - {id: CP-005, git_commit: "24d6e2c", task: T-11, note: 原记 9217165（实为 CP-004 的 main 侧 commit，指向滞后一格）}
+    - {id: CP-006, git_commit: "578eeaa", task: T-12, note: "PR Swcmb/forge-loop#12 squash merge"}
 
 blockers:
   - id: BL-001
@@ -58,5 +64,5 @@ blockers:
 
 verification:
   overall: in-progress
-  passed: [V-00, V-01, V-02, V-03, V-04, V-05, V-06, V-07, V-09, V-10, V-11, V-12, V-13]
-  pending: [V-08]
+  passed: [V-00, V-01, V-02, V-03, V-04, V-05, V-06, V-07, V-08, V-09, V-10, V-11, V-12, V-13]
+  pending: []

@@ -7,7 +7,7 @@
 # --- 续行标记（文件级 top-level 字段，不隶属于任一 Checkpoint 段）---
 
 mode: goal
-next: T-13
+next: T-14
 
 REQ-005:
   title: Test —— 能测试
@@ -203,7 +203,7 @@ REQ-007:
                 runtime/acceptance 八字段；runtime 按 DI-08 写显式 N/A + 理由，不留空
   status: verified
 
-# --- Checkpoint CP-006（T-12）：Checkpoint + State Persistence 验证 ---
+# --- Checkpoint CP-006（T-12 已合并 578eeaa；hash 由 T-13 按 §11.2 回填）---
 
 REQ-008:
   title: Git Checkpoint —— 能形成 Git Checkpoint
@@ -211,7 +211,7 @@ REQ-008:
   spec: {section: DESIGN.md §53-54, version: "absent: not-started"}
   task: [T-12]
   implementation:
-    commit: "pending: T-12 merge"                    # 回填规则见 rules/git-integration.md §11.2
+    commit: "578eeaa"                               # T-13 按 rules/git-integration.md §11.2 回填
     artifact: doc/verification/forgeloop-phase1/state-persistence-record.md
   tests:
     - Checkpoint 双重落点：结构化字段进 .ai/ 状态文件 + Git 记录进版本历史
@@ -260,8 +260,11 @@ REQ-008:
       evidence: >-
         Git 侧成立：CP-001..CP-005 均有 main 侧 commit 可追溯（逐条经
         git merge-base --is-ancestor 实测，命令与输出见 state-persistence-record.md §1.1）；
-        CP-006 的 checkpoint.git.commit 为 §11.2 占位值，尚未产生 hash，可达性待 T-13
-        回填后校验——自检 CK-12 对占位值按规则豁免，该项从未跑过可达性实测。
+        CP-006 的 checkpoint.git.commit 已由 T-13 按 rules/git-integration.md §11.2
+        回填为 578eeaa（PR Swcmb/forge-loop#12 squash），并经自检 CK-12 实测在集成分支
+        上可达，六条锚点全部命中 exit 0。回填前该值为 §11.2 占位值、CK-12 按规则豁免，
+        故当时该项未经实测；现已完成实测。该结论的权威处为 verification-state.yaml 的
+        V-06，本条不复述其证据细节。
         .ai/ 结构化落盘覆盖 CP-001/002/004/005/006；CP-003 的 checkpoint.last 未落盘
         ——被 CP-004 的状态写入直接覆盖，其归属由 a8b60e9（父提交 2ccef05=main，提交
         信息自述三次 squash）与仓库内 version-state.yaml 的「PR Swcmb/forge-loop#9」
@@ -274,6 +277,63 @@ REQ-008:
         固化逐 CP 配对与可达性 + 口径立为 rules/git-integration.md §11。
         CP-001 为历史记录，main 侧对应 bab31db，在本记录与 tasks.md 标注保持可追溯。
   status: verified          # §38：Review Gate 第 5 轮 PASS + Evidence 八字段齐备
+
+# --- CP-006 续（T-13）：§11.2 回填 + Recovery 演练 ---
+# 编号说明：本段不新建 Checkpoint。它是对 CP-006 记录的**续写**——T-13 按
+# rules/git-integration.md §11.2 回填了 CP-006 的 git.commit，并在同一 Checkpoint
+# 边界内产生了 REQ-009 的证据。CP-007 将由 T-14 形成。
+
+REQ-009:
+  title: Recovery —— 能恢复中断状态
+  source: [SRC-001]
+  spec: {section: DESIGN.md §79, §98-99, version: "absent: not-started"}
+  task: [T-13]
+  implementation:
+    commit: "pending: T-13 merge"
+    artifacts:
+      - doc/verification/forgeloop-phase1/recovery-record.md
+      - doc/verification/forgeloop-phase1/compaction-probe.md
+    note: 本 Task 同时完成 rules/git-integration.md §11.2 要求的回填——CP-006 的
+      checkpoint.git.commit 与 version-state.git.head 由占位值 / 24d6e2c 改为 main 侧
+      578eeaa，evidence.yaml 的 REQ-008 implementation.commit 同步。三处同批写入。
+  tests:
+    - 场景 A Session Restart：零上下文子代理重建 10 项状态，与写入方逐字段零偏差
+    - 场景 B Context Compaction：5 个状态文件 SHA256 压缩前后逐一字节一致，子代理显式声明 restored_from: files-only
+    - 场景 C Interrupted Work / Partial Execution：真实半成品工作树上，子代理严格按 §3.5 判据原文执行（条件①成立 ②不成立 → 不触发 STOP），并判定 Continue 而非重做
+    - 自检复跑（场景 C 发现 V-06 的锚点断言缺独立验证后执行）：bash scripts/check-forge-loop.sh → 76/76 PASS exit 0，其中「锚点…在 main 上可达」命中 6 条
+  review:
+    status: passed
+    reviewer: code-reviewer
+    rounds: 3
+    dimensions: [Correctness, Architecture, Security, Regression, Maintainability, Scope]
+    findings_closed:
+      - R1-I-1 compaction-probe 承诺的「第 3 次 probe」章节不存在且未标待补 → 新增占位小节并说明未提前取样的理由
+      - R1-I-2 evidence AC-012 与 V-06 对「CP-006 是否已回填/已实测」说法矛盾 → 统一口径，权威处归 V-06
+      - R1-I-3 version-state clean 注释断言「实测为空」当前为假 → 补时点限定，锚定 CP-006 提交时刻
+      - R1-I-4 「8 处偏差」中场景 A 的 4 处从未枚举，数字一半不可追溯 → 新增 §1.6 逐条枚举 + §1.7 口径说明
+      - R1-I-5 §2.1「等价构造」与 §5「并不完全等价」冲突 → 统一为「性质相近」
+      - R1-M-1 task_seq 口径差异只解释了一半 → §1.7 补齐三处来源
+      - R1-M-2 §6 关联指向尚不存在的 T-14 记录 → 标注「待产出」
+      - R1-M-3 V-09 的 task 改写丢失详细设计的「范围检查」语义 → 恢复权威值 T-15 + 范围检查，另加 task_note
+      - R1-M-4 checkpoint.history 引号化触及 CP-001..005 → 记录为 Scope 观察，授权边界交 Review Gate 判定
+      - R1-M-5 §3.3 把 Unexpected Git State 列入命中表又说不构成冲突 → 移出命中表，改为独立说明段
+      - R2-MAJOR §1.7 对第三处「差 1」的归因与实测相反 → 实测 tasks.md 已勾选 14 项与 task_seq 相等，该归因不成立，已改写
+      - R2-MAJOR §1.6 A-4 的处置描述与 M-3 撤销后的 V-09 实际值矛盾 → A-4 处置改为与实际字段一致
+      - R2-MINOR §1.6 标题「4 处偏差」与正文「共 5 项」并存 → 统一为「5 项观察」
+      - R2-MINOR history 注释在 Review 未落定前自行裁定「授权内」 → 改为「授权边界由 Review Gate 判定」
+      - R3-MINOR §1.6 正文引导句仍写「前 4 项是状态缺陷」 → 改为「前 4 项是状态层面的观察」，缺陷计数只由计数段与 §4 承载
+    cross_review: 第 1/2 轮的两个独立 Reviewer 对同一批问题给出一致结论，交叉验证成立
+    verdict: 第 3 轮 0 Blocker / 0 Important / 1 Minor（该 Minor 为非阻断的文字残留，已修）
+    record: doc/verification/forgeloop-phase1/recovery-record.md
+  runtime: {status: N/A, reason: phase-1 artifact is markdown, no runtime surface}
+  acceptance:
+    AC-013:
+      status: passed
+      description: 三类中断场景（Restart/Compaction/Interrupted Work）状态一致
+      evidence: 见 tests 四项；三场景均由 fork_context 为 false 的零上下文子代理执行，
+        结论来自子代理独立测量。方法学边界（无法真实触发 /compact，零上下文子代理只与
+        之性质相近而非等价）已在 recovery-record.md §5 显式声明
+  status: verified
 
 # --- 前置 Requirement（T-09b / T-10a，本轮复核确认）---
 
@@ -340,7 +400,9 @@ assertions:
     evidence: >-
       mode/next 为文件顶部单处 top-level 字段，每 Checkpoint 覆盖写入当时的续行目标
       （非累积）。CP-003 时刻写入 next=TASK-EXEC-2，CP-004 时刻写入 next=T-11；
-      当前文件保留最新快照（mode: goal / next: T-11）。判据「Checkpoint 后出现标记」
+      文件保留每个 Checkpoint 时刻的**最新**快照，非累积——该字段随之被后续 Checkpoint
+      覆写。本行原文写的是「当前文件保留最新快照（mode: goal / next: T-11）」，写下时
+      成立；T-12、T-13 形成后该值已依次变为 T-12、T-13。判据「Checkpoint 后出现标记」
       按时刻成立，文件不保留历史值。
   deployed_copy_execution:
     desc: 用已部署副本执行（ADR-003 §1）

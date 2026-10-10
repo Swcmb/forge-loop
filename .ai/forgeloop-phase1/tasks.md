@@ -52,7 +52,12 @@
   附注：本 Task 内对 REQ-001..007 的 requirement-matrix 状态做了 `IMPLEMENTED` → `VERIFIED`
         对齐（由第 2 轮 Review 附注驱动，内容为元数据对齐，且被新增的 CK-13 依赖）。
         这几条 REQ 的实现归属 T-01..T-10b，状态对齐归属本 Task，后续归因勿记到 T-10b。
-- [ ] 15. T-13 Recovery 演练
+- [x] 15. T-13 Recovery 演练
+
+  Requirement: REQ-009（V-08）
+  Evidence: `doc/verification/forgeloop-phase1/recovery-record.md`（三场景）
+  + `compaction-probe.md`（probe 协议）；Review code-reviewer 三轮六维，第 3 轮 0 Blocker /
+  0 Important + 1 Minor
 - [ ] 16. T-14 状态一致性负向验证复核
 - [ ] 17. T-15 结构自检 + 全闭环证据汇总（V-00～V-13）
 
