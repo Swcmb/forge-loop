@@ -24,7 +24,7 @@ iteration:
 
 git:
   branch: main
-  head: "5450675"
+  head: "972a9fa"
   # clean 的比对对象与详细设计 §3.5 的冲突判据完全一致 = 代码与文档路径（排除 .ai/），
   # 即 `git status --porcelain -- ':!.ai/'`。迭代中途 `.ai/` 自身变脏属预期
   # （状态文件仅在 Checkpoint 提交），不计入本字段。
@@ -34,4 +34,4 @@ git:
   # 恢复者若按此刻跑该命令得非空结果，这与 §3.5 判据的处置一致（条件①成立但
   # task.status ≠ complete → 不触发 STOP，见 recovery-record.md §3.3）。
   # 字段值不应被读成「此刻的工作树快照」。
-  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-007 / 5450675）
+  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-008 / 972a9fa）
