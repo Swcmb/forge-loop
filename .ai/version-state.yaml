@@ -24,14 +24,14 @@ iteration:
 
 git:
   branch: main
-  head: "578eeaa"
+  head: "5450675"
   # clean 的比对对象与详细设计 §3.5 的冲突判据完全一致 = 代码与文档路径（排除 .ai/），
   # 即 `git status --porcelain -- ':!.ai/'`。迭代中途 `.ai/` 自身变脏属预期
   # （状态文件仅在 Checkpoint 提交），不计入本字段。
   #
-  # 时点：下面的 clean: true 锚定 CP-006 提交（578eeaa）时刻，该时刻比对对象为空。
-  # T-13 执行期间本工作树新增了两个未跟踪文档（recovery-record.md、compaction-probe.md），
-  # 它们落在比对对象内，故**当前**实测为非空。恢复者若按此刻跑该命令会得非空结果——
-  # 这与 §3.5 判据的处置一致（条件①成立但 task.status ≠ complete → 不触发 STOP，
-  # 见 recovery-record.md §3.3）。字段值不应被读成「此刻的工作树快照」。
-  clean: true                    # 锚定 CP-006（578eeaa）提交时刻的比对结果
+  # 时点：clean 的值锚定**最近一次 Checkpoint 提交时刻**，该时刻比对对象为空——
+  # 因为 Task 的产出物本身也落在比对对象内，提交前的任意时刻跑该命令都会得到非空。
+  # 恢复者若按此刻跑该命令得非空结果，这与 §3.5 判据的处置一致（条件①成立但
+  # task.status ≠ complete → 不触发 STOP，见 recovery-record.md §3.3）。
+  # 字段值不应被读成「此刻的工作树快照」。
+  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-007 / 5450675）
