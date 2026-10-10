@@ -74,8 +74,10 @@ criteria:
     evidence: >-
       Git 侧成立：CP-001..CP-005 均有 main 侧 commit 可追溯，逐条经
       git merge-base --is-ancestor 实测（命令与真实输出见 state-persistence-record.md
-      §1.1，可原样复跑）。CP-006 的 checkpoint.git.commit 为 §11.2 占位值，尚未产生
-      hash，可达性待 T-13 回填后校验——自检 CK-12 按规则对占位值豁免，该项从未实测。
+      §1.1，可原样复跑）。CP-006 的 checkpoint.git.commit 已由 T-13 按
+      rules/git-integration.md §11.2 回填为 578eeaa（PR Swcmb/forge-loop#12 squash），
+      并经自检 CK-12 实测在集成分支上可达——回填前该值为 §11.2 占位值，CK-12 按规则
+      对占位值豁免，故当时该项未经实测；现已完成实测，六条锚点全部命中 exit 0。
       .ai/ 结构化落盘覆盖 CP-001/002/004/005/006；CP-003 的 checkpoint.last 未落盘
       ——被 CP-004 的状态写入直接覆盖，归属由 a8b60e9 与仓库内 version-state.yaml 的
       「PR Swcmb/forge-loop#9」声明确认。该覆盖缺口是本判据的已知遗留，不计为双重落点
@@ -104,11 +106,32 @@ criteria:
   V-08:
     desc: Recovery 三场景（Restart/Compaction/Interrupted Work）状态一致证据
     task: T-13
-    status: pending
-    evidence: null
+    status: passed
+    evidence: >-
+      三场景均以「恢复者只有文件、没有对话记忆」为前提构造，由 fork_context: false 的
+      零上下文子代理执行，结论来自子代理独立测量而非主 agent 自我声明。
+      ① Session Restart：子代理独立重建 Goal/Phase/Mode/Task/Iteration/Checkpoint/
+      Requirement/判据/一致性 十项，与写入方逐字段零偏差。
+      ② Context Compaction：按 recovery.md §4 probe 五步，5 个状态文件的 SHA256
+      压缩前后逐一字节一致，恢复来源经子代理显式声明为 restored_from: files-only。
+      ③ Interrupted Work / Partial Execution：在真实的半成品工作树（4 个 .ai/ 文件
+      已改、recovery-record.md 未跟踪、T-13 未勾选、V-08 仍 pending）上，零上下文子代理
+      正确归类中断场景、严格按 §3.5 判据原文执行（条件①成立、条件②不成立 → 不触发
+      STOP）、区分已完成与未完成工作，并判定「Continue 而非重做」。
+      两个恢复子代理共报告 9 项观察（场景 A 5 项、场景 C 4 项），其中状态缺陷 3 项、
+      时效标注 2 项、验证动作 1 项、预期中间态 1 项、方法学提醒 1 项、观察项 1 项，
+      全部在 T-13 内修正或如实记录。计数口径见 recovery-record.md §1.6 与 §4。
+      方法学边界已声明：agent 无法调用 /compact，演练用零上下文子代理替代，二者共享
+      「恢复者只能依赖文件」的性质但不完全等价，故本演练证明状态落盘充分，不证明
+      harness 压缩行为。记录：doc/verification/forgeloop-phase1/recovery-record.md；
+      probe：同目录 compaction-probe.md
   V-09:
     desc: 无超前实现（L/M/N、audit-model.md、商业能力均未出现）
-    task: T-15
+    task: T-15 + 范围检查
+    task_note: >-
+      取值与详细设计 §5 的判据表一致（T-15 + 范围检查）。T-15 尚未执行，故这是前向引用；
+      本判据当前的实质证据来自自检第 1 组对 references/audit-model.md 不存在的持续断言
+      （见 test-record.md），而非 T-15 的执行结果。T-15 执行时收口复核一次。
     status: passed
     evidence: >-
       EXEC-1/CK-07+CK-08 与 EXEC-2/CK-09+8b 均限于 scripts/check-forge-loop.sh 与
