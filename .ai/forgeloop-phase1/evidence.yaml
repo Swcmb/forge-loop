@@ -7,7 +7,9 @@
 # --- 续行标记（文件级 top-level 字段，不隶属于任一 Checkpoint 段）---
 
 mode: goal
-next: T-14
+next: T-16                                # Goal Mode 续行标记（goal-mode.md §4）：
+                                          # 每次 Checkpoint 后覆写为当时的续行目标。
+                                          # T-14 提交时曾漏更（停留在 T-14），T-15 一并修正。
 
 REQ-005:
   title: Test —— 能测试

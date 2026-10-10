@@ -132,6 +132,11 @@ criteria:
       取值与详细设计 §5 的判据表一致（T-15 + 范围检查）。T-15 尚未执行，故这是前向引用；
       本判据当前的实质证据来自自检第 1 组对 references/audit-model.md 不存在的持续断言
       （见 test-record.md），而非 T-15 的执行结果。T-15 执行时收口复核一次。
+
+      【原稿，以上三句按 rules/state-and-recovery.md §9 原样保留】T-15 已于 2026-10-10 执行
+      完毕并完成收口复核，结论如下——§109 的 D / E / L / M / N 五项能力均未实现，
+      references/audit-model.md 不存在（自检第 1 组持续断言其不存在），仓库内无商业能力代码。
+      收口记录：doc/audits/mvp-acceptance.md §4 第 1 组与 §5 的未覆盖清单。
     status: passed
     evidence: >-
       EXEC-1/CK-07+CK-08 与 EXEC-2/CK-09+8b 均限于 scripts/check-forge-loop.sh 与
@@ -179,7 +184,7 @@ gates:
   # 各 Gate 的实际执行记录（DESIGN.md §36/§37/§38）。按 Task 分条累积——
   # requirement-matrix.yaml 头部的 §58 跃迁说明指向本段，读者需要能查到每条状态
   # 转换所依据的那一次 Gate 执行，而不只是一句总括。
-  test_gate: passed          # 汇总态：最近一次 = T-14 的 83/83（见 test_gate_by_task）
+  test_gate: passed          # 汇总态：最近一次 = T-15 的 85/85（见 test_gate_by_task）
   review_gate: passed        # 汇总态：最近一次 = T-12 的第 4 轮（见 review_gate_by_task）
   requirement_gate: passed   # 汇总态：最近一次 = T-12 的 REQ-008（见 requirement_gate_by_task）
 
@@ -187,9 +192,12 @@ gates:
     - {task: T-10b, result: "52/52 PASS exit 0 + 多场景负向 exit 1", reqs: [REQ-005]}
     - {task: T-12, result: "76/76 PASS exit 0 + 负向 N1–N11 各 exit 1", reqs: [REQ-008],
        detail: "doc/verification/forgeloop-phase1/test-record.md §6"}
-    - {task: T-14, result: "83/83 PASS exit 0；新增 8d 组 CK-15 的 6 条断言，15 行综合边界用例",
+    - {task: T-14, result: "83/83 PASS exit 0；新增 8d 组 CK-15 的 6 条断言，17 行综合边界用例",
        reqs: [REQ-009],
        detail: "doc/verification/forgeloop-phase1/consistency-recheck-record.md §3"}
+    - {task: T-15, result: "85/85 PASS exit 0；新增 CP-008/CP-009 两条锚点使 CK-12 断言 +2（7→9）",
+       reqs: [REQ-009],
+       detail: "doc/audits/mvp-acceptance.md §4"}
 
   review_gate_by_task:
     - {task: T-10b, result: "code-reviewer 六维，EXEC-1 三轮 + EXEC-2 两轮，无阻断项",
