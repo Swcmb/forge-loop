@@ -41,7 +41,7 @@ PROJECT_INIT → DISCOVERY → MVP_DEFINITION → REQUIREMENT_EXTRACTION
 
 ## 4. 第一阶段的激活状态集合
 
-第一阶段（§109 的 A/B/C/F/G/H/I/J/K；L/M/N 延后）各态行为：
+第一阶段（§109 的 A/B/C/F/G/H/I/J/K）各态行为；第二阶段 L/M/N 由 ADR-007 裁定承接：
 
 | 态 | 第一阶段行为 |
 | :--- | :--- |
@@ -50,7 +50,7 @@ PROJECT_INIT → DISCOVERY → MVP_DEFINITION → REQUIREMENT_EXTRACTION
 | `REQUIREMENT_EXTRACTION` / `REQUIREMENT_REVIEW` | 产出 `requirement-matrix.yaml`，`document-reviewer` 审（B） |
 | `SPECIFICATION` / `SPEC_REVIEW` / `PLANNING` | 路由到本机 `spec` / `writing-plans`，ForgeLoop 只做路由与 Gate；执行体复用既有 skill |
 | `ITERATIVE_DEVELOPMENT` | 本阶段主循环：单 Task 迭代 → Test → Review → Verify → Commit → Checkpoint |
-| `FINAL_AUDIT` / `RELEASE_READY` / `COMPLETE` | 报告阶段收口：提示进入第二迭代，本阶段不执行 Audit / Release（L/M/N 延后） |
+| `FINAL_AUDIT` / `RELEASE_READY` / `COMPLETE` | 第一阶段报告收口；FL-002 起执行 Final Audit（L，`audit-model.md` §1–§6，T-22 交付）与 Release（N，`version-control.md` §6，T-24 交付） |
 | `BLOCKED` | 记录 Blocker（Cause / Impact / Required Action / Context） |
 
 ## 5. Goal Continuation（§65）
