@@ -39,10 +39,12 @@ REQUIRED_REFS=(
 for f in "${REQUIRED_REFS[@]}"; do
   if [ -s "$REF_DIR/$f" ]; then ok "$f 存在且非空"; else bad "$f 缺失或为空"; fi
 done
-if [ -e "$REF_DIR/audit-model.md" ]; then
-  bad "audit-model.md 不应存在（随 §109 的 L/M 延后，ADR-004）"
+# T-26 翻转（ADR-007 §6 第 1 组）：L/M 已交付，audit-model.md 必须存在且非空；
+# REQUIRED_REFS 不动（保持第一阶段 10 项基准），audit-model.md 独立断言。
+if [ -s "$REF_DIR/audit-model.md" ]; then
+  ok "audit-model.md 存在且非空（L/M 契约，T-22/T-23 交付）"
 else
-  ok "audit-model.md 未出现（符合第一阶段范围）"
+  bad "audit-model.md 缺失或为空（§109 的 L/M 已交付，必须存在）"
 fi
 
 # --- 2. SKILL.md 与 frontmatter ---
@@ -84,13 +86,15 @@ echo
 echo "== 3. reference 交叉引用可解析 =="
 # 运行期工件与外部文档不是 reference，其引用不纳入本项校验
 RUNTIME_ARTIFACTS="source-index.md tasks.md compaction-probe.md skills-provenance.md"
+# 待交付引用豁免：T-22 交付 audit-model.md 后从此列表移除（T-26 翻转第 1 组时同批处理）
+PENDING_REFS=""   # T-26 起 audit-model.md 已交付，豁免列表清空
 mapfile -t KNOWN < <(cd "$REF_DIR" && ls *.md 2>/dev/null)
 broken=0
 for ref in "${KNOWN[@]}"; do
   while read -r cited; do
     [ -z "$cited" ] && continue
     [ "$cited" = "$ref" ] && continue
-    case " $RUNTIME_ARTIFACTS " in *" $cited "*) continue ;; esac
+    case " $RUNTIME_ARTIFACTS $PENDING_REFS " in *" $cited "*) continue ;; esac
     if [ ! -f "$REF_DIR/$cited" ]; then
       bad "$ref 引用了不存在的 reference：$cited"
       broken=$((broken+1))
@@ -700,6 +704,22 @@ PYEOF
 else
   skip=$((skip+1))
   echo "  [SKIP] python 不可用，跳过 CK-15"
+fi
+
+# --- 10. D 契约越界判据（REQ-D / AC-D4，T-18）---
+# 判据能检出「自建生成引擎」的越界实现：requirement-model.md §7 的路由声明必须
+# 明确生成体复用既有 skill，且 SKILL.md 不得出现自建 SPEC 生成引擎的措辞。
+echo
+echo "== 10. D 契约越界判据（AC-D4）=="
+if grep -q "T-18 契约" "$REF_DIR/requirement-model.md"; then
+  ok "requirement-model.md §7 SPEC 路由契约已承载（T-18）"
+else
+  bad "requirement-model.md 缺 T-18 契约（§22–§25 路由与 Gate）"
+fi
+if grep -qE "不实现.*SPEC 生成引擎|自建.*生成引擎" "$SKILL_DIR/SKILL.md"; then
+  bad "SKILL.md 出现自建生成引擎措辞（AC-D4 越界判据命中）"
+else
+  ok "SKILL.md 无自建生成引擎措辞（AC-D4）"
 fi
 
 # --- 汇总 ---
