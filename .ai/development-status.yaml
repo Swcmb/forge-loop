@@ -28,9 +28,10 @@ phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
-  current: T-16                                          # Phase 2 范围裁定 + Goal 建立（下一步）
-  status: ready
-  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15]
+  current: T-17                                          # B-03 解除：VERSION 唯一版本源
+  status: complete                                       # 自检 94/0/1 skip 全过，负向两条 exit 1
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15, T-16]
+  next: T-18                                             # D 契约：SPEC 路由与 SPEC_APPROVED Gate
 
 iteration:
   current: ITER-003                                    # §49。FL-002 的首个 Iteration：

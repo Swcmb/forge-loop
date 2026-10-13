@@ -1,23 +1,26 @@
 # 版本状态（DESIGN.md §55 schema）
-# B-03（Project Version 无来源）未解除 → project.version 写显式待定值，
-# 其余字段正常维护（详细设计 §3.5）。版本判定服从 Global Version Management Rules，
+# B-03 已于 T-17 解除：仓库根 VERSION 文件为 Project Version 的唯一权威源
+# （ADR-007 §5；version-governance.md §9.2 / §4.6）。其余字段正常维护。
+# 版本判定仍服从 Global Version Management Rules，
 # 不得由 Design Version 推导（AGENTS.md §7、rules/version-management.md §5）。
 
 project:
-  version: "pending: B-03"            # B-03 未解除，不自定版本号
+  version: "0.1.0"                   # 引用仓库根 VERSION 文件（T-17 翻转值），Release 时由
+                                       # T-29/T-30 的 Global Version Management 判定是否变更
 
 goal:
   id: FL-002                           # 与 development-status.goal.id 同值，由自检 CK-16
                                        # 逐次核对（§55 schema 在两个文件各记一次 goal.id）。
                                        # FL-001 于 T-15 收口但未收口 Goal，其未覆盖部分
-                                       # （I-007 / I-008 / L / M / N / B-03）由 FL-002 承接。
+                                       # （I-007 / I-008 / L / M / N）由 FL-002 承接。
+                                       # B-03 已于 T-17 解除，不再列入承接范围。
   prev:
     id: FL-001
     closed_by: T-15
     closed_at_commit: "37c5f83"
 
 mvp:
-  version: "pending: B-03"            # 版本服从全局 Version Management，不自定
+  version: "0.1.0"                   # 与 project.version 同源（仓库根 VERSION 文件）
                                    # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
                                    # 与 .ai/forgeloop-phase2/mvp-scope.yaml（ADR-007 裁定）
   current_feature: forgeloop-phase2
