@@ -10,6 +10,7 @@ mode: goal
 next: T-16                                # Goal Mode 续行标记（goal-mode.md §4）：
                                           # 每次 Checkpoint 后覆写为当时的续行目标。
                                           # T-14 提交时曾漏更（停留在 T-14），T-15 一并修正。
+                                          # Phase 1 于 T-15 收口（37c5f83），T-16 起进入第二迭代。
 
 REQ-005:
   title: Test —— 能测试

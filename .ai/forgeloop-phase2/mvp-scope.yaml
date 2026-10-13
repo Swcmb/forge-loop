@@ -1,0 +1,50 @@
+# MVP Scope —— ForgeLoop 第二阶段
+# 依据 DESIGN.md §15（MVP Scope Model 格式）、§16（Minimality Gate 四问）
+# 范围裁定：doc/decisions/ADR-007-phase2-scope.md
+# §16 的上游启发式（slavingia/mvp）在第一阶段已确认缺席，Gate 判据仍以 §16 四问为准
+# （沿用 ADR-005 M-02 的口径）。
+
+mvp:
+  version: "pending: B-03"            # 版本服从全局 Version Management，不自定
+
+  required:                            # 本阶段必须兑现（§109 的 D / E / L / M / N）
+    - REQ-D                           # D  能生成 SPEC
+    - REQ-E                           # E  能生成 Plan
+    - REQ-L                           # L  能执行 Final Audit
+    - REQ-M                           # M  能继续修复 Audit Findings
+    - REQ-N                           # N  能进入 Release
+
+  optional:                           # 本阶段不做，但登记以免被误判为遗漏
+    - "SPEC / Plan 的原生生成体（复用本机 spec / writing-plans skill，见 ADR-007 §3）"
+    - "worktree 并行开发隔离（DESIGN.md §43；第一阶段已声明不启用）"
+
+  deferred:                           # 明确延后，不属本阶段
+    - "REQ-B-03 版本号本体裁定（版本源位置在 T-17 落定，版本号本体在 N 阶段落定）"
+    - "上游 skill 的升级与 compatibility check（ADR-001 C-06 的周期性动作）"
+
+  # §16 MVP Minimality Gate 四问（进入 SPEC 前逐条可答）
+  minimality_gate:
+    core_value: >-
+      第二阶段把 ForgeLoop 从「能跑单 Task 迭代闭环」推进到「能从文档一路跑到完成版本」——
+      补上 D / E 两段产出契约与 L / M / N 三段收口判据。缺了它们，§109 的 A–N 只兑现了
+      A–K，项目永远停在「过程正确但无法判定完成」。
+    deferrable: >-
+      「SPEC / Plan 原生生成引擎」可延期——本机已有 spec / writing-plans skill 覆盖该能力，
+      自建引擎会让 ForgeLoop 变成被自己审计的对象，Audit 的独立性无从谈起。故 D / E 只交付
+      路由 + Gate + 产出契约，生成体复用（ADR-007 §3）。
+    simpler_impl: >-
+      L / M / N 的判据可以更简单：只做「Required Requirement 是否全部 verified」的一次性
+      检查即算 Final Audit。但那无法回答 §68 的四维（Coverage / Consistency / Completeness /
+      Behavior），也无法承载 §69 的 Finding → Remediation Task 循环，故 Audit Matrix 不可省。
+    manual_first: >-
+      判据设计上已把「可自动执行」与「需人工判断」分层：§67 的九列 Matrix 中八列可机械核对，
+      仅 Consistency 列（SPEC 语义与 REQ 是否冲突）需判断。实现时该列允许人工结论 +
+      出处引用，其余八列由判据强制，避免把判断也自动化掉而丢失审计价值。
+
+  # 阶段边界的诚实声明：本阶段的 required 全部兑现，仍不等于 Goal 完成。
+  completion_note: >-
+    §109 的 A–N 覆盖完成后，Goal 的收口条件依 DESIGN.md §94 是六项：Requirements PASS +
+    Acceptance PASS + Tests PASS + Build PASS + Runtime PASS + Code Review PASS +
+    Final Audit PASS + Version Consistent + Git State Valid。第一阶段已验前六项，
+    第二阶段验后三项（Final Audit / Version Consistent / Git State Valid）。
+

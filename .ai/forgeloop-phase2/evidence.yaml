@@ -1,0 +1,31 @@
+# Evidence —— ForgeLoop 第二阶段
+#
+# 依据 DESIGN.md §39（八字段）、§53（Checkpoint）、§59（Evidence Invalidation）、
+# references/evidence-model.md。字段保留不省略，不适用项写显式 N/A 加理由。
+# Goal Mode 续行标记（goal-mode.md §4）：每次 Checkpoint 后写 mode / next。
+
+mode: goal
+next: T-17
+
+# --- T-16：范围裁定 + Goal 建立的前置自检 ---
+
+assertions:
+  phase2_scaffolding:
+    desc: 第二迭代的五件输入工件齐备且可解析
+    status: passed
+    evidence: >-
+      .ai/forgeloop-phase2/ 下 source-index.md / mvp-scope.yaml / requirement-matrix.yaml /
+      tasks.md / evidence.yaml 五件齐备；requirement-matrix 解析出 REQ-D / E / L / M / N
+      五条，每条至少一个 AC（I-002）；tasks.md 的 15 个条目每条带 Requirement 行（I-003）。
+  requirement_id_stability:
+    desc: 第二阶段沿用第一阶段已登记的 Requirement ID（§19）
+    status: passed
+    evidence: >-
+      REQ-L / REQ-M / REQ-N 三者在 .ai/forgeloop-phase1/mvp-scope.yaml 的 deferred 列表中
+      已以该名字登记，本阶段沿用未重新编号；REQ-D / REQ-E 为首次登记。裁定见
+      doc/decisions/ADR-007-phase2-scope.md §2。
+
+# --- Requirement 证据区 ---
+# 每条 REQ 在其 Task 完成后于本区追加一个八字段条目。当前五条均为 PENDING，
+# 尚无 Evidence——不预置占位条目，避免「有条目即视为已验证」的误读。
+

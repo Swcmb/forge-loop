@@ -108,12 +108,12 @@
   Requirement 映射，已补齐（见上 T-04～T-08、T-09、T-09b、T-10a、T-10b、T-11、T-12、T-14）
 
 # --- 第一阶段（FL-001）到此结束 ---
-
-- [ ] 18. T-16 Phase 2 范围裁定 + Goal 建立
-
-  Requirement: ADR-002 第二迭代的 §109 D / E / L / M / N 五项能力
-  Evidence: 待补——计划产出 `.ai/forgeloop-phase2/`（mvp-scope / requirement-matrix /
-  tasks）与 `doc/decisions/ADR-007-phase2-scope.md`
+#
+# T-16 起属第二迭代（FL-002），其任务清单在 `.ai/forgeloop-phase2/tasks.md`。
+# 本清单不重复登记第二迭代条目——同一 Task 出现在两份清单里会让 §29 的 Task State
+# 出现两个来源，恢复者无法判断哪份是权威（第二阶段 T-13 已实测过「字段快照被读成
+# 事实」的同类缺陷）。第一阶段的 `next` 标记指向 T-16 仅表示 Goal 续行目标，
+# 任务的权威登记处是 phase2 清单。
 
 ## Relevant Files
 

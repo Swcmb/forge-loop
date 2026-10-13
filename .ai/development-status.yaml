@@ -4,10 +4,25 @@
 # 由 T-03 建立；每个 Checkpoint 时更新并随仓库提交。
 
 goal:
-  id: FL-001
-  title: ForgeLoop 第一阶段端到端闭环 MVP
-  scope_ref: doc/decisions/ADR-002-mvp-scope.md      # §109 的 A/B/C/F/G/H/I/J/K
-  design_ref: doc/design/spac-001-detailed-design.md
+  id: FL-002
+  title: ForgeLoop 第二阶段 D/E/L/M/N 收口与 Goal 收口
+  scope_ref: doc/decisions/ADR-007-phase2-scope.md      # §109 的 D/E/L/M/N + B-03
+  design_ref: doc/design/spac-002-detailed-design.md    # T-21 产出；本字段在其落盘前为待建
+  prev:
+    id: FL-001
+    title: ForgeLoop 第一阶段端到端闭环 MVP
+    scope_ref: doc/decisions/ADR-002-mvp-scope.md
+    closed_by: T-15
+    closed_at_commit: "37c5f83"                        # PR Swcmb/forge-loop#15 squash
+    acceptance: doc/audits/mvp-acceptance.md            # V-00～V-13 全 passed
+    # FL-001 的 Goal 未收口（§94 九项中 Final Audit / Version State Valid /
+    # Git State Valid 三项未满足），其未覆盖部分由 FL-002 承接——见
+    # mvp-acceptance.md §5「本验收未覆盖的部分」。故 FL-002 不是「重新开始」，
+    # 而是 FL-001 剩余收口项的继续执行，Task ID 序列（T-16 起）跨 Goal 连续。
+    # carried_over 的元素跨三类命名空间：§108 不变量 ID（I-007/I-008）、§109
+    # 能力字母代号（D/E/L/M/N）、B-03 版本缺陷编号。三类各自的正式登记处见
+    # ADR-007 §2（REQ-D/REQ-E/REQ-L/REQ-M/REQ-N 是一一对应的正式 Requirement ID）。
+    carried_over: [I-007, I-008, D, E, L, M, N, B-03]
 
 phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
@@ -18,21 +33,32 @@ task:
   prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15]
 
 iteration:
-  current: ITER-002                                    # §49
-  task_seq: 17                                          # 本 goal 内第 17 个 Task
+  current: ITER-003                                    # §49。FL-002 的首个 Iteration：
+                                                     # FL-001 用到 ITER-002（task_seq 17）
+  task_seq: 1                                          # 本 goal（FL-002）内第 1 个 Task
+  task_seq_note: >-
+    口径分离：task_seq 计入**本 Goal 内**已完成的 Task 数，故 FL-002 从 1 起算；
+    Task ID（T-16 起）跨 Goal 连续不重编，避免同一份产物出现两个 Task 身份。
+  global_task_seq: 17                                  # 全项目累计已完成 Task 数（跨 Goal）
 
 checkpoint:
   last: CP-009
   id: CP-009
-  goal: {id: FL-001}
-  iteration: {id: ITER-002}
+  goal: {id: FL-001}                                # CP-009 由 FL-001 形成，故仍记 FL-001
+  iteration: {id: ITER-002}                         # 同上——Checkpoint 记录的是「形成它
+                                                     # 的那个 Goal 与 Iteration」，不是
+                                                     # 当前 Goal。跨 Goal 切换时 CP-009
+                                                     # 的归属不因后续 Goal 建立而改写
   task: {id: T-15}
-  git: {commit: "pending: T-15 merge"}                 # §53 原字段名；T-16 按 §11.2 回填
+  git: {commit: "37c5f83"}                              # §53 原字段名；PR Swcmb/forge-loop#15 squash
   spec: {version: "absent: not-started"}               # §53 原字段名；第一阶段 SPEC 不在范围
   progress:
-    # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status 实际分布一致，
-    # 由自检 8c 组的 CK-13 跨文件核对，避免两处各自漂移。
-    requirements: {total: 9, verified: 9, reviewing: 0, pending: 0}
+    # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status **合计**一致，由自检 8c 组的
+    # CK-13 跨文件核对。第二迭代起 .ai/ 下有多个 feature 目录，checkpoint 仍是单一的
+    # （DESIGN.md §79），故此处是合计值而非某个 feature 的值。
+    # 当前合计：phase1 的 REQ-001..009 全 VERIFIED（9）+ phase2 的 REQ-D/E/L/M/N 全
+    # PENDING（5）。
+    requirements: {total: 14, verified: 9, reviewing: 0, pending: 5}
   note: T-15 结构自检 + 全闭环证据汇总完成。第一阶段收口：V-00～V-13 全部 14 条 passed，
         §108 的 I-001～I-006 / I-009 / I-010 全部成立（I-003/I-004 为本 Task 机械扫描
         首次核对，此前是推断），自检 85/85。项目级 Goal 未收口——I-007/I-008、Final Audit、
@@ -41,7 +67,7 @@ checkpoint:
   convention: >-
     git_commit 的取值口径、占位值词表（pending: <taskID> merge）、回填时同步
     git.head 的要求，见 rules/git-integration.md §11。本字段仅留指针，规则条文
-    不落在 per-Goal 运行态文件里（FL-002 建立时本文件会被重写）。
+    不落在 per-Goal 运行态文件里。
   history:                                        # §54 Version Comparison / Progress Tracking 的锚点
     # git_commit 一律加引号保持字符串类型：纯数字短 hash（9217165）不加引号会被 YAML
     # 解析成整数，与其余字符串值类型分裂，跨文件比较与打印行为不一致。
@@ -57,7 +83,7 @@ checkpoint:
     - {id: CP-006, git_commit: "578eeaa", task: T-12, note: "PR Swcmb/forge-loop#12 squash merge"}
     - {id: CP-007, git_commit: "5450675", task: T-13, note: "PR Swcmb/forge-loop#13 squash merge；§11.2 回填后建立"}
     - {id: CP-008, git_commit: "972a9fa", task: T-14, note: "PR Swcmb/forge-loop#14 squash merge"}
-    - {id: CP-009, git_commit: "pending: T-15 merge", task: T-15, note: "待 T-16 按 §11.2 回填"}
+    - {id: CP-009, git_commit: "37c5f83", task: T-15, note: "PR Swcmb/forge-loop#15 squash merge"}
 
 blockers:
   - id: BL-001
