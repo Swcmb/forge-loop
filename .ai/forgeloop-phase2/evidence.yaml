@@ -47,3 +47,129 @@ b03_resolved:
   acceptance: "AC-N2 达成；B-03 自 FL-002 承接范围移出（development-status goal.prev 注释同步）"
   status: verified
 
+t18_spec_contract:
+  requirement: "REQ-D"
+  task: T-18
+  source: "DESIGN.md §22–§25；.ai/forgeloop-phase2/source-index.md SRC-101/102/203"
+  spec: "SPEC 路由复用既有 create-specification / /spec；§23 十二项齐备为 COMPLETE；§25 三条件形成 SPEC_APPROVED"
+  implementation: >-
+    requirement-model.md 新增 §7：路由声明（AC-D4）、§23 十二项清单（AC-D1）、
+    §24 三分类版本表（AC-D2）、§25 三条件 Gate（AC-D3）
+  tests: >-
+    自检第 10 组两条断言：T-18 契约承载 PASS；SKILL.md 自建生成引擎措辞扫描 PASS；
+    负向：requirement-model.md 删 T-18 段 → 第 10 组 FAIL（exit 1 验证）
+  review: "作者 agent 自审"
+  runtime: "库部署目标经 manage-skills deploy 同步，blob 一致"
+  acceptance: "AC-D1/AC-D2/AC-D3 达成；AC-D4 的越界判据已落自检"
+  status: verified
+
+t19_plan_contract:
+  requirement: "REQ-E"
+  task: T-19
+  source: "DESIGN.md §26–§28，§48；.ai/forgeloop-phase2/source-index.md SRC-101/102/108/203"
+  spec: "Plan 路由复用既有 planning skill 且 code-architect 被真实调用；PLAN-rN 修订号；REQ→TASK 映射 Gate"
+  implementation: >-
+    task-model.md 新增 §6：路由声明（AC-E4，code-architect 真实调用判据）、
+    PLAN-rN 修订号（AC-E1）、映射 Gate 判据（AC-E2/AC-E3）
+  tests: >-
+    task-model.md §6 存在且含 T-19 契约标记；AC-E3 检出判据（无 Requirement 的 Required Task → FAIL）已落文档
+  review: "作者 agent 自审"
+  runtime: "库部署目标同步，blob 一致"
+  acceptance: "AC-E1/AC-E2/AC-E3 达成；AC-E4 判据随 T-21 演练验证真实调用记录"
+  status: verified
+
+t20_audit_state_schema:
+  requirement: "工程目标（前置）——§57 五键 + §72 九项承载"
+  task: T-20
+  source: "DESIGN.md §57、§72；.ai/forgeloop-phase2/tasks.md 条目 5"
+  spec: ".ai/audit-state.yaml 建立，五键（§57）齐备 + 四项扩展键（§72 九项所需的 build / version_consistent / git_state_valid 等）"
+  implementation: >-
+    新建 .ai/audit-state.yaml：requirement_review / spec_review / code_review /
+    final_document_audit / runtime 五键 + build / version_consistent / git_state_valid
+    三扩展键 + release_gate.pending 判定区
+  tests: >-
+    自检 group 8：audit-state.yaml YAML 解析 PASS + 五键 grep 断言全 PASS；
+    负向：删任一必填段 → exit 1（§57 五键断言兜底）
+  review: "作者 agent 自审"
+  runtime: "audit-state-probe 自 SKIP 转为激活（T-20 勾选后）"
+  acceptance: "§57 五键齐备；§72 九项中 version_consistent / git_state_valid 已由 T-17 解锁并记 passed"
+  status: verified
+
+t21_d_e_drill:
+  requirement: "REQ-D + REQ-E"
+  task: T-21
+  source: "DESIGN.md §22–§28，§48；.ai/forgeloop-phase2/source-index.md SRC-101/102/108/203"
+  spec: "用已部署副本执行 D/E 演练；产出 spac-002 详设与实施 Plan"
+  implementation: >-
+    D 演练：路由到既有 spec skill，产出 doc/design/spac-002-detailed-design.md
+    （SPEC-2026-10-13.0.1.0，§23 十二项齐备）；
+    E 演练：code-architect Agent 被真实调用（T-21 Evidence 记录 agent 名 + 调用位置 + 输入），
+    产出 doc/plans/spac-002-implementation-plan.md（PLAN-r1）
+  tests: "两文件存在且非空；SPEC 含 R1–R9 与 AC 区；Plan 每个 Task 条目含 Requirement 行（I-003）"
+  review: "作者 agent 自审"
+  runtime: "code-architect 调用记录：agent name=code-architect，位置=T-21 执行轮，输入=spac-002 详设 + tasks.md + DESIGN.md 节号"
+  acceptance: "AC-D1/AC-D2/AC-D3/AC-E1/AC-E2/AC-E3/AC-E4 达成"
+  status: verified
+
+t22_t23_audit_contract:
+  requirement: "REQ-L + REQ-M"
+  task: "T-22 + T-23"
+  source: "DESIGN.md §66–§69、§96、§97；.ai/forgeloop-phase2/source-index.md SRC-101/103/106/107/202/504/501"
+  spec: "audit-model.md §1–§6 承载 Final Audit 判据（L）；§7–§8 承载 Audit Repair Loop（M）"
+  implementation: >-
+    新建 skills/forge-loop/references/audit-model.md（8 节）：§66 触发条件、
+    §67 Matrix 九列、§68 四维、§69 失败处置、§5 产物落盘、§6 L 负向判据、
+    §7 §96 四类失败路径映射、§8 BLOCKED 互斥判据
+  tests: >-
+    T-26 翻转后第 1 组正向 PASS；负向：删 audit-model.md → exit 1、清零 → exit 1，
+    复原后 exit 0
+  review: "作者 agent 自审"
+  runtime: "库部署目标经 manage-skills 同步（references 11→12），blob 一致"
+  acceptance: "AC-L1～L5 / AC-M1～M5 契约承载达成；真实演练在 T-27/T-28"
+  status: verified
+
+t26_assertion_flip:
+  requirement: "工程目标（判据）——自检第 1 组断言翻转"
+  task: T-26
+  source: "ADR-007 §6（第 1 组翻转执行者 = T-26）"
+  spec: "第 1 组负向断言（audit-model.md 必须不存在）改为正向（必须存在且非空）；PENDING_REFS 豁免清空；双向负向各 exit 1"
+  implementation: >-
+    自检第 1 组独立断言 audit-model.md 存在且非空；PENDING_REFS 清空；
+    lifecycle.md / SKILL.md 的交叉引用恢复可解析（第 3 组 PASS）
+  tests: >-
+    正向：exit 0（100+ 项 PASS）；负向 1：删文件 → exit 1；负向 2：清零 → exit 1；复原后 exit 0
+  review: "作者 agent 自审"
+  runtime: "库部署目标同步"
+  acceptance: "第 1 组翻转完成，双向负向兜住「文件被误删/清零」两类输入"
+  status: verified
+
+t24_release_gate:
+  requirement: "REQ-N（AC-N1/AC-N3/AC-N4/AC-N5）"
+  task: T-24
+  source: "DESIGN.md §72、§73；.ai/forgeloop-phase2/source-index.md SRC-501/504"
+  spec: "version-control.md §6 承载 §72 九项，每项注明取证来源；Version / Git 两项指向 version-state.yaml"
+  implementation: >-
+    version-control.md 新增 §6：九项表格（Requirements / Acceptance / Tests / Build /
+    Runtime / Code Review / Final Audit / Version Consistent / Git State Valid），
+    每项含取证来源与判据；九项任一不成立即停留 ITERATIVE_DEVELOPMENT
+  tests: "version-control.md §6 存在且九项齐备；Version 项指向 VERSION 文件 + version-state.yaml；Git 项指向 version-state.yaml git 段 + CK-14/16/17"
+  review: "作者 agent 自审"
+  runtime: "库部署目标同步（manage-skills deploy）"
+  acceptance: "AC-N1/AC-N3/AC-N4/AC-N5 达成"
+  status: verified
+
+t25_deferred_rewriting:
+  requirement: "工程目标（一致性）——SKILL.md / lifecycle.md 中「L/M/N 延后、第一阶段不存在」表述"
+  task: T-25
+  source: "ADR-007 §7（顺序硬约束：T-22 先于 T-25 的引用可解析性）"
+  spec: "改写后引用全部命中实存章节；audit-model.md 暂入自检 PENDING_REFS 豁免列表（T-26 移除）"
+  implementation: >-
+    SKILL.md §3 Workflow 第 15 步改指 audit-model.md（T-22 交付）与 tasks.md 条目；
+    lifecycle.md §4 表两行改写：L/M/N 延后表述删除，FINAL_AUDIT/RELEASE_READY/COMPLETE
+    行为改为「FL-002 起执行」；audit-model.md 入自检 PENDING_REFS（T-26 同批移除）
+  tests: "自检第 3 组（交叉引用可解析）PASS——PENDING_REFS 豁免生效；全脚本 exit 0"
+  review: "作者 agent 自审"
+  runtime: "库部署目标同步"
+  acceptance: "L/M/N 延后表述在 SKILL.md 与 lifecycle.md 清零；第 3 组仍 PASS"
+  status: verified
+
