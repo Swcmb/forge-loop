@@ -76,3 +76,44 @@ VERIFIED → STALE → RE-VERIFY（重新走 Plan Impact → Task → Test → R
 
 `VERIFIED` 不是终态终点：一旦其依据的语义改变，既有 evidence 立即失效，必须重新验证
 （Core Invariant I-006）。
+
+## 7. SPEC 路由与 SPEC_APPROVED Gate（§22–§25，REQ-D）
+
+T-18 契约。本 section 定义 ForgeLoop 在 `SPECIFICATION` / `SPEC_REVIEW` 两态的路由与 Gate 契约。
+
+**路由（§22）**：SPEC 生成体复用本机既有 `create-specification` / `/spec` skill，ForgeLoop 只做
+路由与 Gate，不实现自己的 SPEC 生成引擎（AC-D4 的越界判据：自检与 Review 检出「自建生成引擎」
+即判 FAIL）。
+
+**SPEC 内容（§23 十二项）**：SPEC 文档必须依次承载以下十二个小节，缺一即 SPEC 非 COMPLETE
+（AC-D1）：
+
+```text
+1. Goal                    6. Architecture Constraints
+2. Scope                   7. APIs
+3. Requirements            8. Data
+4. Functional Behavior     9. Errors
+5. Non-functional          10. Security
+11. Runtime                12. Acceptance Criteria
+```
+
+**SPEC 版本（§24）**：`MAJOR.MINOR.PATCH`（AC-D2），三种变更分类：
+
+| 分类 | 判定 | 版本影响 |
+| :--- | :--- | :--- |
+| Patch | 文本修正 / 非语义修改 | `PATCH +1` |
+| Minor | 增加兼容的新 Requirement / Capability | `MINOR +1`，`PATCH` 清零 |
+| Major | 改变已有 Requirement 语义 | `MAJOR +1`，`MINOR` / `PATCH` 清零 |
+
+Major 必须附 SPEC Impact Analysis（§24），并触发既有 evidence 失效（§59，I-006）。
+
+**SPEC_APPROVED Gate（§25，AC-D3）**：进入 `PLANNING` 前三条件同时成立才形成
+`SPEC_APPROVED`：
+
+```text
+Requirement Review = PASS     （document-reviewer 对 requirement-matrix.yaml 的结论）
+SPEC = COMPLETE               （§23 十二项齐备）
+SPEC Review = PASS            （SPEC 自身的审核结论）
+```
+
+任一不成立 → 停留 `SPEC_REVIEW`，修复后重走三条件（§3 的失败回退路径）。
