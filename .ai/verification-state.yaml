@@ -1,4 +1,11 @@
 # 验证状态：DESIGN.md §109 第一阶段判据矩阵（详细设计 §5）
+#
+# 归属：本文件是 .ai/ 顶层的**判据与 Gate 登记册**，不隶属任何 feature 目录。
+# 「第一阶段判据矩阵」指 §5 表首行的判据 V-00～V-13（ADR-002 §2 能力集的验收）；
+# 第二阶段的 REQ 级证据与 AC 判定在 .ai/forgeloop-phase2/evidence.yaml 与
+# requirement-matrix.yaml，本文件的 gates / checks 两段跨阶段累积——自检脚本
+# （CK-01..CK-18）的判据定义是全项目一份，故登记册也必须是全项目一份。
+#
 # 规则：判据只有「有证据」才算通过；机制已实现不等于通过（rules/testing.md）。
 # 每条的证据来源绑定任务号 + 文件路径。
 
@@ -184,7 +191,7 @@ gates:
   # 各 Gate 的实际执行记录（DESIGN.md §36/§37/§38）。按 Task 分条累积——
   # requirement-matrix.yaml 头部的 §58 跃迁说明指向本段，读者需要能查到每条状态
   # 转换所依据的那一次 Gate 执行，而不只是一句总括。
-  test_gate: passed          # 汇总态：最近一次 = T-15 的 85/85（见 test_gate_by_task）
+  test_gate: passed          # 汇总态：最近一次 = T-16 的 94 pass / 0 fail / 1 skip（见 test_gate_by_task）
   review_gate: passed        # 汇总态：最近一次 = T-12 的第 4 轮（见 review_gate_by_task）
   requirement_gate: passed   # 汇总态：最近一次 = T-12 的 REQ-008（见 requirement_gate_by_task）
 
@@ -198,6 +205,9 @@ gates:
     - {task: T-15, result: "85/85 PASS exit 0；新增 CP-008/CP-009 两条锚点使 CK-12 断言 +2（7→9）",
        reqs: [REQ-009],
        detail: "doc/audits/mvp-acceptance.md §4"}
+    - {task: T-16, result: "94 pass / 0 fail / 1 skip exit 0；skip 1 = .ai/audit-state.yaml 未建立（§57 由 T-20 建立）。新增 CK-16（Goal 双份登记一致）/ CK-17（Iteration 一致）/ CK-18（global_task_seq 与 prev 去重 Task 身份数一致）/ audit-state 可选探测（附 T-20 勾选后的降级守卫）；CK-13 改跨 feature 聚合，实测 total=14 VERIFIED=9 PENDING=5",
+       reqs: [REQ-D, REQ-E, REQ-L, REQ-M, REQ-N],
+       detail: "doc/decisions/ADR-007-phase2-scope.md"}
 
   review_gate_by_task:
     - {task: T-10b, result: "code-reviewer 六维，EXEC-1 三轮 + EXEC-2 两轮，无阻断项",
@@ -250,3 +260,16 @@ checks:
     desc: .ai/ 全部 YAML 不得出现未加引号的冒号空格标量（自检 8d 组，独立于 YAML 解析）
     task: T-14
     detail: doc/verification/forgeloop-phase1/consistency-recheck-record.md §3
+  CK-16:
+    desc: version-state.goal.id 与 development-status.goal.id 同值（§55 双份 Goal 登记一致性）
+    task: T-16
+  CK-17:
+    desc: version-state.iteration.current 与 development-status.iteration.current 同值
+    task: T-16
+  CK-18:
+    desc: development-status.iteration.global_task_seq 与 task.prev 去重后的 Task 身份数相等
+    task: T-16
+    detail: 两个字段均为项目自造（DESIGN.md §49 只定义 ITER-nnn），去重口径见 scripts/check-forge-loop.sh CK-18 注释
+  audit-state-probe:
+    desc: .ai/audit-state.yaml 存在时断言 §57 五键齐备；不存在且 phase2 清单 T-20 未勾选时 SKIP+1（L 交付前置），T-20 已勾选而文件缺失则判 FAIL（防守卫自身失效后静默降级）
+    task: T-16

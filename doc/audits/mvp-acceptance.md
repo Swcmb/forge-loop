@@ -111,11 +111,26 @@ exit 0
 一条锚点可达性断言。本 Task 收口时 CP-001..CP-009 共 9 条，其中 CP-009 为 §11.2 占位值，
 按规则豁免可达性并显式 PASS。）
 
+**该数字的时效边界**：`85/85` 是 T-15 收口时刻的实测值，它会随下列两件事增长——
+
+```text
+新增 Checkpoint          → CK-12 每条锚点各发一条断言
+新增 <feature>/ 的 YAML   → 8b（可解析性）与 8d（CK-15）各按文件发一条
+```
+
+第二迭代（T-16 起）建立 `.ai/forgeloop-phase2/` 后，三项来源同时增加：8b 与 8d 各 +3，
+CK-12 +1（CP-010），另加 CK-16 / CK-17 / CK-18 三项跨文件一致性断言，以及
+`audit-state.yaml` 的可选探测（未建立时计 1 skip）。T-16 收口时实测为
+`94 pass / 0 fail / 1 skip`。本表保留 `85/85` 是因为它是 **T-15 的验收证据**——
+按 `rules/state-and-recovery.md` §9「不伪造完成」禁止项，验收文件记录的是收口时刻的
+事实，不是持续刷新的当前值；判定「收口时刻」的范围由 ADR-002 §5 的验收判定条件界定。
+需要当前值时读 `.ai/verification-state.yaml` 的 `gates.test_gate` 汇总行。
+
 八组检查：
 
 | 组 | 检查内容 |
 | :--- | :--- |
-| 1 | `references/` 清单（§105 权威 10 项）齐备且非空；`audit-model.md` 必须不存在（§109 的 L 尚未交付） |
+| 1 | `references/` 清单（§105 中第一阶段交付的 10 项）齐备且非空；`audit-model.md` 必须不存在（§109 的 L 尚未交付） |
 | 2 | `SKILL.md` 非空、frontmatter 合法、含 `name` / `description`、**不含 `version:`**（B-03 未解除） |
 | 3 | reference 交叉引用全部可解析 |
 | 4 | 三个下层 Agent（`code-explorer` / `code-architect` / `code-reviewer`）在 `D:\ai-configs\agents\` 非空 |
@@ -124,8 +139,9 @@ exit 0
 | 7 | `SKILL.md` §105 五项职责锚点齐备 |
 | 8 | `.ai/` 落盘契约：8 段 + 8b YAML 全量可解析 + 8c Checkpoint §53/§54 + 8d CK-15 |
 
-判据登记册：`.ai/verification-state.yaml` 的 `checks:` 段登记 CK-01 ～ CK-15 共 10 条
-（CK-01..CK-06 合并为一条），与脚本内标注一一对应。
+判据登记册：`.ai/verification-state.yaml` 的 `checks:` 段登记 CK-01 ～ CK-18
+（CK-01..CK-06 合并为一条，另含 `audit-state-probe` 探测项），与脚本内标注一一对应。
+本表列出的是 **T-15 收口时刻**的登记状态；后续 Task 追加的判据见登记册本身。
 
 ---
 
@@ -185,7 +201,7 @@ skills/forge-loop/
     mvp-scope.yaml                C：MVP Scope（三集合 + §16 四问）
     tasks.md                      18 个 Task 条目（T-01..T-15 已完成 + T-16 Phase 2 首项）
     evidence.yaml                 I：Evidence 八字段
-scripts/check-forge-loop.sh       结构化自检（8 组 85 项）
+scripts/check-forge-loop.sh       结构化自检（8 组 85 项——T-15 收口时刻的项数；当前值见 §3 时效边界）
 doc/design/spac-001-detailed-design.md    第一阶段详细设计
 doc/decisions/ADR-001..006               已裁定决策
 doc/verification/forgeloop-phase1/       6 份 Gate 记录 + 1 份 probe 工件：
@@ -202,10 +218,17 @@ doc/audits/mvp-acceptance.md             本文件
 ```text
 T-15 收口 → 建立 CP-009 → 第一阶段（FL-001）结束
 
-第二阶段（ADR-002 第二迭代）：
-  D 生成 SPEC 契约 → E 生成 Plan 契约 → L Final Audit → M Audit Repair Loop
+第二阶段（FL-002，范围裁定见 doc/decisions/ADR-007-phase2-scope.md，
+任务清单见 .ai/forgeloop-phase2/tasks.md）：
+  T-16 范围裁定 + Goal 建立
+  → D 生成 SPEC 契约 → E 生成 Plan 契约 → L Final Audit → M Audit Repair Loop
   → N Release Gate → Release
 
-开工前置：B-03 的 Project Version 来源裁定
+开工前置：B-03 的 Project Version 来源裁定（T-17）
 ```
+
+本文件由 T-15 产出并随 T-15 的 Checkpoint 提交。T-16 及以后的推进记录不追加到本文件——
+按 `rules/state-and-recovery.md` §9，验收文件记录收口时刻的事实。后续各 Task 的证据
+分别记在 `doc/decisions/ADR-007-phase2-scope.md`（范围裁定）与
+`.ai/forgeloop-phase2/evidence.yaml`（逐 REQ 证据）。
 

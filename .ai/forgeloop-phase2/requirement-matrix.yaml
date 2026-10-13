@@ -1,0 +1,76 @@
+# Requirement Matrix — ForgeLoop 第二阶段
+# 依据 DESIGN.md §18（格式）、§19（ID 稳定）、§20（Acceptance Criteria）、§58（状态机）
+# 来源编号见 source-index.md。范围见 mvp-scope.yaml，裁定见 doc/decisions/ADR-007-phase2-scope.md。
+#
+# ID 命名：REQ-L / REQ-M / REQ-N 沿用第一阶段 mvp-scope.yaml 中 deferred 列表的
+# 原登记名（§19 要求 ID 永久稳定，不重新编号）。REQ-D / REQ-E 首次登记，采用
+# §109 的字母序，与能力清单一一对应。
+#
+# status 取 §58 Requirement State Machine 的值：PENDING / PLANNED / IMPLEMENTING /
+# IMPLEMENTED / TESTING / REVIEWING / VERIFIED / BLOCKED / STALE。
+# 中间态不逐个落盘的理由与第一阶段相同：三道 Gate 的实际执行记录见
+# .ai/verification-state.yaml 的 gates 段；终态计数由自检 CK-13 跨文件核对。
+
+REQ-D:
+  title: 生成 SPEC —— 能生成 SPEC
+  source: [SRC-101, SRC-102, SRC-204, SRC-301, SRC-205, SRC-201]
+  design_ref: DESIGN.md §22-§25, §87
+  priority: required
+  acceptance:
+    AC-D1: {description: "产出 SPEC 文档，含 §23 的十二项内容小节（Goal / Scope / Requirements / Functional Behavior / Non-functional / Architecture Constraints / APIs / Data / Errors / Security / Runtime / Acceptance Criteria）"}
+    AC-D2: {description: "SPEC 带 MAJOR.MINOR.PATCH 版本号，§24 的三种变更分类各有明确的版本影响规则"}
+    AC-D3: {description: "§25 的 Gate 三条件成立并产出 SPEC_APPROVED（Requirement Review PASS + SPEC COMPLETE + SPEC Review PASS）"}
+    AC-D4: {description: "生成体复用本机既有 spec skill，ForgeLoop 只做路由与 Gate；判据能检出「自建生成引擎」这一越界实现"}
+  status: PENDING
+
+REQ-E:
+  title: 生成 Plan —— 能生成 Plan
+  source: [SRC-101, SRC-102, SRC-108, SRC-203]
+  design_ref: DESIGN.md §26-§28, §88
+  priority: required
+  acceptance:
+    AC-E1: {description: "产出 Plan 文档且带 PLAN-rN 修订号（§48，Plan 不采用 SemVer）"}
+    AC-E2: {description: "每个 Task 映射到某个 Requirement 或明确的工程目标（§27 / I-003）"}
+    AC-E3: {description: "不存在「没有 Requirement 的 Required Task」（§27 明令禁止）；判据能检出此类孤立 Task"}
+    AC-E4: {description: "生成体复用本机既有 planning skill，且 code-architect 被真实调用——判据：T-19 的 Plan 生成记录含 code-architect 的调用条目（agent 名 + 调用位置 + 输入），缺该条目判 FAIL；空调用或仅引用 ADR-006 的声明文字不计入"}
+  status: PENDING
+
+REQ-L:
+  title: Final Audit —— 能执行 Final Audit
+  source: [SRC-101, SRC-103, SRC-106, SRC-107, SRC-202, SRC-504, SRC-501]
+  design_ref: DESIGN.md §66-§69, §91
+  priority: required
+  acceptance:
+    AC-L1: {description: "references/audit-model.md 存在且非空，承载 §66 的 Audit 判据（§105 清单中的 audit-model.md 条目）"}
+    AC-L2: {description: "Audit 产出 §67 的九列 Matrix（Req / Source / SPEC / Task / Code / Test / Review / Runtime / Status），行集合恰为 required 的 Requirement 集合"}
+    AC-L3: {description: "Audit 覆盖 §68 的四维（Coverage / Consistency / Completeness / Behavior），每维各有一条可判定问句"}
+    AC-L4: {description: "Audit 结论逐条回指 Source Documents 编号与章节（I-007 的落地判据）；仅对 requirement-matrix 自证的 Audit 判 FAIL"}
+    AC-L5: {description: "Audit 的输入集（§66 的七项）全部可定位且非空；任一项缺失时判 BLOCKER 而非「找不到即通过」"}
+  status: PENDING
+
+REQ-M:
+  title: Audit Repair Loop —— 能继续修复 Audit Findings
+  source: [SRC-101, SRC-103, SRC-105, SRC-402, SRC-403, SRC-302]
+  design_ref: DESIGN.md §69, §96
+  priority: required
+  acceptance:
+    AC-M1: {description: "Audit 判 FAIL 时，四维中任一不一致自动生成 Finding，且 Finding 转成 Remediation Task 并映射回 §27 的 Requirement→Task 结构"}
+    AC-M2: {description: "Finding 具备可判定的字段（req / dimension / statement / source_ref / remediation_task / status）"}
+    AC-M3: {description: "Remediation Task 走标准 Iteration（Implement / Test / Review / Verify / Commit / Checkpoint），不另立流程"}
+    AC-M4: {description: "修复完成后回 L 重审（§69 的尾步），且重审轮次递增可追溯"}
+    AC-M5: {description: "终止条件二选一：Audit PASS 或 BLOCKED（§97 的五类外部条件）；N/A 与 Finding 严格区分，N/A 需理由非空"}
+  status: PENDING
+
+REQ-N:
+  title: Release —— 能进入 Release
+  source: [SRC-101, SRC-104, SRC-401, SRC-404, SRC-601, SRC-502, SRC-503, SRC-602]
+  design_ref: DESIGN.md §70-§73, §94
+  priority: required
+  acceptance:
+    AC-N1: {description: "§72 的 Release Gate 九项各有判据与取证来源，逐项可查"}
+    AC-N2: {description: "Version Consistent 由仓库根 VERSION 文件单一权威源判定（B-03 解除）；其它位置一律引用 VERSION，不各自手写"}
+    AC-N3: {description: "Git State Valid 由详细设计 §3.5 的可执行判据判定，且判定对象与 version-state 的 git.clean 同口径"}
+    AC-N4: {description: "Build Gate（§70）与 Runtime Gate（§71）取值显式；不适用时写显式 N/A 加理由，不留空"}
+    AC-N5: {description: "产出 CHANGELOG.md 与 Git tag（§73），且 tag 只在 Audit 通过后创建，指向已冻结内容"}
+  status: PENDING
+

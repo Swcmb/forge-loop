@@ -29,7 +29,7 @@ echo "ForgeLoop 结构化自检"
 echo "root: $ROOT"
 echo
 
-# --- 1. §105 权威 references 清单（第一阶段 10 个，audit-model.md 延后）---
+# --- 1. §105 权威 references 清单（第一阶段交付 10 个，audit-model.md 延后至 L/M）---
 echo "== 1. references 清单（基准 = DESIGN.md §105）=="
 REQUIRED_REFS=(
   architecture.md lifecycle.md mvp-integration.md iterative-integration.md
@@ -318,15 +318,82 @@ else:
     print("FAIL\tversion-state.git.head 必须是集成分支上真实可达的 hex commit hash，实际为：%s"
           % head_value)
 
+# CK-16：Goal 一致性。§55 schema 在 version-state.yaml 与 development-status.yaml
+# 各记一次 goal.id，两处必须同值。跨 Goal 切换（FL-001 → FL-002）时若只改一处，
+# 恢复者会得到两个互相矛盾的「当前 Goal」。goal.id 不在 §53 的 Checkpoint 字段表内，
+# 故此处按 §55 schema 的两处记载核对。
+vs_goal = dig(vs, 'goal', 'id')
+ds_goal = dig(ds, 'goal', 'id')
+if empty(vs_goal) or empty(ds_goal):
+    print("FAIL\tGoal 一致性：version-state.goal.id=%r 与 development-status.goal.id=%r"
+          " 至少一侧缺失，§98 恢复链无法确定当前 Goal" % (vs_goal, ds_goal))
+elif vs_goal != ds_goal:
+    print("FAIL\tGoal 一致性：version-state.goal.id=%r 与 development-status.goal.id=%r 不一致"
+          % (vs_goal, ds_goal))
+else:
+    print("PASS\tGoal 一致性：version-state.goal.id 与 development-status.goal.id 同为 %s"
+          % vs_goal)
+
+# CK-17：Iteration 一致性。同 §55 schema 的两处记载。与 CK-16 分开断言——二者的失效
+# 条件不同（Goal 在范围切换时变，Iteration 每个 Task 都变），合并断言会让失败信息
+# 无法区分「范围切换漏改」与「迭代推进漏改」。
+vs_iter = dig(vs, 'iteration', 'current')
+ds_iter = dig(ds, 'iteration', 'current')
+if empty(vs_iter) or empty(ds_iter):
+    print("FAIL\tIteration 一致性：version-state.iteration.current=%r 与"
+          " development-status.iteration.current=%r 至少一侧缺失" % (vs_iter, ds_iter))
+elif vs_iter != ds_iter:
+    print("FAIL\tIteration 一致性：version-state.iteration.current=%r 与"
+          " development-status.iteration.current=%r 不一致" % (vs_iter, ds_iter))
+else:
+    print("PASS\tIteration 一致性：version-state.iteration.current 与"
+          " development-status.iteration.current 同为 %s" % vs_iter)
+
+# CK-18：global_task_seq 与 task.prev 的**去重 Task 身份数**一致。两者都是项目自造
+# 字段（DESIGN.md §49 只定义 ITER-nnn，全域无 global_task_seq 字样），无设计层保护，
+# 故此处把约定关系固定为断言，恢复者误改其一即变红。
+#
+# 口径：prev 按「Task 身份」列出，而一个 Task 可有多个执行身份——T-10b 被拆成
+# EXEC-1 / EXEC-2 两次执行，在 phase1/tasks.md 中仍是一条 [x] 条目。故计数须先按
+# 去掉 -EXEC-n 后缀后的基名去重：prev 18 项 → 去重后 17 个 Task 身份，与
+# global_task_seq 及 phase1 清单的 17 条已勾选条目三者一致。
+import re as _re
+prev_items = dig(ds, 'task', 'prev')
+gseq = dig(ds, 'iteration', 'global_task_seq')
+if not isinstance(prev_items, list) or not prev_items:
+    print("FAIL\tglobal_task_seq 一致性：development-status.task.prev=%r 非非空列表"
+          % (prev_items,))
+elif empty(gseq):
+    print("FAIL\tglobal_task_seq 一致性：development-status.iteration.global_task_seq"
+          " 缺失，无法核对累计计数")
+else:
+    bases = []
+    for it in prev_items:
+        b = _re.sub(r"-EXEC-\d+$", "", str(it))
+        if b not in bases:
+            bases.append(b)
+    if len(bases) != gseq:
+        print("FAIL\tglobal_task_seq 一致性：task.prev %d 项去重后 %d 个 Task 身份，"
+              "global_task_seq=%r" % (len(prev_items), len(bases), gseq))
+    else:
+        print("PASS\tglobal_task_seq 一致性：task.prev %d 项去重后 %d 个 Task 身份"
+              " == global_task_seq %d" % (len(prev_items), len(bases), gseq))
+
 # CK-13：checkpoint.progress.requirements 的计数须与 requirement-matrix.yaml 的
-# status 实际分布一致。两处各自手写时极易漂移（本 Task 落地时 verified 写成 8 而
-# 实际为 7），恢复链读者据 checkpoint.progress 判断进度时会得到错误结论。
+# status 实际分布一致。两处各自手写时极易漂移（T-12 落地时 verified 写成 8 而实际
+# 为 7），恢复链读者据 checkpoint.progress 判断进度时会得到错误结论。
+#
+# 跨 feature 聚合：第二迭代起 .ai/ 下会有多个 <feature>/requirement-matrix.yaml，而
+# checkpoint 是单一的（DESIGN.md §79 单一运行状态目录）。故计数须按**全部矩阵的合计**
+# 核对，不能逐个矩阵与同一个声明值比对——后者在两个 feature 目录并存时必然失败。
 import glob, os
 matrix_paths = sorted(glob.glob(os.path.join(ai_dir, '*', 'requirement-matrix.yaml')))
 declared = dig(ds, 'checkpoint', 'progress', 'requirements')
 if not matrix_paths:
     print("FAIL\t未找到 .ai/*/requirement-matrix.yaml（CK-13 无法核对 progress 计数）")
 else:
+    all_statuses = []
+    breakdown = []
     for path in matrix_paths:
         matrix = load(path)
         rel = os.path.relpath(path, os.path.dirname(os.path.dirname(path)))
@@ -335,22 +402,25 @@ else:
         if not statuses:
             print("FAIL\t%s 未解析出任何 REQ- 条目的 status" % rel)
             continue
-        # 四个键全部核对：total / verified / reviewing / pending 与被校验字段同属一处
-        # 手写映射，只校验其中两个等于给另外两个留了漂移口子（M-3）。
-        actuals = [('total', len(statuses))]
-        for name in ('VERIFIED', 'REVIEWING', 'PENDING'):
-            actuals.append((name.lower(), sum(1 for s in statuses if s == name)))
-        for field, actual in actuals:
-            claimed = (declared or {}).get(field)
-            if claimed != actual:
-                print("FAIL\t%s: checkpoint.progress.requirements.%s 声明 %r，"
-                      "实际 %d 条（status 分布：%s）"
-                      % (rel, field, claimed, actual,
-                         ", ".join("%s=%d" % (s, statuses.count(s))
-                                   for s in sorted(set(statuses)))))
-            else:
-                print("PASS\tcheckpoint.progress.requirements.%s 与 %s 一致（%d）"
-                      % (field, rel, actual))
+        all_statuses.extend(statuses)
+        breakdown.append("%s=%d" % (rel, len(statuses)))
+    # 四个键全部核对：total / verified / reviewing / pending 与被校验字段同属一处手写
+    # 映射，只校验其中两个等于给另外两个留了漂移口子（M-3）。
+    actuals = [('total', len(all_statuses))]
+    for name in ('VERIFIED', 'REVIEWING', 'PENDING'):
+        actuals.append((name.lower(), sum(1 for s in all_statuses if s == name)))
+    dist = ", ".join("%s=%d" % (s, all_statuses.count(s))
+                     for s in sorted(set(all_statuses)))
+    src = "%d 个矩阵（%s）" % (len(matrix_paths), ", ".join(breakdown))
+    for field, actual in actuals:
+        claimed = (declared or {}).get(field)
+        if claimed != actual:
+            print("FAIL\tcheckpoint.progress.requirements.%s 声明 %r，实际 %d 条"
+                  "（合计 %s；status 分布：%s）"
+                  % (field, claimed, actual, src, dist))
+        else:
+            print("PASS\tcheckpoint.progress.requirements.%s 与 %s 一致（%d）"
+                  % (field, src, actual))
 
 PYEOF
 )"
@@ -433,6 +503,24 @@ if python -c "import yaml" 2>/dev/null; then
   shopt -u nullglob
   state_files=("$AI_DIR/development-status.yaml" "$AI_DIR/version-state.yaml" \
                "$AI_DIR/verification-state.yaml")
+  # §57 的 audit-state.yaml 自 L 阶段（T-20）起加入运行状态目录；此处用可选存在
+  # 探测——判「存在则必填 §57 的五个键」，不判「必须存在」，因为 L 交付前它尚未建立。
+  # 若把「必须存在」写死，本 Task（T-16，L 尚未实现）就会因自身前置缺失而判 FAIL。
+  # 但「存在则校验」单独使用会在文件被误删时静默转 skip（守卫自身失效）。降级条件取
+  # phase2 清单中 T-20 的勾选状态：它由 T-20 自己完成时置为 `- [x]`，此后审计链已依赖
+  # audit-state.yaml，此时文件缺失是数据缺陷，判 FAIL。清单未勾选（T-20 未完成）时仍是
+  # 前置未完成，保持 skip。
+  audit_state="$AI_DIR/audit-state.yaml"
+  phase2_tasks="$AI_DIR/forgeloop-phase2/tasks.md"
+  if [ -f "$audit_state" ]; then
+    state_files+=("$audit_state")
+    audit_state_present=1
+  else
+    audit_state_present=0
+  fi
+  if [ "$audit_state_present" -eq 0 ] && grep -qE '^[[:space:]]*- \[x\] [0-9]+\. T-20([[:space:]]|$)' "$phase2_tasks" 2>/dev/null; then
+    bad ".ai/audit-state.yaml 缺失（phase2 清单的 T-20 已勾选，说明 §57 结构已建立；文件缺失属数据缺陷，非前置未完成）"
+  fi
   seen_rel=" "          # 前后哨兵空格，使 *" $rel "* 模式可靠匹配
   for sf in "${state_files[@]}" "${evidence_files[@]}" "${all_yaml[@]}"; do
     rel="${sf#$ROOT/}"
@@ -452,6 +540,27 @@ if python -c "import yaml" 2>/dev/null; then
   done
   if [ "${#evidence_files[@]}" -eq 0 ]; then
     bad ".ai/*/evidence.yaml 未找到（§3.5 要求每个 feature 目录含 evidence.yaml）"
+  fi
+  # §57 的 audit-state.yaml：存在则五个键必须齐备（§57 的 requirement_review /
+  # spec_review / code_review / final_document_audit / runtime），缺任一即判 FAIL。
+  # §72 的 Release Gate 九项还需要 final_audit_result / repair_rounds / blocked /
+  # version_consistent / git_state_valid 等字段（T-20 建立时一并落地），此处先断言
+  # §57 明文要求的五个——不提前断言尚未设计的键，那属于 T-20 的范围。
+  if [ "$audit_state_present" -eq 1 ]; then
+    for k in requirement_review spec_review code_review final_document_audit runtime; do
+      if grep -qE "^${k}:" "$audit_state"; then
+        ok "audit-state.yaml 含 §57 必填段：$k"
+      else
+        bad "audit-state.yaml 缺 §57 必填段：$k"
+      fi
+    done
+  else
+    if grep -qE '^[[:space:]]*- \[x\] [0-9]+\. T-20([[:space:]]|$)' "$phase2_tasks" 2>/dev/null; then
+      : # 上方已判 FAIL（T-20 已过而文件缺失），此处不重复记 SKIP
+    else
+      skip=$((skip+1))
+      echo "  [SKIP] .ai/audit-state.yaml 未建立（§57 由 T-20 建立，L 交付的前置）"
+    fi
   fi
 else
   skip=$((skip+1))
