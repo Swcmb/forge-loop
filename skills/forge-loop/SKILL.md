@@ -1,5 +1,6 @@
 ---
 name: forge-loop
+version: 0.1.0
 description: "Goal-driven project-level engineering orchestrator for Claude Code. Use when driving a project from its documents to a completed, verified version — detects lifecycle phase, loads applicable rules, defines MVP scope, establishes requirements, and runs one-task-at-a-time iteration with Test / Code Review / Requirement Verification gates, Git checkpoints, state persistence and recovery. Use when the user says '/goal 完成当前项目 MVP Scope 中规定的全部 Required 功能', or asks to continue/resume an interrupted ForgeLoop run. Do not use for a single small edit, or for pure Q&A about an existing codebase."
 ---
 

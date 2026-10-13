@@ -17,7 +17,7 @@
   Tests: 五个状态文件 YAML 可解析；每条 REQ 至少一个 AC（I-002）；`source-index.md` 的 SRC 编号可被 `source` 引用
   Evidence: `doc/decisions/ADR-007-phase2-scope.md` + 本目录五件工件
 
-- [ ] 2. T-17 B-03 解除：VERSION 文件作为唯一版本源
+- [x] 2. T-17 B-03 解除：VERSION 文件作为唯一版本源
 
   Requirement: REQ-N（AC-N2）——Version Consistent 的前置
   Acceptance: [AC-N2]

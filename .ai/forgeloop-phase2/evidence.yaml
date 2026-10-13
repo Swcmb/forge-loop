@@ -29,3 +29,21 @@ assertions:
 # 每条 REQ 在其 Task 完成后于本区追加一个八字段条目。当前五条均为 PENDING，
 # 尚无 Evidence——不预置占位条目，避免「有条目即视为已验证」的误读。
 
+b03_resolved:
+  requirement: "REQ-N（AC-N2）——Version Consistent 的前置"
+  task: T-17
+  source: "ADR-007 §5；rules/version-management.md §6；version-governance.md §4.6 / §9.2"
+  spec: "VERSION 文件作为 Project Version 唯一权威源；其它位置一律引用"
+  implementation: >-
+    仓库根 VERSION（0.1.0）建立；version-state.yaml 的 project.version / mvp.version
+    由 pending: B-03 改为 0.1.0 引用；SKILL.md frontmatter 新增 version 字段；
+    自检第 2 组翻转为一致性断言（ADR-007 §6）
+  tests: >-
+    正向：bash scripts/check-forge-loop.sh → 94/0/1 skip，exit 0；
+    负向 1：VERSION 清零 → exit 1（VERSION 缺失断言命中）；
+    负向 2：SKILL.md version 改 9.9.9 → exit 1（一致性断言命中）；复原后 exit 0
+  review: "作者 agent 自审（ai-git-workflow §5.2）"
+  runtime: "库部署目标同步：manage-skills deploy forge-loop --agent claude_code；skills-manager 库侧两次提交并推送 skills-manager-backup"
+  acceptance: "AC-N2 达成；B-03 自 FL-002 承接范围移出（development-status goal.prev 注释同步）"
+  status: verified
+

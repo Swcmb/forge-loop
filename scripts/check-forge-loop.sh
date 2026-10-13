@@ -61,10 +61,22 @@ for key in name description; do
     bad "frontmatter 缺 $key"
   fi
 done
-if grep -q '^version:' "$SKILL_DIR/SKILL.md"; then
-  bad "frontmatter 含 version 字段（B-03 未解除，不得自定版本号）"
+# T-17 翻转（ADR-007 §6 第 2 组）：B-03 已解除，仓库根 VERSION 文件为唯一版本源。
+# 原负向断言「frontmatter 必须无 version 字段」改为一致性断言：
+# 正向——frontmatter version 存在且与仓库根 VERSION 文件一致；
+# 负向——VERSION 缺失或 version 与 VERSION 不一致时本脚本 exit 1。
+if [ ! -s "$ROOT/VERSION" ]; then
+  bad "仓库根 VERSION 文件缺失或为空（B-03 解除载体，ADR-007 §5）"
 else
-  ok "frontmatter 无 version 字段（符合 B-03 约束）"
+  VERSION_SRC="$(tr -d '[:space:]' < "$ROOT/VERSION")"
+  SKILL_VER="$(awk 'NR==1{next} /^---$/{exit} /^version:/{sub(/^version:[ \t]*/,""); print; exit}' "$SKILL_DIR/SKILL.md")"
+  if [ -z "$SKILL_VER" ]; then
+    bad "SKILL.md frontmatter 缺 version 字段（B-03 解除后须与 VERSION 同源）"
+  elif [ "$SKILL_VER" != "$VERSION_SRC" ]; then
+    bad "SKILL.md frontmatter version=$SKILL_VER 与仓库根 VERSION=$VERSION_SRC 不一致（单一权威源，§4.6）"
+  else
+    ok "SKILL.md frontmatter version=$SKILL_VER 与仓库根 VERSION 一致（B-03 已解除）"
+  fi
 fi
 
 # --- 3. reference 交叉引用可解析 ---
