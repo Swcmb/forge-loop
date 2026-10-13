@@ -101,12 +101,12 @@
   Tests: 至少产生一条 Finding；Finding → Remediation Task → 三层 Gate → Commit 全链证据；复审轮次递增且结论翻转
   Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-28 条目；产物 `doc/audits/phase2/repair-loop-record.md`
 
-- [ ] 14. T-29 N 真实演练：Release
+- [x] 14. T-29 N 真实演练：Release
 
   Requirement: REQ-N
   Acceptance: [AC-N1, AC-N2, AC-N3, AC-N4, AC-N5]
   Tests: §72 九项逐项 PASS；CHANGELOG.md 产出；tag 指向 Audit 通过后的 commit
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-29 条目；产物 `CHANGELOG.md` + `doc/audits/phase2/release-gate-record.md`
 
 - [ ] 15. T-30 Phase 2 Final Audit + Goal 收口
 

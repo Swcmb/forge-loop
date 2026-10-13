@@ -41,5 +41,9 @@ git_state_valid:
   status: passed          # CK-14 锚点可达性 + CK-16/17 一致性判据
 
 release_gate:
-  # §72 九项的逐项判定区（T-24 N 契约在此承载）
-  pending: [spec_review, final_document_audit]   # 当前未满足的项
+  # §72 九项的逐项判定区（T-24 N 契约承载判据，T-29 演练逐项核对）
+  # 逐项取证来源见 skills/forge-loop/references/version-control.md §6 的九项表；
+  # 本轮九项核对记录见 doc/audits/phase2/release-gate-record.md。
+  pending: []                                  # T-29 核对后九项全满足
+  checked_at: T-29
+  outcome: RELEASE_READY
