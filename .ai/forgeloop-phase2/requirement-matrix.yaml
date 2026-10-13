@@ -21,7 +21,7 @@ REQ-D:
     AC-D2: {description: "SPEC 带 MAJOR.MINOR.PATCH 版本号，§24 的三种变更分类各有明确的版本影响规则"}
     AC-D3: {description: "§25 的 Gate 三条件成立并产出 SPEC_APPROVED（Requirement Review PASS + SPEC COMPLETE + SPEC Review PASS）"}
     AC-D4: {description: "生成体复用本机既有 spec skill，ForgeLoop 只做路由与 Gate；判据能检出「自建生成引擎」这一越界实现"}
-  status: PENDING
+  status: VERIFIED
 
 REQ-E:
   title: 生成 Plan —— 能生成 Plan
@@ -33,7 +33,7 @@ REQ-E:
     AC-E2: {description: "每个 Task 映射到某个 Requirement 或明确的工程目标（§27 / I-003）"}
     AC-E3: {description: "不存在「没有 Requirement 的 Required Task」（§27 明令禁止）；判据能检出此类孤立 Task"}
     AC-E4: {description: "生成体复用本机既有 planning skill，且 code-architect 被真实调用——判据：T-19 的 Plan 生成记录含 code-architect 的调用条目（agent 名 + 调用位置 + 输入），缺该条目判 FAIL；空调用或仅引用 ADR-006 的声明文字不计入"}
-  status: PENDING
+  status: VERIFIED
 
 REQ-L:
   title: Final Audit —— 能执行 Final Audit
@@ -46,7 +46,7 @@ REQ-L:
     AC-L3: {description: "Audit 覆盖 §68 的四维（Coverage / Consistency / Completeness / Behavior），每维各有一条可判定问句"}
     AC-L4: {description: "Audit 结论逐条回指 Source Documents 编号与章节（I-007 的落地判据）；仅对 requirement-matrix 自证的 Audit 判 FAIL"}
     AC-L5: {description: "Audit 的输入集（§66 的七项）全部可定位且非空；任一项缺失时判 BLOCKER 而非「找不到即通过」"}
-  status: PENDING
+  status: VERIFIED
 
 REQ-M:
   title: Audit Repair Loop —— 能继续修复 Audit Findings
@@ -59,7 +59,7 @@ REQ-M:
     AC-M3: {description: "Remediation Task 走标准 Iteration（Implement / Test / Review / Verify / Commit / Checkpoint），不另立流程"}
     AC-M4: {description: "修复完成后回 L 重审（§69 的尾步），且重审轮次递增可追溯"}
     AC-M5: {description: "终止条件二选一：Audit PASS 或 BLOCKED（§97 的五类外部条件）；N/A 与 Finding 严格区分，N/A 需理由非空"}
-  status: PENDING
+  status: VERIFIED
 
 REQ-N:
   title: Release —— 能进入 Release
@@ -72,5 +72,5 @@ REQ-N:
     AC-N3: {description: "Git State Valid 由详细设计 §3.5 的可执行判据判定，且判定对象与 version-state 的 git.clean 同口径"}
     AC-N4: {description: "Build Gate（§70）与 Runtime Gate（§71）取值显式；不适用时写显式 N/A 加理由，不留空"}
     AC-N5: {description: "产出 CHANGELOG.md 与 Git tag（§73），且 tag 只在 Audit 通过后创建，指向已冻结内容"}
-  status: PENDING
+  status: VERIFIED
 

@@ -5,8 +5,8 @@
 # 不得由 Design Version 推导（AGENTS.md §7、rules/version-management.md §5）。
 
 project:
-  version: "0.1.0"                   # 引用仓库根 VERSION 文件（T-17 翻转值），Release 时由
-                                       # T-29/T-30 的 Global Version Management 判定是否变更
+  version: "1.0.0"                   # 引用仓库根 VERSION 文件；T-29 按 Global Version
+                                       # Management §4.4 的 adoption 条件判定首次 Release 版本
 
 goal:
   id: FL-002                           # 与 development-status.goal.id 同值，由自检 CK-16
@@ -20,23 +20,23 @@ goal:
     closed_at_commit: "37c5f83"
 
 mvp:
-  version: "0.1.0"                   # 与 project.version 同源（仓库根 VERSION 文件）
+  version: "1.0.0"                   # 与 project.version 同源（仓库根 VERSION 文件）
                                    # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
                                    # 与 .ai/forgeloop-phase2/mvp-scope.yaml（ADR-007 裁定）
   current_feature: forgeloop-phase2
 
 spec:
-  version: "absent: not-started"      # SPEC 由 D 阶段产出（T-18 契约 / T-21 演练）
+  version: "SPEC-2026-10-13.0.1.0"     # T-21 D 演练产出；doc/design/spac-002-detailed-design.md
 
 plan:
-  revision: "absent: not-started"     # Plan 由 E 阶段产出（T-19 契约 / T-21 演练）
+  revision: "PLAN-r1"                 # T-21 E 演练产出；doc/plans/spac-002-implementation-plan.md
 
 iteration:
   current: ITER-003                   # 与 development-status.iteration.current 同值
 
 git:
   branch: main
-  head: "37c5f83"
+  head: "2d90cab"
   # clean 的比对对象与详细设计 §3.5 的冲突判据完全一致 = 代码与文档路径（排除 .ai/），
   # 即 `git status --porcelain -- ':!.ai/'`。迭代中途 `.ai/` 自身变脏属预期
   # （状态文件仅在 Checkpoint 提交），不计入本字段。
@@ -46,4 +46,4 @@ git:
   # 恢复者若按此刻跑该命令得非空结果，这与 §3.5 判据的处置一致（条件①成立但
   # task.status ≠ complete → 不触发 STOP，见 recovery-record.md §3.3）。
   # 字段值不应被读成「此刻的工作树快照」。
-  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-009 / 37c5f83）
+  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-009 / 2d90cab）

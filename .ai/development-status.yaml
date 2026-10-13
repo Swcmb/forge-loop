@@ -24,14 +24,14 @@ goal:
     # ADR-007 §2（REQ-D/REQ-E/REQ-L/REQ-M/REQ-N 是一一对应的正式 Requirement ID）。
     carried_over: [I-007, I-008, D, E, L, M, N, B-03]
 
-phase: ITERATIVE_DEVELOPMENT                            # DESIGN.md §106
+phase: RELEASE_READY                                   # DESIGN.md §106（T-29 九项全过后进入 §72）
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
-  current: T-20                                          # T-18/T-19/T-20/T-25 同批完成（契约 + schema + 改写）
-  status: complete                                       # 自检 102/0/0 全过
-  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15, T-16, T-17, T-18, T-19, T-20, T-25]
-  next: T-21                                             # D/E 真实演练（产出 spac-002 详设与实施 Plan）
+  current: T-29                                          # N 真实演练：Release
+  status: complete                                       # §72 九项全过，CHANGELOG 产出，VERSION 定为 1.0.0
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15, T-16, T-17, T-18, T-19, T-20, T-21, T-22, T-23, T-24, T-25, T-26, T-27, T-28, T-29]
+  next: T-30                                             # Phase 2 Final Audit + Goal 收口
 
 iteration:
   current: ITER-003                                    # §49。FL-002 的首个 Iteration：
@@ -40,7 +40,7 @@ iteration:
   task_seq_note: >-
     口径分离：task_seq 计入**本 Goal 内**已完成的 Task 数，故 FL-002 从 1 起算；
     Task ID（T-16 起）跨 Goal 连续不重编，避免同一份产物出现两个 Task 身份。
-  global_task_seq: 23                            # 全项目累计已完成 Task 数（跨 Goal）
+  global_task_seq: 31                            # 全项目累计已完成 Task 数（跨 Goal）
 
 checkpoint:
   last: CP-009
@@ -58,8 +58,9 @@ checkpoint:
     # CK-13 跨文件核对。第二迭代起 .ai/ 下有多个 feature 目录，checkpoint 仍是单一的
     # （DESIGN.md §79），故此处是合计值而非某个 feature 的值。
     # 当前合计：phase1 的 REQ-001..009 全 VERIFIED（9）+ phase2 的 REQ-D/E/L/M/N 全
-    # PENDING（5）。
-    requirements: {total: 14, verified: 9, reviewing: 0, pending: 5}
+    # VERIFIED（5）。phase2 的五条在 T-29 Release Gate 逐项核对时随 §58 状态机翻转——
+    # 每条的八字段 Evidence 见 .ai/forgeloop-phase2/evidence.yaml。
+    requirements: {total: 14, verified: 14, reviewing: 0, pending: 0}
   note: T-15 结构自检 + 全闭环证据汇总完成。第一阶段收口：V-00～V-13 全部 14 条 passed，
         §108 的 I-001～I-006 / I-009 / I-010 全部成立（I-003/I-004 为本 Task 机械扫描
         首次核对，此前是推断），自检 85/85。项目级 Goal 未收口——I-007/I-008、Final Audit、

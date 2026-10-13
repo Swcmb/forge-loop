@@ -128,6 +128,28 @@ t22_t23_audit_contract:
   acceptance: "AC-L1～L5 / AC-M1～M5 契约承载达成；真实演练在 T-27/T-28"
   status: verified
 
+t29_release_drill:
+  requirement: "REQ-N"
+  task: T-29
+  source: "DESIGN.md §72、§73、§8.1；version-governance.md §4.4；rules/version-management.md §9"
+  spec: "§72 九项逐项 PASS；CHANGELOG.md 产出；tag 指向 Audit 通过后的 commit"
+  implementation: >-
+    九项核对记录落盘 doc/audits/phase2/release-gate-record.md（逐项取证来源 + 内容）；
+    phase2 requirement-matrix 五条 status PENDING → VERIFIED（§58 状态机）；
+    development-status 的 checkpoint.progress.requirements 同步为 14/14/0/0（CK-13 跨文件核对）；
+    audit-state 的 release_gate.pending 清空并记 outcome=RELEASE_READY；
+    VERSION 与 SKILL.md frontmatter 同步 1.0.0；CHANGELOG.md 产出
+  tests: >-
+    九项逐项核对全 PASS（记录见 release-gate-record.md）；
+    自检 scripts/check-forge-loop.sh → 103/0/0 exit 0（CK-13 计数一致断言 PASS）；
+    自检第 2 组 frontmatter 与 VERSION 一致断言 PASS
+  review: "作者 agent 自审（ai-git-workflow §5.2）"
+  runtime: >-
+    库部署目标经 manage-skills deploy 同步；version-state 的 spec/plan/git 字段同步为
+    SPEC-2026-10-13.0.1.0 / PLAN-r1 / 2d90cab
+  acceptance: "AC-N1～AC-N5 达成"
+  status: verified
+
 t26_assertion_flip:
   requirement: "工程目标（判据）——自检第 1 组断言翻转"
   task: T-26
