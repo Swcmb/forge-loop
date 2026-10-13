@@ -84,3 +84,24 @@ Task 原则：Small / Atomic / Verifiable / Traceable。
 
 一个 Task 完成（含三层 Gate 通过 + Checkpoint）后才进入下一个 Task（见 `iterative-integration.md`
 的 Mode 行为）。
+
+## 6. Plan 路由与 REQ→TASK 映射 Gate（§26–§28，§48，REQ-E）
+
+T-19 契约。本 section 定义 ForgeLoop 在 `PLANNING` 态的路由与映射 Gate 契约。
+
+**路由（§26）**：Plan 生成体复用本机既有 planning skill（`writing-plans` 等），`code-architect`
+Agent 必须在 Plan 生成记录中被真实调用（AC-E4 判据：记录含 agent 名 + 调用位置 + 输入；
+空调用或仅引用 ADR-006 的声明文字不计入，判 FAIL）。
+
+**Plan 修订号（§48，AC-E1）**：Plan 不采用 SemVer，带 `PLAN-rN` 修订号（`r1`、`r2`……），
+每次 Plan 变更递增 `N`。
+
+**REQ→TASK 映射 Gate（§27 / I-003，AC-E2 / AC-E3）**：Plan 中每个 Task 必须映射到某个
+Requirement 或明确的工程目标；不存在「没有 Requirement 的 Required Task」。判据：
+
+```text
+检出对象 = tasks.md 中 Requirement 行缺失/为空且 priority=required 的条目
+处置     = Gate 判 FAIL，回 PLANNING 修复映射后重审
+```
+
+任一 Required Task 缺映射 → 该 Plan 非 APPROVED，停留 `PLANNING`。

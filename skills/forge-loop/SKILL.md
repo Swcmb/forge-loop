@@ -68,11 +68,11 @@ Phase → reference 映射：
 12 Commit                       → 全局 Git Workflow
 13 Update state                 → <runtime>/ 状态文件
 14 Continue                     → 按 goal-mode.md 的 Mode 策略
-15 Final Audit                  → 第二迭代（§109 的 L/M/N）
+15 Final Audit                  → references/audit-model.md（§109 的 L/M/N，ADR-007 裁定）
 ```
 
-第一阶段：第 1–4、7–14 步启用；第 5–6 步只做路由与 Gate（执行体复用既有 skill）；第 15 步报告为
-第二迭代。
+第一阶段：第 1–4、7–14 步启用；第 5–6 步只做路由与 Gate（执行体复用既有 skill）；第 15 步在
+FL-002 范围内执行（T-27 L 演练 / T-28 M 演练 / T-29 N 演练，见 `.ai/forgeloop-phase2/tasks.md`）。
 
 ### 一个 Task 的完整动作
 
@@ -108,7 +108,7 @@ Select Task（按 §31 取件顺序）
 | `evidence-model.md` | Evidence 八字段、`verified` 判定、Evidence Invalidation |
 | `recovery.md` | 恢复链、六类中断场景、Compaction 取证协议 |
 
-`audit-model.md` 随 §109 的 L / M 延后，第一阶段不存在。
+`audit-model.md` 承载 §109 的 L / M 判据，FL-002 的 T-22 / T-23 交付（ADR-007 §2）。
 
 ## 5. Output Contract（每轮固定产出）
 

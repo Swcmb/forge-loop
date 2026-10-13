@@ -22,84 +22,84 @@
   Requirement: REQ-N（AC-N2）——Version Consistent 的前置
   Acceptance: [AC-N2]
   Tests: VERSION 文件存在且格式合规；`version-state.project.version` 改为引用而非 `pending: B-03`；**自检第 2 组（frontmatter `version:` 断言）在本 Task 翻转**，负向验证两条：清零 → exit 1、version 与 VERSION 不一致 → exit 1
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-17 条目
 
-- [ ] 3. T-18 D 契约：SPEC 路由与 SPEC_APPROVED Gate
+- [x] 3. T-18 D 契约：SPEC 路由与 SPEC_APPROVED Gate
 
   Requirement: REQ-D
   Acceptance: [AC-D1, AC-D2, AC-D3, AC-D4]
   Tests: `requirement-model.md` 承载 §23 十二项与 §25 Gate；自检能检出「自建生成引擎」的越界实现
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-18 条目
 
-- [ ] 4. T-19 E 契约：Plan 路由与 REQ→TASK 映射 Gate
+- [x] 4. T-19 E 契约：Plan 路由与 REQ→TASK 映射 Gate
 
   Requirement: REQ-E
   Acceptance: [AC-E1, AC-E2, AC-E3, AC-E4]
   Tests: `task-model.md` 承载 §27 映射契约与 §48 的 PLAN-rN；判据能检出无 Requirement 的 Required Task
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-19 条目
 
-- [ ] 5. T-20 `.ai/audit-state.yaml` schema 建立
+- [x] 5. T-20 `.ai/audit-state.yaml` schema 建立
 
   Requirement: 工程目标（前置）——§57 的五键 + §72 的九项所需字段
   Acceptance: []
   Tests: 文件存在且可解析；§57 五键齐备；自检 group 8 扩展断言其必填段；负向：删任一必填段 → exit 1
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-20 条目
 
-- [ ] 6. T-21 D/E 真实演练
+- [x] 6. T-21 D/E 真实演练
 
   Requirement: REQ-D + REQ-E
   Acceptance: [AC-D1, AC-D2, AC-D3, AC-D4, AC-E1, AC-E2, AC-E3, AC-E4]
   Tests: 用已部署副本执行；产出 `doc/design/spac-002-detailed-design.md` 与 `doc/plans/spac-002-implementation-plan.md`
   Evidence: 待补
 
-- [ ] 7. T-22 `audit-model.md` §1–§6：Final Audit 判据（L）
+- [x] 7. T-22 `audit-model.md` §1–§6：Final Audit 判据（L）
 
   Requirement: REQ-L
   Acceptance: [AC-L1, AC-L2, AC-L3, AC-L4, AC-L5]
   Tests: 文件存在且非空；自检第 1 组翻转后判 PASS；负向：清零文件 → exit 1
   Evidence: 待补
 
-- [ ] 8. T-23 `audit-model.md` §7–§8：Audit Repair Loop（M）
+- [x] 8. T-23 `audit-model.md` §7–§8：Audit Repair Loop（M）
 
   Requirement: REQ-M
   Acceptance: [AC-M1, AC-M2, AC-M3, AC-M4, AC-M5]
   Tests: §96 的四类失败路径各自映射到 Task；BLOCKED 判据与修复路径互斥
   Evidence: 待补
 
-- [ ] 9. T-24 N 契约：Release Gate 九项
+- [x] 9. T-24 N 契约：Release Gate 九项
 
   Requirement: REQ-N
   Acceptance: [AC-N1, AC-N3, AC-N4, AC-N5]
   Tests: `version-control.md` 承载 §72 九项，每项有取证来源；Version / Git 两项指向 `version-state.yaml`
   Evidence: 待补
 
-- [ ] 10. T-25 延后表述改写
+- [x] 10. T-25 延后表述改写
 
   Requirement: 工程目标（一致性）——`SKILL.md` / `lifecycle.md` 中「L/M/N 延后、第一阶段不存在」的表述
   Acceptance: []
   Tests: 自检第 3 组（交叉引用可解析）仍 PASS；改写后的引用全部命中实存章节
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-25 条目
 
-- [ ] 11. T-26 自检断言翻转（第 1 组）+ 双向负向
+- [x] 11. T-26 自检断言翻转（第 1 组）+ 双向负向
 
   Requirement: 工程目标（判据）——第 1 组的负向断言改为正向
   Acceptance: []
   Tests: 第 1 组正向全项 PASS；负向 ≥2 项各 exit 1（删 audit-model / 清零）；复原后 exit 0。第 2 组（frontmatter version）的翻转在 T-17 执行，不在本 Task
   Evidence: 待补
 
-- [ ] 12. T-27 L 真实演练：Final Audit
+- [x] 12. T-27 L 真实演练：Final Audit
 
   Requirement: REQ-L
   Acceptance: [AC-L2, AC-L3, AC-L4, AC-L5]
   Tests: Matrix 九列齐全；行集合 = required；§68 四维各有结论；结论逐条回指 SRC
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-27 条目；产物 `doc/audits/phase2/final-audit.md` / `final-audit-matrix.md` / `spec-review.md`
 
-- [ ] 13. T-28 M 真实演练：Audit Repair Loop
+- [x] 13. T-28 M 真实演练：Audit Repair Loop
 
   Requirement: REQ-M
   Acceptance: [AC-M1, AC-M2, AC-M3, AC-M4]
   Tests: 至少产生一条 Finding；Finding → Remediation Task → 三层 Gate → Commit 全链证据；复审轮次递增且结论翻转
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-28 条目；产物 `doc/audits/phase2/repair-loop-record.md`
 
 - [ ] 14. T-29 N 真实演练：Release
 

@@ -51,3 +51,21 @@ Checkpoint 的 Git 实现严格遵循全局 `rules/git.md` 与 `ai-git-workflow`
 ## 5. 未启用项
 
 `DESIGN.md` §43 Worktree 属并行隔离能力，第一阶段串行闭环**不启用**，本文件仅声明不实现。
+
+## 6. Release Gate 九项（§72，REQ-N / T-24）
+
+T-24 契约。进入 `RELEASE_READY`（§73）前九项同时成立，每项注明取证来源：
+
+| # | Gate 项 | 取证来源 | 判据 |
+| :-- | :--- | :--- | :--- |
+| 1 | Requirements PASS | `.ai/<feature>/requirement-matrix.yaml` 的 `status` 区 | 全部 required Requirement 为 `verified`（§38 Requirement Verification Gate） |
+| 2 | Acceptance PASS | 同上文件的 `acceptance` 区 | 每个 REQ 的每条 AC 有 verified 证据（§20） |
+| 3 | Tests PASS | `.ai/<feature>/evidence.yaml` 的 `tests` 字段 | 本轮 Test Gate 记录含实际执行的命令与结果（§36） |
+| 4 | Build PASS | `.ai/audit-state.yaml` 的 `build.status` | 本仓库无构建工具链，判据 = 自检脚本 exit 0（T-15 起） |
+| 5 | Runtime PASS | `.ai/audit-state.yaml` 的 `runtime.status` | 自检 + Recovery 演练的运行时取证（§71 Runtime Gate） |
+| 6 | Code Review PASS | `.ai/audit-state.yaml` 的 `code_review.status` | 三层 Gate 之一（§37 `code-reviewer` 六维） |
+| 7 | Final Audit PASS | `.ai/audit-state.yaml` 的 `final_document_audit.status` + `doc/audits/phase2/final-audit.md`（L 产出） | §66–§69 判据全过（T-27 L 演练） |
+| 8 | Version Consistent | `VERSION` 文件 + `.ai/version-state.yaml` 的 `project.version` | B-03 已由 T-17 解除；frontmatter 一致性断言（自检第 2 组） |
+| 9 | Git State Valid | `.ai/version-state.yaml` 的 `git.branch/head/clean` + CK-14 / CK-16 / CK-17 | 集成分支可达 + 状态一致 + 工作树干净 |
+
+九项任一不成立 → 停留 `ITERATIVE_DEVELOPMENT`（§72 反向：未全过即不进 `RELEASE_READY`）。

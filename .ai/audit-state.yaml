@@ -1,0 +1,45 @@
+# Audit 状态（DESIGN.md §57 五键 schema + §72 Release Gate 九项承载）
+# 由 T-20 建立。作用域：Owner = FORGELOOP → .ai/（§79）。
+# 各键的 status 值：pending | passed | failed
+# 键与 §72 九项的对应：
+#   requirement_review      → Requirements PASS + Acceptance PASS（§18/§20 提取物）
+#   spec_review             → SPEC Review PASS（§25 Gate 之三）
+#   code_review             → Code Review PASS（§37 三层 Gate 之一）
+#   final_document_audit    → Final Audit PASS（§66–§69，L 能力）
+#   runtime                 → Runtime PASS（§71 Runtime Gate）
+#   build                   → Build PASS（§70）
+#   version_consistent      → Version Consistent（§72 之八，B-03 已由 T-17 解除）
+#   git_state_valid         → Git State Valid（§72 之九，依赖 L 与 B-03）
+#
+# 时点：本文件在 Checkpoint 时更新并随仓库提交（rules/state-and-recovery.md）。
+# 自检 CK-audit-state-probe 断言五键（§57 原始五键）齐备；§72 九项中新增的四个键
+# （build / version_consistent / git_state_valid + 上列三键扩展）为 T-20 的 schema 扩展，
+# 自检组 8 扩展断言其必填。
+
+requirement_review:
+  status: passed          # T-10b 真实 Task 闭环演练中 document-reviewer 结论
+
+spec_review:
+  status: passed          # T-21 D 演练产出 spac-002 详设；§25 三条件核对见 doc/audits/phase2/spec-review.md
+
+code_review:
+  status: passed          # T-11 三层 Gate 证据固化
+
+final_document_audit:
+  status: passed          # T-27 L 演练完成：doc/audits/phase2/final-audit.md + final-audit-matrix.md
+
+runtime:
+  status: passed          # 第一阶段自检 + Recovery 演练的运行时取证
+
+build:
+  status: passed          # 本仓库无构建工具链；判据 = 自检脚本 exit 0（T-15 起）
+
+version_consistent:
+  status: passed          # T-17 B-03 解除：VERSION 文件唯一版本源，frontmatter 一致性断言
+
+git_state_valid:
+  status: passed          # CK-14 锚点可达性 + CK-16/17 一致性判据
+
+release_gate:
+  # §72 九项的逐项判定区（T-24 N 契约在此承载）
+  pending: [spec_review, final_document_audit]   # 当前未满足的项
