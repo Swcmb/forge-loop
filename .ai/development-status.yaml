@@ -57,7 +57,7 @@ checkpoint:
                                                      # 当前 Goal。跨 Goal 切换时 CP-009
                                                      # 的归属不因后续 Goal 建立而改写
   task: {id: T-30}
-  git: {commit: "pending: T-30 merge"}               # §11.2 占位值；下一个 commit 回填
+  git: {commit: "ac4a6b7"}                             # §11.2 回填；PR #20 squash merge，tag v1.0.0 指向该 commit
   spec: {version: "SPEC-2026-10-13.0.1.0"}           # §53 原字段名；T-21 D 演练产出
   progress:
     # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status **合计**一致，由自检 8c 组的
@@ -79,10 +79,9 @@ checkpoint:
   convention: >-
     git_commit 的取值口径、占位值词表（pending: <taskID> merge）、回填时同步
     git.head 的要求，见 rules/git-integration.md §11。
-    CP-010 的回填责任：§11.2 约定「下一 Task 的 commit 回填」，而 T-30 是 FL-002 的
-    末条 Task、本 Goal 无下一 Task。回填落在**下一个 Goal（FL-003）的首个 Task**——
-    届时该 Task 的 commit 把 CP-010 的 git_commit 从占位值改为收口 commit 的实际 hash，
-    并同步 version-state.git.head。在此之前该占位值合法（CK-12 按 §11.2 豁免可达性校验）。本字段仅留指针，规则条文
+    CP-010 的回填已于 v1.0.0 tag 建立后执行：tag 不可变，收口 commit 的 hash 因此确定，
+    回填值为 ac4a6b7（PR #20 squash merge）。回填按 §11.2 同步了 version-state.git.head。
+    §11.3 的「只追加不改写」约束的是已结算的历史锚点；占位条目按 §11.2 回填，二者不冲突。本字段仅留指针，规则条文
     不落在 per-Goal 运行态文件里。
   history:                                        # §54 Version Comparison / Progress Tracking 的锚点
     # git_commit 一律加引号保持字符串类型：纯数字短 hash（9217165）不加引号会被 YAML
@@ -100,7 +99,7 @@ checkpoint:
     - {id: CP-007, git_commit: "5450675", task: T-13, note: "PR Swcmb/forge-loop#13 squash merge；§11.2 回填后建立"}
     - {id: CP-008, git_commit: "972a9fa", task: T-14, note: "PR Swcmb/forge-loop#14 squash merge"}
     - {id: CP-009, git_commit: "37c5f83", task: T-15, note: "PR Swcmb/forge-loop#15 squash merge"}
-    - {id: CP-010, git_commit: "pending: T-30 merge", task: T-30, note: "Goal FL-002 收口；§11.2 占位值，由下一个 commit 回填"}
+    - {id: CP-010, git_commit: "ac4a6b7", task: T-30, note: "Goal FL-002 收口；PR #20 squash merge；tag v1.0.0 指向该 commit"}
 
 blockers:
   - id: BL-001
