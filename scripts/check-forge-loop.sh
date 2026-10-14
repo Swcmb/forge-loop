@@ -722,6 +722,42 @@ else
   ok "SKILL.md 无自建生成引擎措辞（AC-D4）"
 fi
 
+# --- 11. 设计文档引用路径（DI-02，FL-003 T-31）---
+# 设计文档在磁盘上是 DESIGN.md；历史写法 ForgeLoop.DESIGN.md 会让 §10 规定的路径
+# 指向不存在的文件。白名单内的文件按「历史记录」处理——它们描述的是当时的事实而非
+# 可操作指引，改写会让记录失真（rules/git-integration.md §10）。
+echo
+echo "== 11. 设计文档引用路径（DI-02）=="
+DI02_PATTERN="ForgeLoop[.]DESIGN[.]md"
+DI02_EXEMPT="CHANGELOG.md|doc/INITIAL-DELIVERY.md|doc/design/spac-001-detailed-design.md|doc/audits/repository-audit.md|doc/requirements/brainstorming-results.md|scripts/check-forge-loop.sh|rules/git-integration.md|CLAUDE.md"
+# 扫描范围：仓库内全部受版本控制的 .md/.yaml/.sh，剔除白名单。
+# 用 git ls-files 而非 find——未跟踪文件（含 .ai/ 运行态与 logs/）不属文档基线。
+# 本仓库文件名不含换行，故直接用换行分隔输出，不依赖 -z / NUL 转义。
+di02_hits=""
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  # 豁免判定走正则整体匹配 DI02_EXEMPT，不做逐项 case 列举——
+  # 两份清单一旦分开维护，改白名单漏改其中一处就是静默失守。
+  printf '%s
+' "$f" | grep -qE "^($DI02_EXEMPT)$" && continue
+  if grep -q "$DI02_PATTERN" "$ROOT/$f" 2>/dev/null; then
+    di02_hits="$di02_hits$f "
+  fi
+done < <(git -C "$ROOT" ls-files -- '*.md' '*.yaml' '*.yml' '*.sh' 2>/dev/null)
+if [ -z "$di02_hits" ]; then
+  ok "活引用文档无 ForgeLoop.DESIGN.md 写法（历史记录类文件除外）"
+else
+  for f in $di02_hits; do
+    bad "活引用文档仍写 ForgeLoop.DESIGN.md：$f（磁盘实际文件名为 DESIGN.md，rules/git-integration.md §10）"
+  done
+fi
+# 磁盘实存性：DESIGN.md 必须真实存在，否则上面的路径约定指向空处。
+if [ -s "$ROOT/DESIGN.md" ]; then
+  ok "DESIGN.md 存在且非空（§10 的引用目标）"
+else
+  bad "DESIGN.md 缺失或为空（§10 规定所有引用指向该路径）"
+fi
+
 # --- 汇总 ---
 echo
 echo "=============================="
