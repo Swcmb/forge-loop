@@ -1,0 +1,64 @@
+# ForgeLoop 第二阶段之后遗留缺陷的处置证据
+
+# 本文件登记 FL-003 的 Requirement Evidence。每条八字段完整落盘，不预置占位条目
+# （`rules/artifact-persistence.md` §10：完成定义是「Artifact Generated + Persisted + Verified」）。
+
+
+# --- Requirement 证据区 ---
+
+t31_di02_reference_paths:
+  requirement: "工程目标（一致性）——DI-02 的处置与回归防护"
+  task: T-31
+  source: >-
+    rules/git-integration.md §10（处置口径的唯一出处）；doc/design/spac-001-detailed-design.md
+    的决策表 DI-02 行；doc/requirements/brainstorming-results.md 的 DI-02 行；
+    doc/audits/repository-audit.md §7
+  spec: >-
+    设计文档在磁盘上是 DESIGN.md；活引用方一律改用该路径；历史记录类文件按当时的事实
+    保留原写法；两者由自检第 11 组按路径白名单区分
+  implementation: >-
+    活引用 12 处改为 DESIGN.md（AGENTS.md 5、CONTRIBUTING.md 1、README.md 1、
+    doc/DEVELOPMENT.md 1、doc/PROJECT-CONSTRAINTS.md 2、rules/version-management.md 1、
+    rules/forge-loop-development.md 1）；
+    rules/git-integration.md §10 改写为已落定约定并保留历史说明；
+    CLAUDE.md 的「命名不一致（注意）」段改为直接约定；
+    doc/INITIAL-DELIVERY.md 顶部加历史注记（正文 14 处保留），
+    doc/audits/repository-audit.md §7 与 doc/requirements/brainstorming-results.md
+    的 DI-02 行加处置结果；
+    scripts/check-forge-loop.sh 新增第 11 组：扫描受版本控制的 .md/.yaml/.sh，
+    按路径白名单豁免历史记录类文件，另断言 DESIGN.md 磁盘实存
+  tests: >-
+    正向：bash scripts/check-forge-loop.sh → 108 pass / 0 fail / 0 skip，exit 0
+    （T-31 前为 104；新增第 11 组 2 条 + phase3 工件落盘断言 2 条）；
+    负向 1：CONTRIBUTING.md 追加旧写法 → exit 1，命中「活引用文档仍写 ForgeLoop.DESIGN.md」；
+    负向 2：白名单文件 git mv 到非白名单路径 → exit 1，证明白名单按路径而非内容生效；
+    负向 3：DESIGN.md 移走 → exit 1，命中「DESIGN.md 缺失或为空」；
+    三条复原后均 exit 0
+  review: "作者 agent 自审（ai-git-workflow §5.2）"
+  runtime: >-
+    库部署目标不受影响——本 Task 未改动 skills/forge-loop/ 下任何文件，
+    自检第 6 组（源码与库副本一致性）全程 PASS
+  acceptance: >-
+    DI-02 处置完成。判据从「一次性改对」升级为「可执行断言防回归」——
+    旧写法重新出现在活引用文档中即 exit 1
+  status: verified
+
+# --- Assertion 记录 ---
+
+assertions:
+  di02_reference_paths:
+    desc: 活引用文档不得出现 ForgeLoop.DESIGN.md 写法；DESIGN.md 必须磁盘实存
+    status: passed
+    evidence: >-
+      自检第 11 组。扫描对象 = git ls-files 的 .md/.yaml/.sh，剔除 7 项路径白名单
+      （CHANGELOG.md、doc/INITIAL-DELIVERY.md、doc/design/spac-001-detailed-design.md、
+      doc/audits/repository-audit.md、doc/requirements/brainstorming-results.md、
+      scripts/check-forge-loop.sh、rules/git-integration.md、CLAUDE.md）；
+      另断言 DESIGN.md 存在且非空。白名单为单一来源，由 DI02_EXEMPT 一处定义。
+      三条负向验证见 T-31 条目的 tests 字段。
+    note: >-
+      该组在初版实现中因 Python 插入脚本时把 \0 转义写成真实 NUL 字节而失效——
+      grep 将脚本判为 binary，扫描静默产出零命中。发现方式是负向测试未触发，
+      而非正向测试失败。此类「断言自身失效」是 T-20 为 audit-state-probe 设
+      「T-20 勾选后文件缺失判 FAIL」同类防护的动机：正向通过不证明判据有效，
+      必须配至少一条会因判据失效而变红的负向。
