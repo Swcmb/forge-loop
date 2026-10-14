@@ -173,6 +173,8 @@ Changelog                 无
 
 文档正文 21 处写作 `ForgeLoop.DESIGN.md`，磁盘实际文件名为 `DESIGN.md`。`rules/git-integration.md` §10 已记录该事实并规定：统一的是引用方，文件名以磁盘现状为准。`AGENTS.md` §5 要求修改 `DESIGN.md` 本身需用户明确指示。
 
+**处置结果（FL-003 T-31）**：12 处活引用已统一为 `DESIGN.md`（`AGENTS.md` 5、`CONTRIBUTING.md` 1、`README.md` 1、`doc/DEVELOPMENT.md` 1、`doc/PROJECT-CONSTRAINTS.md` 2、`rules/version-management.md` 1、`rules/forge-loop-development.md` 1）。本审计的发现记录按历史事实保留。自检组 11 对活引用设断言防回归。
+
 ---
 
 ## 8. Blockers

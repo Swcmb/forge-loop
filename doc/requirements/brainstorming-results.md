@@ -36,7 +36,7 @@
 | 编号 | 不一致 | 处置 |
 | :--- | :--- | :--- |
 | DI-01 | §81 的 references（8 个）与 §105 的 references（11 个）冲突 | 已裁定以 §105 为准（ADR-004）；§81 旧清单记录为历史遗留 |
-| DI-02 | 文档正文 21 处写 `ForgeLoop.DESIGN.md`，磁盘为 `DESIGN.md` | 已由 `rules/git-integration.md` §10 记录：统一引用方，文件名以磁盘为准 |
+| DI-02 | 文档正文 21 处写 `ForgeLoop.DESIGN.md`，磁盘为 `DESIGN.md` | 已由 `rules/git-integration.md` §10 记录：统一引用方，文件名以磁盘为准。**FL-003 T-31 已执行**：12 处活引用统一为 `DESIGN.md`，历史记录类文件保留原写法 |
 | DI-03 | `slavingia/mvp` 是商业顾问人格，§15/§16 是工程 scope 契约，产出不同构 | 已裁定 Adapter 收束（ADR-005），不修改 Design |
 | DI-04 | §10 的 Agent 六维与 §37 的 Gate 六维不一致（`Diff` vs `Scope`） | 详细设计 §3.4 按「§10 产出 + §37 判定」双层执行，待 DESIGN.md 裁定 |
 | DI-05 | ADR-001 §3 把上游 tasks.md 勾选判定为「§28 checkbox + §29 Task State 契合」，实测上游无 Task State 定义 | ADR-001 §3 判定修正为「部分契合」，C-05 措辞同步修订 |

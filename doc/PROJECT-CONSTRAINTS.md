@@ -15,7 +15,7 @@ Target = Claude Code
 Design Authority：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 Design Version：
@@ -213,7 +213,7 @@ ForgeLoop Namespace Rules
 生命周期：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 具体实现：

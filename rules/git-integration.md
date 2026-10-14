@@ -196,19 +196,25 @@ squash 合并
 
 ## 10. File Naming Inconsistency
 
-文档正文多处将设计文档写作：
-
-```text
-ForgeLoop.DESIGN.md
-```
-
-磁盘上的实际文件名为：
+设计文档在磁盘上的文件名为：
 
 ```text
 DESIGN.md
 ```
 
-引用时使用实际路径 `DESIGN.md`。按 `AGENTS.md` §5「Design Is The Single Authority」，统一的是引用方，文件名本身以磁盘现状为准。
+项目文档一律以实际路径 `DESIGN.md` 引用。按 `AGENTS.md` §5「Design Is The Single Authority」，
+统一的是引用方，文件名本身以磁盘现状为准。
+
+历史上文档正文曾将设计文档写作 `ForgeLoop.DESIGN.md`（`ForgeLoop.` 前缀 + 大写扩展名），
+该写法已由 FL-003 的 T-31 全量处置：活引用方（`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、
+`doc/DEVELOPMENT.md`、`doc/PROJECT-CONSTRAINTS.md`、`rules/version-management.md`、
+`rules/forge-loop-development.md`）已统一为 `DESIGN.md`。
+
+历史记录类文件保留原写法，因其描述的是当时的事实而非可操作指引：
+`CHANGELOG.md`（按定义即版本变更的历史记录）、`doc/INITIAL-DELIVERY.md`（初始交付稿）、
+`doc/design/spac-001-detailed-design.md`（ADR-007 冻结的第一阶段设计）、
+`doc/audits/repository-audit.md` 与 `doc/requirements/brainstorming-results.md`（审计发现记录）。
+结构化自检组 11 按同一白名单区分这两类，见该组的豁免清单。
 
 ---
 

@@ -35,7 +35,7 @@ Global Repository Rules
 开发前读取：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 Design 是系统设计依据。

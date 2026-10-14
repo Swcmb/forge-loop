@@ -240,6 +240,10 @@ git add → git commit → push 分支 → 开 PR → squash 合并
 - 不得直接向 main 推送 Agent 变更。
 - 提交格式与合并条件遵循 `ai-git-workflow`。
 
-## 命名不一致（注意）
+## 设计文档引用约定
 
-`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、`rules/`、`doc/`、`CLAUDE.md` 正文中多处引用设计文档为 `ForgeLoop.DESIGN.md`，磁盘上的实际文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。新增引用时使用实际路径 `DESIGN.md`。统一的是引用方，文件名以磁盘现状为准（`rules/git-integration.md` §10）。
+设计文档的磁盘文件名是 `DESIGN.md`（文件内部首行标题为 `# ForgeLoop`）。项目文档一律以实际路径 `DESIGN.md` 引用；历史上曾用的 `ForgeLoop.DESIGN.md` 写法已在 T-31 全量处置（`rules/git-integration.md` §10）。新增引用直接写 `DESIGN.md`。
+
+统一的是引用方，文件名以磁盘现状为准（`AGENTS.md` §5「Design Is The Single Authority」）。自检组 11 对此设断言，改回旧写法即 `exit 1`。
+
+历史记录类文件（`CHANGELOG.md`、`doc/INITIAL-DELIVERY.md`、`doc/design/spac-001-detailed-design.md`、`doc/audits/repository-audit.md`、`doc/requirements/brainstorming-results.md`）保留旧写法并列入自检豁免——它们描述的是当时的事实，改写会篡改记录。
