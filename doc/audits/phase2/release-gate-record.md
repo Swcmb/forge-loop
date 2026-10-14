@@ -9,7 +9,7 @@
 | :-- | :--- | :--- | :--- | :--- |
 | 1 | Requirements PASS | PASS | `.ai/*/requirement-matrix.yaml` 的 `status` 合计 | 14 条 required 全 VERIFIED（phase1 的 REQ-001～009 九条 + phase2 的 REQ-D/E/L/M/N 五条） |
 | 2 | Acceptance PASS | PASS | 同上 `acceptance` 区 + `.ai/forgeloop-phase2/evidence.yaml` | 每条 AC 有 verified 证据；phase1 见 `doc/audits/mvp-acceptance.md` 的 V-00～V-13，phase2 见 evidence 的十一条八字段条目 |
-| 3 | Tests PASS | PASS | `scripts/check-forge-loop.sh` 实际执行记录 | 103 项断言，0 fail，0 skip，exit 0 |
+| 3 | Tests PASS | PASS | `scripts/check-forge-loop.sh` 实际执行记录 | T-29 当轮 103 pass / 0 fail / 0 skip，exit 0（计数随断言增删漂移，判据是 exit 0） |
 | 4 | Build PASS | PASS | `.ai/audit-state.yaml` 的 `build.status` | 本仓库无构建工具链；判据 = 自检脚本 exit 0（T-15 起确立） |
 | 5 | Runtime PASS | PASS | `.ai/audit-state.yaml` 的 `runtime.status` | 第一阶段自检 + T-13 Recovery 三场景演练的运行时取证 |
 | 6 | Code Review PASS | PASS | `.ai/audit-state.yaml` 的 `code_review.status` | T-11 三层 Gate 证据固化；本轮各 PR 附作者自审结论 |

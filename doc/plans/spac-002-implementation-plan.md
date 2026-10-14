@@ -44,7 +44,7 @@ Plan 修订号：`PLAN-r1`（§48，Plan 采用修订号，不采用 SemVer）
 
 ### T-26 自检第 1 组翻转 + 双向负向
 - Requirement: 工程目标（判据）
-- 前置：T-22 / T-23 已交付（ADR-007 §8-1），库部署目标已同步（§8-2，文件数 11→12，走 `manage-skills deploy` 不手工复制）
+- 前置：T-22 / T-23 已交付（ADR-007 §8-1），库部署目标已同步（§8-2，references 由 10 增至 11，走 `manage-skills deploy` 不手工复制）
 - 动作：`scripts/check-forge-loop.sh` 第 1 组负向断言改正向；从 PENDING_REFS 移除 audit-model.md
 - 判据：正向全项 PASS；负向≥2 项（删文件 / 清零）各 exit 1；复原 exit 0
 - 产出：`scripts/check-forge-loop.sh` 第 1 组更新

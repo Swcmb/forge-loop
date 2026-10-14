@@ -13,9 +13,9 @@
 | :-- | :--- | :--- | :--- |
 | 1 | All Required Requirements Verified | PASS | 14 条 required 全 VERIFIED（phase1 REQ-001～009 + phase2 REQ-D/E/L/M/N）；自检 CK-13 四项计数断言 PASS |
 | 2 | All Acceptance Criteria Passed | PASS | phase1 的 V-00～V-13（`doc/audits/mvp-acceptance.md`）；phase2 的 AC-D1～D4 / E1～E4 / L1～L5 / M1～M5 / N1～N5 逐条见 `.ai/forgeloop-phase2/evidence.yaml` 的十三条八字段条目 |
-| 3 | Tests Passed | PASS | `bash scripts/check-forge-loop.sh` → 103 pass / 0 fail / 0 skip，exit 0 |
+| 3 | Tests Passed | PASS | `bash scripts/check-forge-loop.sh` → 104 pass / 0 fail / 0 skip，exit 0 |
 | 4 | Code Review Passed | PASS | 三层 Gate（§36–§38）证据固化于 `.ai/verification-state.yaml` 的 `gates` 段；各 PR 附作者自审结论 |
-| 5 | Build Passed | PASS | 本仓库无构建工具链；判据 = 自检脚本 exit 0（T-15 起确立，`rules/forge-loop-development.md` 口径） |
+| 5 | Build Passed | PASS | 本仓库无构建工具链；§70 的 Build Gate 在此仓库的判据 = 自检脚本 exit 0，口径记录于 `.ai/audit-state.yaml` 的 `build.status`（T-15 起确立，T-20 落盘） |
 | 6 | Runtime Passed | PASS | 第一阶段自检 + T-13 Recovery 三场景演练的运行时取证 |
 | 7 | Final Audit Passed | PASS | `doc/audits/phase2/final-audit.md`（§67 Matrix 14 行齐备、§68 四维各有结论、§69 无 Missing） |
 | 8 | Version Consistent | PASS | B-03 由 T-17 解除；`VERSION` = 1.0.0 为唯一权威源；自检第 2 组一致性断言 PASS |

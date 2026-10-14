@@ -140,7 +140,7 @@ t30_goal_closeout:
   tests: >-
     §94 九项全 PASS；§15 六项全 PASS；I-008 兜底可执行——checkpoint.progress.requirements.pending == 0
     由自检 CK-13 跨两个 matrix 聚合断言，误改任一侧即 FAIL；
-    自检 scripts/check-forge-loop.sh → 103/0/0 exit 0
+    自检 scripts/check-forge-loop.sh → 当轮 104 pass / 0 fail / 0 skip，exit 0
   review: "作者 agent 自审（ai-git-workflow §5.2）"
   runtime: "库部署目标一致；VERSION=1.0.0 与 frontmatter 一致"
   acceptance: "Goal FL-002 收口；FL-001 承接的 I-007/I-008 与 D/E/L/M/N、B-03 全部解除"
@@ -176,7 +176,10 @@ t28_m_drill:
     Finding 链完整（Missing 登记 → Remediation → Iteration → 复审）；复审轮次 1→2 递增可追溯、
     结论 FAIL→PASS 翻转；BLOCKED 未触发（§97 五类外部不可控情形均未命中），与 §96 修复路径互斥
   review: "作者 agent 自审"
-  runtime: "同轮自检 103/0/0 exit 0"
+  runtime: >-
+    同轮自检 exit 0（当轮 pass 103 / fail 0 / skip 0）。该计数随 checkpoint.history
+    条目数变化，且依赖库部署目标与源码同步——在未同步库副本的干净 worktree 上跑会因
+    自检第 6 组报「库部署目标漂移：SKILL.md」而少一条 PASS，属环境态而非本 Task 缺陷。
   acceptance: "AC-M1～AC-M4 达成（AC-M5 的 BLOCKED 互斥判据由 audit-model.md §8 承载并在本轮核对）"
   status: verified
 
@@ -193,7 +196,7 @@ t29_release_drill:
     VERSION 与 SKILL.md frontmatter 同步 1.0.0；CHANGELOG.md 产出
   tests: >-
     九项逐项核对全 PASS（记录见 release-gate-record.md）；
-    自检 scripts/check-forge-loop.sh → 103/0/0 exit 0（CK-13 计数一致断言 PASS）；
+    自检 scripts/check-forge-loop.sh → 当轮 103 pass / 0 fail / 0 skip，exit 0（CK-13 计数一致断言 PASS）；
     自检第 2 组 frontmatter 与 VERSION 一致断言 PASS
   review: "作者 agent 自审（ai-git-workflow §5.2）"
   runtime: >-

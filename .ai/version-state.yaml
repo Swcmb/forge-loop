@@ -48,4 +48,4 @@ git:
   # 恢复者若按此刻跑该命令得非空结果，这与 §3.5 判据的处置一致（条件①成立但
   # task.status ≠ complete → 不触发 STOP，见 recovery-record.md §3.3）。
   # 字段值不应被读成「此刻的工作树快照」。
-  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-009 / 994b32a）
+  clean: true                    # 锚定最近一次 Checkpoint 提交时刻（当前为 CP-010 的前置锚点 / 994b32a）

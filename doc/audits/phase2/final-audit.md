@@ -13,7 +13,7 @@
 | Requirement Matrix | `.ai/forgeloop-phase1/requirement-matrix.yaml` + `.ai/forgeloop-phase2/requirement-matrix.yaml` | ✅ |
 | SPEC | `doc/design/spac-002-detailed-design.md`（SPEC-2026-10-13.0.1.0） | ✅ |
 | Plan | `doc/plans/spac-002-implementation-plan.md`（PLAN-r1） | ✅ |
-| Implementation | `skills/forge-loop/`（SKILL.md + 12 references） | ✅ |
+| Implementation | `skills/forge-loop/`（SKILL.md + 11 references） | ✅ |
 | Tests | `scripts/check-forge-loop.sh`（100+ 项断言，正向 exit 0） | ✅ |
 | Git History | `git log`（PR #15–#17 收口链） | ✅ |
 

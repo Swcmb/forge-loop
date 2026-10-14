@@ -74,11 +74,15 @@ checkpoint:
         requirement-matrix 聚合 status 分布与 checkpoint.progress.requirements 比对。
         ADR-007 §2 登记的三类承接元素（I-007/I-008、D/E/L/M/N、B-03）全部解除，
         mvp-acceptance.md §5 的未覆盖清单清零。verification.overall 转 complete。
-        自检 103/0/0；VERSION=1.0.0（§4.4 adoption 条件判定）；v1.0.0 tag 指向本 Task
+        自检当轮 104/0/0；VERSION=1.0.0（§4.4 adoption 条件判定）；v1.0.0 tag 指向本 Task
         的收口 commit。FL-002 无下一 Task。
   convention: >-
     git_commit 的取值口径、占位值词表（pending: <taskID> merge）、回填时同步
-    git.head 的要求，见 rules/git-integration.md §11。本字段仅留指针，规则条文
+    git.head 的要求，见 rules/git-integration.md §11。
+    CP-010 的回填责任：§11.2 约定「下一 Task 的 commit 回填」，而 T-30 是 FL-002 的
+    末条 Task、本 Goal 无下一 Task。回填落在**下一个 Goal（FL-003）的首个 Task**——
+    届时该 Task 的 commit 把 CP-010 的 git_commit 从占位值改为收口 commit 的实际 hash，
+    并同步 version-state.git.head。在此之前该占位值合法（CK-12 按 §11.2 豁免可达性校验）。本字段仅留指针，规则条文
     不落在 per-Goal 运行态文件里。
   history:                                        # §54 Version Comparison / Progress Tracking 的锚点
     # git_commit 一律加引号保持字符串类型：纯数字短 hash（9217165）不加引号会被 YAML
@@ -120,4 +124,4 @@ verification:
   overall: complete
   passed: [V-00, V-01, V-02, V-03, V-04, V-05, V-06, V-07, V-08, V-09, V-10, V-11, V-12, V-13]
   pending: []
-  phase2_requirements: [REQ-D, REQ-E, REQ-L, REQ-M, REQ-N]   # 全部 VERIFIED，evidence 见 .ai/forgeloop-phase2/evidence.yaml（12 条）
+  phase2_requirements: [REQ-D, REQ-E, REQ-L, REQ-M, REQ-N]   # 全部 VERIFIED，evidence 见 .ai/forgeloop-phase2/evidence.yaml（13 条）
