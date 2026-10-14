@@ -11,6 +11,8 @@ project:
 goal:
   id: FL-003                           # 与 development-status.goal.id 同值，由自检 CK-16 核对
                                        # （§55 schema 在两个文件各记一次 goal.id）。
+  closed_by: T-32                                       # 与 development-status.goal.closed_by 同值
+  release: v1.0.0                                       # 本 Goal 期间无版本变更，沿用 v1.0.0
   prev:
     id: FL-002
     closed_by: T-30
