@@ -16,12 +16,12 @@ FL-003 只处理遗留缺陷，因此不新建 ADR：§10 本身就是该缺陷�
   Tests: 活引用方 12 处全部改为 `DESIGN.md`；`rules/git-integration.md` §10 改写为已落定约定；`CLAUDE.md` 的提示段改为直接约定；历史记录类文件保留原写法并加注记；自检新增第 11 组断言。负向三条各 `exit 1`：活文件改回旧写法、白名单文件移出白名单路径、`DESIGN.md` 缺失
   Evidence: `.ai/forgeloop-phase3/evidence.yaml` T-31 条目
 
-- [ ] 2. T-32 FL-003 Goal 收口
+- [x] 2. T-32 FL-003 Goal 收口
 
   Requirement: 工程目标（收口）——Goal 范围的最小收口
   Acceptance: []
   Tests: 本 Goal 的 Task 清单无未完成项；自检 exit 0；Goal 状态文件与 Checkpoint 完整
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase3/evidence.yaml` T-32 条目；产物 `doc/audits/phase3/goal-closeout.md`
 
 ## 处置分类
 

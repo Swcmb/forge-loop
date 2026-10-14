@@ -56,6 +56,24 @@ t31_di02_reference_paths:
     旧写法重新出现在活引用文档中即 exit 1
   status: verified
 
+t32_goal_closeout:
+  requirement: "工程目标（收口）——Goal 范围的最小收口"
+  task: T-32
+  source: "DESIGN.md §94 在本 Goal 范围内的适用项；AGENTS.md §15；rules/git-integration.md §10"
+  spec: "本 Goal 的 Task 清单无未完成项；自检 exit 0；Goal 状态文件与 Checkpoint 完整"
+  implementation: >-
+    doc/audits/phase3/goal-closeout.md：§94 九项在本 Goal 范围内的逐项核对 +
+    DI-02 五类处置的覆盖率核对 + 十条负向的三类划分（对象违规 / 判据自身失效 / 范围）；
+    development-status 的 goal.closed_by 记 T-32、task 转 T-32、CP-012 建立
+  tests: >-
+    §94 九项在本 Goal 范围内全 PASS；自检 scripts/check-forge-loop.sh → 110/0/0 exit 0；
+    白名单外活引用命中数实测为 0（独立 grep 复核，非仅依赖自检）；十条负向见 T-31 条目
+  review: "PR #22 的独立 code-reviewer 六维评审：2 MAJOR + 5 MINOR + 1 建议，全部已修复并复验"
+  runtime: "本 Goal 未改动 skills/forge-loop/，库部署目标不受影响；自检第 6 组全程 PASS"
+  acceptance: "Goal FL-003 收口；DI-02 从「已登记的已知不一致」变为「有断言防护的既定约定」"
+  status: verified
+
+
 # --- Assertion 记录 ---
 
 assertions:
