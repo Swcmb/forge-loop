@@ -108,12 +108,12 @@
   Tests: §72 九项逐项 PASS；CHANGELOG.md 产出；tag 指向 Audit 通过后的 commit
   Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-29 条目；产物 `CHANGELOG.md` + `doc/audits/phase2/release-gate-record.md`
 
-- [ ] 15. T-30 Phase 2 Final Audit + Goal 收口
+- [x] 15. T-30 Phase 2 Final Audit + Goal 收口
 
   Requirement: 工程目标（收口）——§94 的完成模型
   Acceptance: []
   Tests: D/E/L/M/N 五项各有独立 AC 与证据；`AGENTS.md` §15 六项全部满足；`verification.overall` 转 `complete`
-  Evidence: 待补
+  Evidence: `.ai/forgeloop-phase2/evidence.yaml` T-30 条目；产物 `doc/audits/phase2/goal-closeout.md`
 
 ## Relevant Files
 

@@ -4,12 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 仓库当前状态
 
-本仓库目前只有设计与治理层，没有实现代码。
+`v1.0.0`（2026-10-13，Goal FL-002 收口）。本仓库是 **Skill 型编排器**，交付物是 Skill 本体与治理文档，没有被开发的应用代码。
 
 ```text
 DESIGN.md                  系统设计（113 节，权威依据）
 AGENTS.md                  项目级 Agent 契约（16 节）
 CONTRIBUTING.md            贡献流程
+VERSION                    Project Version 的唯一权威源（值不写在本文件）
+CHANGELOG.md               版本变更记录（版本号引用 VERSION）
 rules/                     7 份项目规则
   forge-loop-development.md   自身开发流程与完成条件
   git-integration.md         Git 接入（不建第二套 Git Policy）
@@ -18,13 +20,36 @@ rules/                     7 份项目规则
   workspace-namespace.md     Owner 与命名空间归属
   artifact-persistence.md    工程产物落盘（强制）
   domestic-mirror.md         拉取模型/依赖优先使用国内镜像
-doc/                       4 份开发文档
-  DEVELOPMENT.md / PROJECT-CONSTRAINTS.md / WORKSPACE-NAMESPACE.md
-  INITIAL-DELIVERY.md        初始一次性交付稿，内容已拆分进上述文件
-src/  tests/  .ai/         空目录（git 不跟踪空目录，clone 后不存在）
+skills/forge-loop/         编排层本体（Deploy 形态，DESIGN.md §81–§82）
+  SKILL.md                    路由与核心约束
+  references/                 11 份契约：architecture / lifecycle / mvp-integration /
+                              iterative-integration / requirement-model / task-model /
+                              goal-mode / version-control / audit-model / evidence-model / recovery
+scripts/check-forge-loop.sh 结构化自检，104 项断言
+doc/design/                详细设计（spac-001 第一阶段 / spac-002 第二阶段）
+doc/decisions/             ADR-001～ADR-007（上游适配、范围裁定、能力裁定）
+doc/requirements/          需求文档
+doc/reviews/               评审记录
+doc/verification/          验证记录
+doc/audits/                验收与审计（mvp-acceptance、repository-audit、phase2 的
+                           final-audit / goal-closeout / release-gate / repair-loop / spec-review）
+doc/plans/                 实施 Plan（PLAN-r1）
+doc/DEVELOPMENT.md / PROJECT-CONSTRAINTS.md / WORKSPACE-NAMESPACE.md / INITIAL-DELIVERY.md
+.ai/                       ForgeLoop 自身运行状态（§79，Owner = FORGELOOP）
+.ai/forgeloop-phase1/      第一阶段 Goal FL-001 的工件（已冻结）
+.ai/forgeloop-phase2/      第二阶段 Goal FL-002 的工件
+src/  tests/               空目录（git 不跟踪空目录，clone 后不存在）
 ```
 
-没有构建、测试、lint 工具链，`src/` 与 `tests/` 为空。首次引入工具链时，由实际 Task 决定栈，并把命令写回本文件。
+**验证命令**（本仓库唯一的测试入口）：
+
+```bash
+bash scripts/check-forge-loop.sh     # exit 0 = 通过；汇总行给出 pass / fail / skip 计数
+```
+
+判据含正负向两侧：正例全过，负例（VERSION 清零、frontmatter 与 VERSION 不一致、`audit-model.md` 被删或清零等）必须 `exit 1`。
+
+本仓库无构建工具链与 CI。`AGENTS.md` §15 与 `DESIGN.md` §70 的 Build Gate 判据即上述脚本的 `exit 0`。
 
 ## 权威顺序
 
