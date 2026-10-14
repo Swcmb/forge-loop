@@ -25,7 +25,7 @@ skills/forge-loop/         编排层本体（Deploy 形态，DESIGN.md §81–§
   references/                 11 份契约：architecture / lifecycle / mvp-integration /
                               iterative-integration / requirement-model / task-model /
                               goal-mode / version-control / audit-model / evidence-model / recovery
-scripts/check-forge-loop.sh 结构化自检，104 项断言
+scripts/check-forge-loop.sh 结构化自检（断言数随判据增删变化，以脚本汇总行为准）
 doc/design/                详细设计（spac-001 第一阶段 / spac-002 第二阶段）
 doc/decisions/             ADR-001～ADR-007（上游适配、范围裁定、能力裁定）
 doc/requirements/          需求文档
@@ -47,7 +47,7 @@ src/  tests/               空目录（git 不跟踪空目录，clone 后不存�
 bash scripts/check-forge-loop.sh     # exit 0 = 通过；汇总行给出 pass / fail / skip 计数
 ```
 
-判据含正负向两侧：正例全过，负例（VERSION 清零、frontmatter 与 VERSION 不一致、`audit-model.md` 被删或清零等）必须 `exit 1`。
+判据含正负向两侧：正例全过，负例（VERSION 清零、frontmatter 与 VERSION 不一致、`audit-model.md` 被删或清零、活引用文档出现历史写法等）必须 `exit 1`。
 
 本仓库无构建工具链与 CI。`AGENTS.md` §15 与 `DESIGN.md` §70 的 Build Gate 判据即上述脚本的 `exit 0`。
 

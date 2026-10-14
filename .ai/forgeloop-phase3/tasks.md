@@ -25,7 +25,7 @@ FL-003 只处理遗留缺陷，因此不新建 ADR：§10 本身就是该缺陷�
 
 ## 处置分类
 
-DI-02 的 31 处命中分四类，处置依据是「该处是否描述当时的事实」：
+DI-02 的命中分五类，处置依据是「该处是否描述当时的事实」：
 
 | 类别 | 文件（命中数） | 处置 |
 | :--- | :--- | :--- |
@@ -35,7 +35,13 @@ DI-02 的 31 处命中分四类，处置依据是「该处是否描述当时的�
 | 历史记录——描述的是当时的事实 | `doc/INITIAL-DELIVERY.md`(15，含 T-31 加的注记 1 处)、`doc/design/spac-001-detailed-design.md`(1，ADR-007 冻结)、`doc/audits/repository-audit.md`(1)、`doc/requirements/brainstorming-results.md`(1)、`CHANGELOG.md`(1) | 保留原写法，加处置注记 |
 | 判据自身 | `scripts/check-forge-loop.sh`(3：模式串、报错文案、注释)、`.ai/forgeloop-phase3/evidence.yaml`(2) | 必须含旧写法字符串，判据才能检出它 |
 
-活引用 12 处改写；规则与说明各改写 1 段；历史记录 19 处保留原写法；判据自身 5 处按设计保留。
+改写 14 处：活引用 12 + `rules/git-integration.md` §10 与 `CLAUDE.md` 各 1 段。
+
+处置后的落盘状态保留旧写法 23 处（实测）：`doc/INITIAL-DELIVERY.md` 15、`scripts/check-forge-loop.sh` 1、`rules/git-integration.md` 1（历史说明）、`CLAUDE.md` 1（历史说明）、`CHANGELOG.md` 1、`doc/design/spac-001-detailed-design.md` 1、`doc/audits/repository-audit.md` 1、`doc/requirements/brainstorming-results.md` 1、`.ai/forgeloop-phase3/evidence.yaml` 1。白名单外的活引用命中数为 **0**。
+
+「入口基线 31 处」与「落盘保留 23 处」测的不是同一件事，不应相加：前者是处置前主线的命中数，后者是处置后的落盘数（活引用已清零，且 T-31 自身新增了注记与 CHANGELOG 条目）。两数差异来自「改写 14 处」与「新写 6 处」（注记 1 + CHANGELOG 条目 1 + 自检第 11 组 3 + evidence 记录 1）。
+
+自检第 11 组按「文件 → 允许命中次数」双向校验白名单，上述 23 处逐一登记在脚本的 `DI02_BUDGET_*` 变量中。
 
 处置判据是**该处是否在描述当时的事实**：描述事实的保留原样（改写会让记录失真），
 指向可操作对象的才统一。CHANGELOG 是处置过程中新增的白名单成员——它是 Keep a Changelog

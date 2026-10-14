@@ -21,7 +21,8 @@ mvp:
   version: "1.0.0"                   # 与 project.version 同源（仓库根 VERSION 文件）
                                    # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
                                    # 与 .ai/forgeloop-phase2/mvp-scope.yaml（ADR-007 裁定）
-  current_feature: forgeloop-phase2
+  current_feature: forgeloop-phase3                    # 随 FL-003 建立（该字段当前无消费方，
+                                                     # 但指向的目录须与 goal.id 一致以免后续误用）
 
 spec:
   version: "SPEC-2026-10-13.0.1.0"     # T-21 D 演练产出；doc/design/spac-002-detailed-design.md

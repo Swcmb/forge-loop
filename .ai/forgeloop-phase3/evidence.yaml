@@ -28,14 +28,25 @@ t31_di02_reference_paths:
     scripts/check-forge-loop.sh 新增第 11 组：扫描受版本控制的 .md/.yaml/.sh，
     按路径白名单豁免历史记录类文件，另断言 DESIGN.md 磁盘实存
   tests: >-
-    正向：bash scripts/check-forge-loop.sh → 108 pass / 0 fail / 0 skip，exit 0
-    （T-31 前为 104；新增第 11 组 2 条 + phase3 工件落盘断言 2 条）；
-    负向 1：CONTRIBUTING.md 追加旧写法 → exit 1，命中「活引用文档仍写 ForgeLoop.DESIGN.md」；
-    负向 2：白名单文件 git mv 到非白名单路径 → exit 1，证明白名单按路径而非内容生效；
-    负向 3：DESIGN.md 移走 → exit 1，命中「DESIGN.md 缺失或为空」；
-    负向 4：仓库内容复制到非 git 目录运行 → exit 1，命中「DI-02 扫描零命中」——
-      git 不可用时 git ls-files 返回空，零命中会被读成「无违规」，判据静默失效且永远绿；
-    四条复原后均 exit 0
+    正向：bash scripts/check-forge-loop.sh → 110 pass / 0 fail / 0 skip，exit 0
+    计数分解（104 → 110）：第 11 组 3 条（DI-02 扫描 + DESIGN.md 实存 + 扫描范围外豁免）
+    + phase3 工件落盘 2 条（evidence.yaml 的 YAML 解析与 CK-15 无引号冒号）
+    + checkpoint.history 的 CP-011 占位值豁免 1 条。
+    负向 1：CONTRIBUTING.md 追加旧写法 → exit 1，命中「非白名单文件含旧写法」；
+    负向 2：README.md 注入旧写法 → exit 1（非白名单文件）；
+    负向 3：CLAUDE.md 注入旧写法 → exit 1（白名单文件命中数超预算）——这一条曾判 PASS，
+      见 assertions.di02_reference_paths.note 的「整文件豁免」复盘；
+    负向 4：rules/git-integration.md 注入旧写法 → exit 1（同上）；
+    负向 5：CHANGELOG.md 注入旧写法 → exit 1（同上）；
+    负向 6：白名单文件 git mv 到非白名单路径 → exit 1，证明白名单按路径而非内容生效；
+    负向 7：删除 CHANGELOG.md 的一处旧写法提及 → exit 1，证明预算双向校验——少于预算即
+      预算已过时，须显式更新而非让阈值悄悄放宽；
+    负向 8：DESIGN.md 移走 → exit 1，命中「DESIGN.md 缺失或为空」；
+    负向 9：仓库内容复制到非 git 目录运行 → exit 1，命中「DI-02 扫描零命中」——
+      git 不可用时 git ls-files 返回空，零命中会被读作「无违规」，判据静默失效且永远绿；
+    负向 10：新增受控文件 Makefile（无文档类扩展名且未显式豁免）→ exit 1，命中「不在
+      扫描范围内且未显式豁免」——防止将来新增格式承载文档引用时静默漏检；
+    十条复原后均 exit 0
   review: "作者 agent 自审（ai-git-workflow §5.2）"
   runtime: >-
     库部署目标不受影响——本 Task 未改动 skills/forge-loop/ 下任何文件，
@@ -59,8 +70,18 @@ assertions:
       另断言 DESIGN.md 存在且非空。白名单为单一来源，由 DI02_EXEMPT 一处定义。
       四条负向验证见 T-31 条目的 tests 字段；其中负向 4 针对的是判据自身的失效模式。
     note: >-
-      该组在初版实现中因 Python 插入脚本时把 \0 转义写成真实 NUL 字节而失效——
-      grep 将脚本判为 binary，扫描静默产出零命中。发现方式是负向测试未触发，
-      而非正向测试失败。此类「断言自身失效」是 T-20 为 audit-state-probe 设
-      「T-20 勾选后文件缺失判 FAIL」同类防护的动机：正向通过不证明判据有效，
-      必须配至少一条会因判据失效而变红的负向。
+      该组在实现过程中三次静默失效，均由负向测试而非正向测试暴露：
+
+      1. Python 插入脚本时把 \0 转义写成真实 NUL 字节——grep 将脚本判为 binary，
+         扫描零命中却读作「无违规」。发现方式是负向测试未触发。
+      2. 改用「按次数预算」时用 `printf | while read` 输出违规文件——管道让 while
+         循环跑在子 shell，循环内 fail=$((fail+1)) 回不到父 shell，FAIL 行照常打印
+         而汇总仍是 0 fail 且 exit 0。发现方式是复跑时 FAIL 行数与汇总计数不一致。
+      3. 白名单最初是整文件豁免，CLAUDE.md 与 rules/git-integration.md 被整档放过——
+         往这两个文件注入旧写法后自检仍 exit 0，而它们恰是承载「一律用 DESIGN.md」
+         这条约定本身、最可能被重新引入该缺陷的文件。即「Evidence 称旧写法重新出现
+         即 exit 1」这句断言对它们为假。由独立 Code Review 发现。
+
+      三次失效同属一类：断言的失效模式与被断言对象的失效模式同等重要。
+      只测「有违规时会不会红」不够，还要测「判据自己跑不起来时会不会红」——
+      这也是 T-20 为 audit-state-probe 设「T-20 勾选后文件缺失判 FAIL」防护的同一动机。
