@@ -246,4 +246,4 @@ git add → git commit → push 分支 → 开 PR → squash 合并
 
 统一的是引用方，文件名以磁盘现状为准（`AGENTS.md` §5「Design Is The Single Authority」）。自检组 11 对此设断言，改回旧写法即 `exit 1`。
 
-历史记录类文件（`CHANGELOG.md`、`doc/INITIAL-DELIVERY.md`、`doc/design/spac-001-detailed-design.md`、`doc/audits/repository-audit.md`、`doc/requirements/brainstorming-results.md`）保留旧写法并列入自检豁免——它们描述的是当时的事实，改写会篡改记录。
+历史记录类文件（`CHANGELOG.md`、`.ai/forgeloop-phase3/evidence.yaml`、`doc/INITIAL-DELIVERY.md`、`doc/design/spac-001-detailed-design.md`、`doc/audits/repository-audit.md`、`doc/requirements/brainstorming-results.md`）保留旧写法并列入自检豁免——它们描述的是当时的事实，改写会篡改记录。

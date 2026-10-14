@@ -729,7 +729,7 @@ fi
 echo
 echo "== 11. 设计文档引用路径（DI-02）=="
 DI02_PATTERN="ForgeLoop[.]DESIGN[.]md"
-DI02_EXEMPT="CHANGELOG.md|doc/INITIAL-DELIVERY.md|doc/design/spac-001-detailed-design.md|doc/audits/repository-audit.md|doc/requirements/brainstorming-results.md|scripts/check-forge-loop.sh|rules/git-integration.md|CLAUDE.md"
+DI02_EXEMPT="CHANGELOG.md|.ai/forgeloop-phase3/evidence.yaml|doc/INITIAL-DELIVERY.md|doc/design/spac-001-detailed-design.md|doc/audits/repository-audit.md|doc/requirements/brainstorming-results.md|scripts/check-forge-loop.sh|rules/git-integration.md|CLAUDE.md"
 # 扫描范围：仓库内全部受版本控制的 .md/.yaml/.sh，剔除白名单。
 # 用 git ls-files 而非 find——未跟踪文件（含 .ai/ 运行态与 logs/）不属文档基线。
 # 本仓库文件名不含换行，故直接用换行分隔输出，不依赖 -z / NUL 转义。

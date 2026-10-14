@@ -211,7 +211,8 @@ DESIGN.md
 `rules/forge-loop-development.md`）已统一为 `DESIGN.md`。
 
 历史记录类文件保留原写法，因其描述的是当时的事实而非可操作指引：
-`CHANGELOG.md`（按定义即版本变更的历史记录）、`doc/INITIAL-DELIVERY.md`（初始交付稿）、
+`CHANGELOG.md`（按定义即版本变更的历史记录）、`.ai/forgeloop-phase3/evidence.yaml`（T-31 的
+Evidence 记录该判据本身）、`doc/INITIAL-DELIVERY.md`（初始交付稿）、
 `doc/design/spac-001-detailed-design.md`（ADR-007 冻结的第一阶段设计）、
 `doc/audits/repository-audit.md` 与 `doc/requirements/brainstorming-results.md`（审计发现记录）。
 结构化自检组 11 按同一白名单区分这两类，见该组的豁免清单。

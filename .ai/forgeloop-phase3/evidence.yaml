@@ -51,7 +51,7 @@ assertions:
     status: passed
     evidence: >-
       自检第 11 组。扫描对象 = git ls-files 的 .md/.yaml/.sh，剔除 7 项路径白名单
-      （CHANGELOG.md、doc/INITIAL-DELIVERY.md、doc/design/spac-001-detailed-design.md、
+      （CHANGELOG.md、.ai/forgeloop-phase3/evidence.yaml（本文件）、doc/INITIAL-DELIVERY.md、doc/design/spac-001-detailed-design.md、
       doc/audits/repository-audit.md、doc/requirements/brainstorming-results.md、
       scripts/check-forge-loop.sh、rules/git-integration.md、CLAUDE.md）；
       另断言 DESIGN.md 存在且非空。白名单为单一来源，由 DI02_EXEMPT 一处定义。
