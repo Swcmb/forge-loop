@@ -729,20 +729,56 @@ fi
 echo
 echo "== 11. 设计文档引用路径（DI-02）=="
 DI02_PATTERN="ForgeLoop[.]DESIGN[.]md"
-DI02_EXEMPT="CHANGELOG.md|.ai/forgeloop-phase3/evidence.yaml|doc/INITIAL-DELIVERY.md|doc/design/spac-001-detailed-design.md|doc/audits/repository-audit.md|doc/requirements/brainstorming-results.md|scripts/check-forge-loop.sh|rules/git-integration.md|CLAUDE.md"
+# 白名单按「文件 → 允许命中次数」定义，**不是整文件豁免**。
+# 整文件豁免会把承载约定本身的活文件（CLAUDE.md、rules/git-integration.md）一起放过：
+# 它们各含 1 处「历史写法」是描述该约定所必需，但新增第 2 处就是活引用回归，
+# 而整档豁免对这种回归完全无感——判据对最可能被重新引入缺陷的两个文件形同虚设。
+# 改为次数预算后：命中数须与预算**双向相等**。多于预算 = 新增违规；少于预算 = 该文件
+# 已被改动而预算过时，须显式更新预算而非让阈值悄悄放宽。
+# 键为字面量路径而非正则片段，因此路径里的 . 无需转义，也不存在同名变体被误放行的风险。
+DI02_BUDGET_CL=1                     # CLAUDE.md：约定说明中的历史写法提及
+DI02_BUDGET_GI=1                     # rules/git-integration.md：§10 的历史写法说明
+DI02_BUDGET_CHANGELOG=1              # CHANGELOG.md：Keep a Changelog 条目须写出旧写法
+DI02_BUDGET_EVIDENCE=1               # .ai/forgeloop-phase3/evidence.yaml：本判据的记录（tests 与 note 各提及一次）
+DI02_BUDGET_SCRIPT=1                 # scripts/check-forge-loop.sh：DI02_PATTERN 与注释各一处
+DI02_BUDGET_INITIAL=15               # doc/INITIAL-DELIVERY.md：初始交付稿 + T-31 顶部注记
+DI02_BUDGET_SPAC001=1                # doc/design/spac-001-detailed-design.md：§7 缺陷登记（ADR-007 冻结）
+DI02_BUDGET_REPAUDIT=1               # doc/audits/repository-audit.md：§7 审计发现记录
+DI02_BUDGET_BRAINSTORM=1             # doc/requirements/brainstorming-results.md：DI-02 行
+di02_budget_for() {
+  case "$1" in
+    CLAUDE.md)                            echo "$DI02_BUDGET_CL" ;;
+    rules/git-integration.md)             echo "$DI02_BUDGET_GI" ;;
+    CHANGELOG.md)                         echo "$DI02_BUDGET_CHANGELOG" ;;
+    .ai/forgeloop-phase3/evidence.yaml)   echo "$DI02_BUDGET_EVIDENCE" ;;
+    scripts/check-forge-loop.sh)          echo "$DI02_BUDGET_SCRIPT" ;;
+    doc/INITIAL-DELIVERY.md)              echo "$DI02_BUDGET_INITIAL" ;;
+    doc/design/spac-001-detailed-design.md) echo "$DI02_BUDGET_SPAC001" ;;
+    doc/audits/repository-audit.md)       echo "$DI02_BUDGET_REPAUDIT" ;;
+    doc/requirements/brainstorming-results.md) echo "$DI02_BUDGET_BRAINSTORM" ;;
+    *)                                    echo "" ;;
+  esac
+}
 # 扫描范围：仓库内全部受版本控制的 .md/.yaml/.sh，剔除白名单。
 # 用 git ls-files 而非 find——未跟踪文件（含 .ai/ 运行态与 logs/）不属文档基线。
+# 代价：新写的文档须先入库才受本组检查，这是有意取舍，已在结果行标注扫描基线。
 # 本仓库文件名不含换行，故直接用换行分隔输出，不依赖 -z / NUL 转义。
 di02_hits=""
 di02_scanned=0
 while IFS= read -r f; do
   [ -z "$f" ] && continue
   di02_scanned=$((di02_scanned + 1))
-  # 豁免判定走正则整体匹配 DI02_EXEMPT，不做逐项 case 列举——
-  # 两份清单一旦分开维护，改白名单漏改其中一处就是静默失守。
-  printf '%s\n' "$f" | grep -qE "^($DI02_EXEMPT)$" && continue
-  if grep -q "$DI02_PATTERN" "$ROOT/$f" 2>/dev/null; then
-    di02_hits="$di02_hits$f "
+  budget="$(di02_budget_for "$f")"
+  if [ -n "$budget" ]; then
+    actual="$(grep -c "$DI02_PATTERN" "$ROOT/$f" 2>/dev/null)"
+    actual="${actual:-0}"
+    if [ "$actual" -ne "$budget" ]; then
+      di02_hits="$di02_hits$f|预算=$budget|实际=$actual
+"
+    fi
+  elif grep -q "$DI02_PATTERN" "$ROOT/$f" 2>/dev/null; then
+    di02_hits="$di02_hits$f|无预算
+"
   fi
 done < <(git -C "$ROOT" ls-files -- '*.md' '*.yaml' '*.yml' '*.sh' 2>/dev/null)
 # 扫描产出下界：git 不可用、路径不在仓库内、或通配符写错，都会让 ls-files 返回空，
@@ -751,12 +787,35 @@ if [ "$di02_scanned" -eq 0 ]; then
   bad "DI-02 扫描零命中：git ls-files 未产出任何 .md/.yaml/.sh（git 不可用、路径非仓库、或通配符失效）——判据未生效，不得读作无违规"
 else
   if [ -z "$di02_hits" ]; then
-    ok "活引用文档无 ForgeLoop.DESIGN.md 写法（扫描 $di02_scanned 个文件，历史记录类文件除外）"
+    ok "设计文档引用路径合规（扫描基线 = 已跟踪文件，共 $di02_scanned 个；白名单按命中数预算双向相等）"
   else
-    for f in $di02_hits; do
-      bad "活引用文档仍写 ForgeLoop.DESIGN.md：$f（磁盘实际文件名为 DESIGN.md，rules/git-integration.md §10）"
-    done
+    # here-string 而非管道：管道会把 while 循环放进子 shell，循环内的 fail=$((fail+1))
+    # 回不到父 shell——FAIL 行照常打印，汇总却仍是 0 fail 且 exit 0，判据静默失效。
+    while IFS= read -r f; do
+      [ -z "$f" ] && continue
+      bad "设计文档引用路径违规：$f —— 非白名单文件含旧写法，或白名单文件命中数与预算不等（多于=新增活引用，少于=预算过时须显式更新）。磁盘实际文件名为 DESIGN.md，见 rules/git-integration.md §10"
+    done <<< "$di02_hits"
   fi
+fi
+# 扫描范围外的受控文件必须显式豁免。git ls-files 只取 .md/.yaml/.yml/.sh，将来引入
+# .json/.txt/Makefile 承载文档时会静默漏检——通配符外的文件默认「没人认为它算文档」，
+# 而这个默认没人复核。列出并要求显式登记，格式新增时即可见。
+DI02_OUT_OF_SCOPE="VERSION|.gitattributes|.gitignore"
+di02_others=""
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  case "$f" in
+    *.md|*.yaml|*.yml|*.sh) continue ;;
+  esac
+  case "|$DI02_OUT_OF_SCOPE|" in
+    *"|$f|"*) continue ;;
+  esac
+  di02_others="$di02_others$f "
+done < <(git -C "$ROOT" ls-files 2>/dev/null)
+if [ -z "$di02_others" ]; then
+  ok "扫描范围外的受控文件均已显式豁免（VERSION / .gitattributes / .gitignore）"
+else
+  bad "以下受控文件不在 DI-02 扫描范围内且未显式豁免——若将来新增该格式承载文档引用，会静默漏检：$di02_others"
 fi
 # 磁盘实存性：DESIGN.md 必须真实存在，否则上面的路径约定指向空处。
 if [ -s "$ROOT/DESIGN.md" ]; then
