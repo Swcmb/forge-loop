@@ -51,7 +51,7 @@ checkpoint:
                                                      # 当前 Goal。跨 Goal 切换时 CP-009
                                                      # 的归属不因后续 Goal 建立而改写
   task: {id: T-32}
-  git: {commit: "pending: T-32 merge"}               # §11.2 占位值；下一个 commit 回填
+  git: {commit: "c6391c3"}                             # §11.2 回填；PR #23 squash merge
   spec: {version: "SPEC-2026-10-13.0.1.0"}           # §53 原字段名；T-21 D 演练产出
   progress:
     # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status **合计**一致，由自检 8c 组的
@@ -95,7 +95,7 @@ checkpoint:
     - {id: CP-009, git_commit: "37c5f83", task: T-15, note: "PR Swcmb/forge-loop#15 squash merge"}
     - {id: CP-010, git_commit: "ac4a6b7", task: T-30, note: "Goal FL-002 收口；PR #20 squash merge；tag v1.0.0 指向该 commit"}
     - {id: CP-011, git_commit: "f2a0fa1", task: T-31, note: "DI-02 处置；PR #22 squash merge"}
-    - {id: CP-012, git_commit: "pending: T-32 merge", task: T-32, note: "Goal FL-003 收口；§11.2 占位值，由下一个 commit 回填"}
+    - {id: CP-012, git_commit: "c6391c3", task: T-32, note: "Goal FL-003 收口；PR #23 squash merge"}
 
 blockers:
   - id: BL-001
