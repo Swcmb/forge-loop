@@ -38,6 +38,7 @@ doc/DEVELOPMENT.md / PROJECT-CONSTRAINTS.md / WORKSPACE-NAMESPACE.md / INITIAL-D
 .ai/                       ForgeLoop 自身运行状态（§79，Owner = FORGELOOP）
 .ai/forgeloop-phase1/      第一阶段 Goal FL-001 的工件（已冻结）
 .ai/forgeloop-phase2/      第二阶段 Goal FL-002 的工件
+.ai/forgeloop-phase3/      第三阶段 Goal FL-003 的工件（DI-02 处置）
 src/  tests/               空目录（git 不跟踪空目录，clone 后不存在）
 ```
 
