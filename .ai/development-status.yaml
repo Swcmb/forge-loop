@@ -7,7 +7,13 @@ goal:
   id: FL-002
   title: ForgeLoop 第二阶段 D/E/L/M/N 收口与 Goal 收口
   scope_ref: doc/decisions/ADR-007-phase2-scope.md      # §109 的 D/E/L/M/N + B-03
-  design_ref: doc/design/spac-002-detailed-design.md    # T-21 产出；本字段在其落盘前为待建
+  design_ref: doc/design/spac-002-detailed-design.md    # T-21 产出（SPEC-2026-10-13.0.1.0）
+  plan_ref: doc/plans/spac-002-implementation-plan.md   # T-21 产出（PLAN-r1）
+  closed_by: T-30                                       # Goal 收口 Task
+  closeout: doc/audits/phase2/goal-closeout.md          # §94 九项 + §15 六项 + I-007/I-008
+  # FL-002 于 T-30 收口：ADR-007 §2 登记的三类承接元素全部解除——
+  # I-007/I-008（§108 不变量）、D/E/L/M/N（§109 能力）、B-03（版本缺陷）。
+  # Goal FL-001 承接自本 Goal 的未覆盖部分至此清零（mvp-acceptance.md §5 的清单）。
   prev:
     id: FL-001
     title: ForgeLoop 第一阶段端到端闭环 MVP
@@ -24,14 +30,14 @@ goal:
     # ADR-007 §2（REQ-D/REQ-E/REQ-L/REQ-M/REQ-N 是一一对应的正式 Requirement ID）。
     carried_over: [I-007, I-008, D, E, L, M, N, B-03]
 
-phase: RELEASE_READY                                   # DESIGN.md §106（T-29 九项全过后进入 §72）
+phase: COMPLETE                                       # DESIGN.md §106（T-30 收口）
 mode: GOAL                                             # /goal 已激活（本会话），Goal Mode
 
 task:
-  current: T-29                                          # N 真实演练：Release
-  status: complete                                       # §72 九项全过，CHANGELOG 产出，VERSION 定为 1.0.0
-  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15, T-16, T-17, T-18, T-19, T-20, T-21, T-22, T-23, T-24, T-25, T-26, T-27, T-28, T-29]
-  next: T-30                                             # Phase 2 Final Audit + Goal 收口
+  current: T-30                                          # Phase 2 Final Audit + Goal 收口
+  status: complete                                       # §94 九项 + §15 六项全 PASS，overall 转 complete
+  prev: [T-01, T-02, T-03, T-04, T-05, T-06, T-07, T-08, T-09, T-09b, T-10a, T-10b-EXEC-1, T-10b-EXEC-2, T-11, T-12, T-13, T-14, T-15, T-16, T-17, T-18, T-19, T-20, T-21, T-22, T-23, T-24, T-25, T-26, T-27, T-28, T-29, T-30]
+  next: 无（FL-002 已收口；后续变更进入新的 Goal）
 
 iteration:
   current: ITER-003                                    # §49。FL-002 的首个 Iteration：
@@ -40,19 +46,19 @@ iteration:
   task_seq_note: >-
     口径分离：task_seq 计入**本 Goal 内**已完成的 Task 数，故 FL-002 从 1 起算；
     Task ID（T-16 起）跨 Goal 连续不重编，避免同一份产物出现两个 Task 身份。
-  global_task_seq: 31                            # 全项目累计已完成 Task 数（跨 Goal）
+  global_task_seq: 32                            # 全项目累计已完成 Task 数（跨 Goal）
 
 checkpoint:
-  last: CP-009
-  id: CP-009
-  goal: {id: FL-001}                                # CP-009 由 FL-001 形成，故仍记 FL-001
-  iteration: {id: ITER-002}                         # 同上——Checkpoint 记录的是「形成它
+  last: CP-010
+  id: CP-010
+  goal: {id: FL-002}                                # CP-010 由 FL-002 形成
+  iteration: {id: ITER-003}                         # 同上——Checkpoint 记录的是「形成它
                                                      # 的那个 Goal 与 Iteration」，不是
                                                      # 当前 Goal。跨 Goal 切换时 CP-009
                                                      # 的归属不因后续 Goal 建立而改写
-  task: {id: T-15}
-  git: {commit: "37c5f83"}                              # §53 原字段名；PR Swcmb/forge-loop#15 squash
-  spec: {version: "absent: not-started"}               # §53 原字段名；第一阶段 SPEC 不在范围
+  task: {id: T-30}
+  git: {commit: "pending: T-30 merge"}               # §11.2 占位值；下一个 commit 回填
+  spec: {version: "SPEC-2026-10-13.0.1.0"}           # §53 原字段名；T-21 D 演练产出
   progress:
     # 计数须与 .ai/<feature>/requirement-matrix.yaml 的 status **合计**一致，由自检 8c 组的
     # CK-13 跨文件核对。第二迭代起 .ai/ 下有多个 feature 目录，checkpoint 仍是单一的
@@ -61,11 +67,15 @@ checkpoint:
     # VERIFIED（5）。phase2 的五条在 T-29 Release Gate 逐项核对时随 §58 状态机翻转——
     # 每条的八字段 Evidence 见 .ai/forgeloop-phase2/evidence.yaml。
     requirements: {total: 14, verified: 14, reviewing: 0, pending: 0}
-  note: T-15 结构自检 + 全闭环证据汇总完成。第一阶段收口：V-00～V-13 全部 14 条 passed，
-        §108 的 I-001～I-006 / I-009 / I-010 全部成立（I-003/I-004 为本 Task 机械扫描
-        首次核对，此前是推断），自检 85/85。项目级 Goal 未收口——I-007/I-008、Final Audit、
-        Version State Valid 均依赖 L 与 B-03，ADR-002 延后至第二迭代。
-        下一 Task = T-16（Phase 2 范围裁定）
+  note: T-30 Phase 2 Final Audit + Goal 收口完成。§94 完成模型九项全 PASS，AGENTS.md §15
+        六项全 PASS；I-007（Final Audit 对照 source requirements）与 I-008（Required
+        Requirement 未全 verified 时 Goal 不可 complete）的判据落盘于
+        doc/audits/phase2/goal-closeout.md。I-008 的兜底是可执行断言——CK-13 跨两个
+        requirement-matrix 聚合 status 分布与 checkpoint.progress.requirements 比对。
+        ADR-007 §2 登记的三类承接元素（I-007/I-008、D/E/L/M/N、B-03）全部解除，
+        mvp-acceptance.md §5 的未覆盖清单清零。verification.overall 转 complete。
+        自检 103/0/0；VERSION=1.0.0（§4.4 adoption 条件判定）；v1.0.0 tag 指向本 Task
+        的收口 commit。FL-002 无下一 Task。
   convention: >-
     git_commit 的取值口径、占位值词表（pending: <taskID> merge）、回填时同步
     git.head 的要求，见 rules/git-integration.md §11。本字段仅留指针，规则条文
@@ -86,6 +96,7 @@ checkpoint:
     - {id: CP-007, git_commit: "5450675", task: T-13, note: "PR Swcmb/forge-loop#13 squash merge；§11.2 回填后建立"}
     - {id: CP-008, git_commit: "972a9fa", task: T-14, note: "PR Swcmb/forge-loop#14 squash merge"}
     - {id: CP-009, git_commit: "37c5f83", task: T-15, note: "PR Swcmb/forge-loop#15 squash merge"}
+    - {id: CP-010, git_commit: "pending: T-30 merge", task: T-30, note: "Goal FL-002 收口；§11.2 占位值，由下一个 commit 回填"}
 
 blockers:
   - id: BL-001
@@ -103,6 +114,10 @@ verification:
   #                   但项目级 Goal 未收口——I-007/I-008、Final Audit、Version State Valid
   #                   均依赖 §109 的 L 与 B-03
   #   complete        项目级收口（L/M/N 全部交付且 B-03 解除），Phase 2 达成
-  overall: phase-1-closed
+  #
+  # 时点：T-30 于 2026-10-13 转入 complete。收口审计见
+  # doc/audits/phase2/goal-closeout.md（§94 九项 + AGENTS.md §15 六项 + I-007/I-008 判据落盘）。
+  overall: complete
   passed: [V-00, V-01, V-02, V-03, V-04, V-05, V-06, V-07, V-08, V-09, V-10, V-11, V-12, V-13]
   pending: []
+  phase2_requirements: [REQ-D, REQ-E, REQ-L, REQ-M, REQ-N]   # 全部 VERIFIED，evidence 见 .ai/forgeloop-phase2/evidence.yaml（12 条）

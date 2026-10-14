@@ -128,6 +128,58 @@ t22_t23_audit_contract:
   acceptance: "AC-L1～L5 / AC-M1～M5 契约承载达成；真实演练在 T-27/T-28"
   status: verified
 
+t30_goal_closeout:
+  requirement: "工程目标（收口）——DESIGN.md §94 的完成模型"
+  task: T-30
+  source: "DESIGN.md §94、§108 I-007/I-008；AGENTS.md §15；doc/audits/mvp-acceptance.md §5"
+  spec: "D/E/L/M/N 五项各有独立 AC 与证据；AGENTS.md §15 六项全部满足；verification.overall 转 complete"
+  implementation: >-
+    doc/audits/phase2/goal-closeout.md：§94 九项逐项核对 + AGENTS.md §15 六项对照 +
+    I-007 / I-008 判据落盘；development-status 的 verification.overall 由 phase-1-closed 转 complete；
+    补登 phase2 evidence 的 T-27 / T-28 两条（此前遗漏），全量 12 条均 verified
+  tests: >-
+    §94 九项全 PASS；§15 六项全 PASS；I-008 兜底可执行——checkpoint.progress.requirements.pending == 0
+    由自检 CK-13 跨两个 matrix 聚合断言，误改任一侧即 FAIL；
+    自检 scripts/check-forge-loop.sh → 103/0/0 exit 0
+  review: "作者 agent 自审（ai-git-workflow §5.2）"
+  runtime: "库部署目标一致；VERSION=1.0.0 与 frontmatter 一致"
+  acceptance: "Goal FL-002 收口；FL-001 承接的 I-007/I-008 与 D/E/L/M/N、B-03 全部解除"
+  status: verified
+
+t27_l_drill:
+  requirement: "REQ-L"
+  task: T-27
+  source: "DESIGN.md §66–§69、§67；audit-model.md §1–§6"
+  spec: "Matrix 九列齐全；行集合 = required；§68 四维各有结论；结论逐条回指 SRC"
+  implementation: >-
+    doc/audits/phase2/final-audit.md（§66 触发记录 + §67 Matrix + §68 四维 + §69 登记）、
+    final-audit-matrix.md（逐 REQ 的 AC 清单与八列取证明细）、spec-review.md（§25 三条件核对）；
+    audit-state.yaml 的 spec_review 与 final_document_audit 转 passed
+  tests: >-
+    Matrix 行集合 14 条 = phase1 的 REQ-001～009 + phase2 的 REQ-D/E/L/M/N（与 CK-13 的
+    required 聚合一致）；§68 四维各有结论且逐条回指 SRC 编号
+  review: "作者 agent 自审"
+  runtime: "库部署目标经 manage-skills 同步"
+  acceptance: "AC-L1～L5 达成"
+  status: verified
+
+t28_m_drill:
+  requirement: "REQ-M"
+  task: T-28
+  source: "DESIGN.md §96、§97；audit-model.md §7–§8"
+  spec: "至少产生一条 Finding；Finding → Remediation Task → 三层 Gate → Commit 全链证据；复审轮次递增且结论翻转"
+  implementation: >-
+    doc/audits/phase2/repair-loop-record.md：Final Audit Failure 真实触发 1 次——
+    T-27 初稿 Matrix 只覆盖 phase2 的 5 条 required，漏 phase1 的 9 条（I-008 口径与 Goal 边界无关）；
+    §69 Missing 登记 → Remediation Task → 回 ITERATIVE_DEVELOPMENT → Matrix 扩为 14 行 → round 2 PASS
+  tests: >-
+    Finding 链完整（Missing 登记 → Remediation → Iteration → 复审）；复审轮次 1→2 递增可追溯、
+    结论 FAIL→PASS 翻转；BLOCKED 未触发（§97 五类外部不可控情形均未命中），与 §96 修复路径互斥
+  review: "作者 agent 自审"
+  runtime: "同轮自检 103/0/0 exit 0"
+  acceptance: "AC-M1～AC-M4 达成（AC-M5 的 BLOCKED 互斥判据由 audit-model.md §8 承载并在本轮核对）"
+  status: verified
+
 t29_release_drill:
   requirement: "REQ-N"
   task: T-29
