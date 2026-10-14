@@ -33,7 +33,9 @@ t31_di02_reference_paths:
     负向 1：CONTRIBUTING.md 追加旧写法 → exit 1，命中「活引用文档仍写 ForgeLoop.DESIGN.md」；
     负向 2：白名单文件 git mv 到非白名单路径 → exit 1，证明白名单按路径而非内容生效；
     负向 3：DESIGN.md 移走 → exit 1，命中「DESIGN.md 缺失或为空」；
-    三条复原后均 exit 0
+    负向 4：仓库内容复制到非 git 目录运行 → exit 1，命中「DI-02 扫描零命中」——
+      git 不可用时 git ls-files 返回空，零命中会被读成「无违规」，判据静默失效且永远绿；
+    四条复原后均 exit 0
   review: "作者 agent 自审（ai-git-workflow §5.2）"
   runtime: >-
     库部署目标不受影响——本 Task 未改动 skills/forge-loop/ 下任何文件，
@@ -55,7 +57,7 @@ assertions:
       doc/audits/repository-audit.md、doc/requirements/brainstorming-results.md、
       scripts/check-forge-loop.sh、rules/git-integration.md、CLAUDE.md）；
       另断言 DESIGN.md 存在且非空。白名单为单一来源，由 DI02_EXEMPT 一处定义。
-      三条负向验证见 T-31 条目的 tests 字段。
+      四条负向验证见 T-31 条目的 tests 字段；其中负向 4 针对的是判据自身的失效模式。
     note: >-
       该组在初版实现中因 Python 插入脚本时把 \0 转义写成真实 NUL 字节而失效——
       grep 将脚本判为 binary，扫描静默产出零命中。发现方式是负向测试未触发，
