@@ -1,4 +1,9 @@
 # ForgeLoop Development
+## 镜像注记
+
+> 本文件是人类可读摘要，非权威条文。条文以 `rules/*.md` 为准，冲突时以 rules/ 为准；
+> 新增/修改判定能力只在 rules/ 侧落地，本文件随 Checkpoint 周期同步。
+
 
 ## 1. Project Ownership
 
