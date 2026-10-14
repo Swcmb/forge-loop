@@ -734,22 +734,29 @@ DI02_EXEMPT="CHANGELOG.md|.ai/forgeloop-phase3/evidence.yaml|doc/INITIAL-DELIVER
 # 用 git ls-files 而非 find——未跟踪文件（含 .ai/ 运行态与 logs/）不属文档基线。
 # 本仓库文件名不含换行，故直接用换行分隔输出，不依赖 -z / NUL 转义。
 di02_hits=""
+di02_scanned=0
 while IFS= read -r f; do
   [ -z "$f" ] && continue
+  di02_scanned=$((di02_scanned + 1))
   # 豁免判定走正则整体匹配 DI02_EXEMPT，不做逐项 case 列举——
   # 两份清单一旦分开维护，改白名单漏改其中一处就是静默失守。
-  printf '%s
-' "$f" | grep -qE "^($DI02_EXEMPT)$" && continue
+  printf '%s\n' "$f" | grep -qE "^($DI02_EXEMPT)$" && continue
   if grep -q "$DI02_PATTERN" "$ROOT/$f" 2>/dev/null; then
     di02_hits="$di02_hits$f "
   fi
 done < <(git -C "$ROOT" ls-files -- '*.md' '*.yaml' '*.yml' '*.sh' 2>/dev/null)
-if [ -z "$di02_hits" ]; then
-  ok "活引用文档无 ForgeLoop.DESIGN.md 写法（历史记录类文件除外）"
+# 扫描产出下界：git 不可用、路径不在仓库内、或通配符写错，都会让 ls-files 返回空，
+# 于是「零命中」被读成「无违规」——断言静默失效且永远绿。零扫描必须判 FAIL。
+if [ "$di02_scanned" -eq 0 ]; then
+  bad "DI-02 扫描零命中：git ls-files 未产出任何 .md/.yaml/.sh（git 不可用、路径非仓库、或通配符失效）——判据未生效，不得读作无违规"
 else
-  for f in $di02_hits; do
-    bad "活引用文档仍写 ForgeLoop.DESIGN.md：$f（磁盘实际文件名为 DESIGN.md，rules/git-integration.md §10）"
-  done
+  if [ -z "$di02_hits" ]; then
+    ok "活引用文档无 ForgeLoop.DESIGN.md 写法（扫描 $di02_scanned 个文件，历史记录类文件除外）"
+  else
+    for f in $di02_hits; do
+      bad "活引用文档仍写 ForgeLoop.DESIGN.md：$f（磁盘实际文件名为 DESIGN.md，rules/git-integration.md §10）"
+    done
+  fi
 fi
 # 磁盘实存性：DESIGN.md 必须真实存在，否则上面的路径约定指向空处。
 if [ -s "$ROOT/DESIGN.md" ]; then
