@@ -33,7 +33,7 @@ doc/
 ForgeLoop 系统设计：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 当前 Design Version：

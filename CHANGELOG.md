@@ -47,6 +47,14 @@ A～N 全部十三项能力，解除 B-03，并收口 Goal FL-001 / FL-002。
 
 ## [Unreleased]
 
-无。
+### Fixed
+
+- **DI-02**（设计文档引用路径不一致）：文档正文曾将设计文档写作 `ForgeLoop.DESIGN.md`，磁盘实际文件名为 `DESIGN.md`，导致引用指向不存在的文件。12 处活引用已统一（`AGENTS.md`、`CONTRIBUTING.md`、`README.md`、`doc/DEVELOPMENT.md`、`doc/PROJECT-CONSTRAINTS.md`、`rules/version-management.md`、`rules/forge-loop-development.md`）；`rules/git-integration.md` §10 与 `CLAUDE.md` 改写为已落定约定。历史记录类文件（初始交付稿、第一阶段设计、审计与需求记录）按当时的事实保留原写法。
+
+### Added
+
+- 结构化自检第 11 组：断言活引用文档不得出现旧写法，并断言 `DESIGN.md` 磁盘实存。DI-02 的判据从一次性改对升级为可执行断言防回归。
+
+本 Goal（FL-003）不引入新能力，`v1.0.0` 之后的首个变更条目。
 
 <!-- 版本号引用仓库根 VERSION 文件；修改版本号时只改 VERSION，不改本行。 -->

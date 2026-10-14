@@ -41,7 +41,7 @@ Release Version
 设计文档：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 当前版本：

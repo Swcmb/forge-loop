@@ -45,7 +45,7 @@ Goal Complete
 ForgeLoop 的系统设计：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 Design Version：

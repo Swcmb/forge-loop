@@ -9,23 +9,20 @@ project:
                                        # Management §4.4 的 adoption 条件判定首次 Release 版本
 
 goal:
-  id: FL-002                           # 与 development-status.goal.id 同值，由自检 CK-16
-                                       # 逐次核对（§55 schema 在两个文件各记一次 goal.id）。
-                                       # FL-001 于 T-15 收口但未收口 Goal，其未覆盖部分
-                                       # （I-007 / I-008 / L / M / N）由 FL-002 承接。
-                                       # B-03 已于 T-17 解除，不再列入承接范围。
-  closed_by: T-30                                       # 与 development-status.goal.closed_by 同值
-  release: v1.0.0                                       # VERSION 文件的值；tag 在收口 commit 上
+  id: FL-003                           # 与 development-status.goal.id 同值，由自检 CK-16 核对
+                                       # （§55 schema 在两个文件各记一次 goal.id）。
   prev:
-    id: FL-001
-    closed_by: T-15
-    closed_at_commit: "37c5f83"
+    id: FL-002
+    closed_by: T-30
+    closed_at_commit: "ac4a6b7"        # PR #20 squash；tag v1.0.0 指向该 commit
+    release: v1.0.0                    # 本 Goal 期间沿用 v1.0.0，无版本变更
 
 mvp:
   version: "1.0.0"                   # 与 project.version 同源（仓库根 VERSION 文件）
                                    # MVP Scope 已产出：.ai/forgeloop-phase1/mvp-scope.yaml
                                    # 与 .ai/forgeloop-phase2/mvp-scope.yaml（ADR-007 裁定）
-  current_feature: forgeloop-phase2
+  current_feature: forgeloop-phase3                    # 随 FL-003 建立（该字段当前无消费方，
+                                                     # 但指向的目录须与 goal.id 一致以免后续误用）
 
 spec:
   version: "SPEC-2026-10-13.0.1.0"     # T-21 D 演练产出；doc/design/spac-002-detailed-design.md
@@ -34,7 +31,7 @@ plan:
   revision: "PLAN-r1"                 # T-21 E 演练产出；doc/plans/spac-002-implementation-plan.md
 
 iteration:
-  current: ITER-003                   # 与 development-status.iteration.current 同值
+  current: ITER-004                   # 与 development-status.iteration.current 同值
 
 git:
   branch: main

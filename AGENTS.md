@@ -25,7 +25,7 @@ ForgeLoop 是一套面向 Claude Code 的长周期、目标驱动、迭代式软
 ForgeLoop 的系统设计由：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 定义。
@@ -136,7 +136,7 @@ dev-doc/
 ForgeLoop 系统设计以：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 为设计依据。
@@ -158,7 +158,7 @@ Workspace Namespace
 Claude Code 必须结合：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 +
 AGENTS.md
 +
@@ -176,7 +176,7 @@ rules/
 所有设计表述以：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 ```
 
 为准。
@@ -251,7 +251,7 @@ Release Version
 例如：
 
 ```text
-ForgeLoop.DESIGN.md
+DESIGN.md
 Version: 1.0.0
 ```
 

@@ -6,7 +6,7 @@
 
 ```text
 AGENTS.md
-ForgeLoop.DESIGN.md
+DESIGN.md
 rules/
 ```
 
